@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_syntheticsetules"
+    },
+    {
+      "item": "createcybernetics:scavenged_syntheticsetules"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:titaniumnugget",
+      "count": 3
+    }
+  ]
+}

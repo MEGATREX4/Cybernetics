@@ -4,11 +4,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.perigrine3.createcybernetics.CreateCybernetics;
+import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.item.cyberware.arm.ArmCannonItem;
+import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -52,11 +54,7 @@ import net.neoforged.neoforge.common.Tags;
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(
-        modid = CreateCybernetics.MODID,
-        bus = EventBusSubscriber.Bus.GAME,
-        value = Dist.CLIENT
-)
+@EventBusSubscriber(modid = CreateCybernetics.MODID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public final class TrajectoryPreviewClient {
 
     private static final int MAX_STEPS = 120;
@@ -104,8 +102,7 @@ public final class TrajectoryPreviewClient {
         List<Vec3> points = new ArrayList<>(MAX_STEPS + 2);
         HitTarget firstHit = new HitTarget();
 
-        boolean built =
-                tryBuildBow(player, level, partial, points, firstHit)
+        boolean built = tryBuildBow(player, level, partial, points, firstHit)
                         || tryBuildCrossbow(player, level, partial, points, firstHit)
                         || tryBuildTrident(player, level, partial, points, firstHit)
                         || tryBuildHeldThrowable(player, level, partial, points, firstHit)
@@ -853,36 +850,110 @@ public final class TrajectoryPreviewClient {
             return false;
         }
 
-        Item trajectoryCalculator = ModItems.EYEUPGRADES_TRAJECTORYCALCULATOR.get();
-        Item hudjack = ModItems.EYEUPGRADES_HUDJACK.get();
+        InstalledLoc trajectoryCalculator = findInstalled(
+                data,
+                ModItems.EYEUPGRADES_TRAJECTORYCALCULATOR.get(),
+                CyberwareSlot.EYES
+        );
 
-        return hasInstalled(data, trajectoryCalculator)
-                && hasInstalled(data, hudjack);
+        if (trajectoryCalculator == null || !isEnabledIfToggleable(data, trajectoryCalculator)) {
+            return false;
+        }
+
+        return hasWorkingVisualInterface(data);
     }
 
-    private static boolean hasInstalled(PlayerCyberwareData data, Item item) {
-        for (var entry : data.getAll().entrySet()) {
-            InstalledCyberware[] installed = entry.getValue();
+    private static boolean hasWorkingVisualInterface(PlayerCyberwareData data) {
+        InstalledLoc monovision = findInstalled(
+                data,
+                ModItems.EYEUPGRADES_MONOVISION.get(),
+                CyberwareSlot.EYES
+        );
 
-            if (installed == null) {
+        if (monovision != null) {
+            return isEnabledIfToggleable(data, monovision);
+        }
+
+        boolean hasCybereyes = findInstalled(
+                data,
+                ModItems.BASECYBERWARE_CYBEREYES.get(),
+                CyberwareSlot.EYES
+        ) != null
+                || findInstalled(
+                data,
+                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
+                CyberwareSlot.EYES
+        ) != null
+                || findInstalled(
+                data,
+                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
+                CyberwareSlot.EYES
+        ) != null
+                || findInstalled(
+                data,
+                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
+                CyberwareSlot.EYES
+        ) != null
+                || findInstalled(
+                data,
+                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
+                CyberwareSlot.EYES
+        ) != null;
+
+        if (!hasCybereyes) {
+            return false;
+        }
+
+        InstalledLoc hudjack = findInstalled(
+                data,
+                ModItems.EYEUPGRADES_HUDJACK.get(),
+                CyberwareSlot.EYES
+        );
+
+        return hudjack != null && isEnabledIfToggleable(data, hudjack);
+    }
+
+    private static boolean isEnabledIfToggleable(PlayerCyberwareData data, InstalledLoc loc) {
+        if (loc.stack().isEmpty()) {
+            return false;
+        }
+
+        if (!loc.stack().is(ModTags.Items.TOGGLEABLE_CYBERWARE)) {
+            return true;
+        }
+
+        return data.isEnabled(loc.slot(), loc.index());
+    }
+
+    private static InstalledLoc findInstalled(PlayerCyberwareData data, Item item, CyberwareSlot slot) {
+        InstalledCyberware[] installed = data.getAll().get(slot);
+
+        if (installed == null) {
+            return null;
+        }
+
+        for (int index = 0; index < installed.length; index++) {
+            InstalledCyberware cyberware = installed[index];
+
+            if (cyberware == null) {
                 continue;
             }
 
-            for (InstalledCyberware cyberware : installed) {
-                if (cyberware == null) {
-                    continue;
-                }
+            ItemStack stack = cyberware.getItem();
 
-                ItemStack stack = cyberware.getItem();
+            if (stack == null || stack.isEmpty()) {
+                continue;
+            }
 
-                if (!stack.isEmpty() && stack.getItem() == item) {
-                    return true;
-                }
+            if (stack.getItem() == item) {
+                return new InstalledLoc(slot, index, stack);
             }
         }
 
-        return false;
+        return null;
     }
+
+    private record InstalledLoc(CyberwareSlot slot, int index, ItemStack stack) {}
 
     public static void setExternallyEnabled(boolean enabled) {
         externalEnable = enabled;

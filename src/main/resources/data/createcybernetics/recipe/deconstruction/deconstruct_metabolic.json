@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_metabolic"
+    },
+    {
+      "item": "createcybernetics:scavenged_metabolic"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    }
+  ]
+}

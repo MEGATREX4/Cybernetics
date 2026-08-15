@@ -252,6 +252,12 @@ public final class ModPayloads {
                 )
         );
 
+        r.playToClient(
+                CyberwareRejectionVisualPayload.TYPE,
+                CyberwareRejectionVisualPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> CyberwareRejectionVisualPayload.handle(payload))
+        );
+
         r.playToServer(
                 NavigationMapPayloads.RequestMapImportPayload.TYPE,
                 NavigationMapPayloads.RequestMapImportPayload.STREAM_CODEC,

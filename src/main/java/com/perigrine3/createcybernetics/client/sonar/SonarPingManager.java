@@ -9,6 +9,10 @@ import java.util.List;
 public final class SonarPingManager {
     public static final int MAX_PINGS = 16;
 
+    private static final double DUPLICATE_DISTANCE = 0.35D;
+    private static final double DUPLICATE_DISTANCE_SQR = DUPLICATE_DISTANCE * DUPLICATE_DISTANCE;
+    private static final long DUPLICATE_WINDOW_NANOS = 75_000_000L;
+
     private static final Object LOCK = new Object();
     private static final ArrayList<Ping> PINGS = new ArrayList<>(MAX_PINGS);
 
@@ -34,6 +38,24 @@ public final class SonarPingManager {
 
         synchronized (LOCK) {
             pruneInvalidEntriesLocked();
+
+            for (int i = PINGS.size() - 1; i >= 0; i--) {
+                Ping ping = PINGS.get(i);
+
+                if (ping == null) {
+                    continue;
+                }
+
+                long age = now - ping.timeNanos;
+
+                if (age > DUPLICATE_WINDOW_NANOS) {
+                    break;
+                }
+
+                if (ping.worldPos.distanceToSqr(worldPos) <= DUPLICATE_DISTANCE_SQR) {
+                    return;
+                }
+            }
 
             while (PINGS.size() >= MAX_PINGS) {
                 PINGS.remove(0);
@@ -66,6 +88,7 @@ public final class SonarPingManager {
 
             for (int i = size - 1; i >= 0; i--) {
                 Ping ping = PINGS.get(i);
+
                 if (isValidPing(ping)) {
                     out.add(ping);
                 }

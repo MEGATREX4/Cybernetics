@@ -1,13 +1,14 @@
 package com.perigrine3.createcybernetics.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.perigrine3.createcybernetics.CreateCybernetics;
-import net.neoforged.api.distmarker.Dist;
+import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
+import com.perigrine3.createcybernetics.network.payload.CybereyeIrisSyncC2SPayload;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.nbt.CompoundTag;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.common.util.Lazy;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.io.Reader;
 import java.io.Writer;
@@ -21,181 +22,220 @@ public final class CybereyeIrisConfigClient {
 
     private CybereyeIrisConfigClient() {}
 
-    public enum Eye { LEFT, RIGHT }
-
-    public enum IrisSize {
-        ONE_BY_ONE(1, 1, "1x1"),
-        ONE_BY_TWO(1, 2, "1x2"),
-        TWO_BY_TWO(2, 2, "2x2");
-
-        public final int w;
-        public final int h;
-        public final String id;
-
-        IrisSize(int w, int h, String id) {
-            this.w = w;
-            this.h = h;
-            this.id = id;
-        }
-
-        public static IrisSize fromId(@Nullable String s) {
-            if ("1x2".equals(s)) return ONE_BY_TWO;
-            if ("2x2".equals(s)) return TWO_BY_TWO;
-            return ONE_BY_ONE;
-        }
-    }
-
-    public static final class EyeLayout {
-        public IrisSize size;
-        public int x;
-        public int y;
-
-        public EyeLayout(IrisSize size, int x, int y) {
-            this.size = size;
-            this.x = x;
-            this.y = y;
-        }
-
-        public EyeLayout copy() {
-            return new EyeLayout(this.size, this.x, this.y);
-        }
-    }
-
-    public static final class Layout {
-        public final EyeLayout left;
-        public final EyeLayout right;
-
-        public Layout(EyeLayout left, EyeLayout right) {
-            this.left = left;
-            this.right = right;
-        }
-
-        public Layout copy() {
-            return new Layout(left.copy(), right.copy());
-        }
-    }
-
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final int CONFIG_VERSION = 2;
 
-    // Cache per UUID. This is what the overlay should read.
-    private static final Map<UUID, Layout> CACHE = new ConcurrentHashMap<>();
+    private static final Map<UUID, CybereyeVisualConfig.Layout> CACHE = new ConcurrentHashMap<>();
 
-    // ---- Defaults ----
-    private static Layout defaultLayout() {
-        return new Layout(
-                new EyeLayout(IrisSize.ONE_BY_ONE, 3, 5),
-                new EyeLayout(IrisSize.ONE_BY_ONE, 3, 5)
-        );
+    public static CybereyeVisualConfig.Layout get(UUID playerId) {
+        return CACHE.computeIfAbsent(playerId, CybereyeIrisConfigClient::loadOrDefault);
     }
 
-    // Face grid clamp (8x8)
-    public static void clamp(EyeLayout eye) {
-        int maxX = 8 - eye.size.w;
-        int maxY = 8 - eye.size.h;
+    public static void reload(UUID playerId) {
+        CACHE.put(playerId, loadOrDefault(playerId));
+    }
 
-        if (eye.x < 0) eye.x = 0;
-        if (eye.y < 0) eye.y = 0;
-        if (eye.x > maxX) eye.x = maxX;
-        if (eye.y > maxY) eye.y = maxY;
+    public static void invalidate(UUID playerId) {
+        CACHE.remove(playerId);
+    }
+
+    public static void reset(UUID playerId) {
+        try {
+            Files.deleteIfExists(fileFor(playerId));
+        } catch (Throwable ignored) {
+        }
+
+        CACHE.put(playerId, CybereyeVisualConfig.defaults());
+    }
+
+    public static void save(UUID playerId, CybereyeVisualConfig.Layout layout) {
+        if (playerId == null || layout == null) return;
+
+        CybereyeVisualConfig.Layout copy = layout.copy();
+        CACHE.put(playerId, copy);
+
+        Path file = fileFor(playerId);
+
+        try {
+            Files.createDirectories(file.getParent());
+
+            JsonObject root = new JsonObject();
+            root.addProperty("version", CONFIG_VERSION);
+            root.add("primaryPixels", writePixels(copy.primary));
+            root.add("secondaryPixels", writePixels(copy.secondary));
+
+            JsonObject optics = new JsonObject();
+
+            for (CybereyeVisualConfig.OpticsType type : CybereyeVisualConfig.OpticsType.values()) {
+                CybereyeVisualConfig.Offset offset = copy.getOffset(type);
+
+                JsonObject entry = new JsonObject();
+                entry.addProperty("x", offset.x);
+                entry.addProperty("y", offset.y);
+
+                optics.add(type.id, entry);
+            }
+
+            root.add("optics", optics);
+
+            try (Writer writer = Files.newBufferedWriter(file)) {
+                GSON.toJson(root, writer);
+            }
+        } catch (Throwable throwable) {
+            CreateCybernetics.LOGGER.error("Failed to save cybereye visual configuration for {}", playerId, throwable);
+        }
+    }
+
+    public static void applyLocalPreview(LocalPlayer player, CybereyeVisualConfig.Layout layout) {
+        if (player == null || layout == null) return;
+
+        CompoundTag root = CybereyeVisualConfig.writeToNbt(layout);
+        player.getPersistentData().put(CybereyeVisualConfig.NBT_ROOT, root);
+        CybereyeOverlayHandler.invalidate(player);
+    }
+
+    public static void applyCachedConfigToPlayer(LocalPlayer player) {
+        if (player == null) return;
+
+        applyLocalPreview(player, get(player.getUUID()));
+    }
+
+    public static void saveAndSync(LocalPlayer player, CybereyeVisualConfig.Layout layout) {
+        if (player == null || layout == null) return;
+
+        save(player.getUUID(), layout);
+        applyLocalPreview(player, layout);
+        PacketDistributor.sendToServer(CybereyeIrisSyncC2SPayload.from(layout));
+    }
+
+    private static CybereyeVisualConfig.Layout loadOrDefault(UUID playerId) {
+        Path file = fileFor(playerId);
+
+        if (!Files.exists(file)) {
+            return CybereyeVisualConfig.defaults();
+        }
+
+        try (Reader reader = Files.newBufferedReader(file)) {
+            JsonObject root = GSON.fromJson(reader, JsonObject.class);
+            if (root == null) return CybereyeVisualConfig.defaults();
+
+            if (root.has("primaryPixels") || root.has("secondaryPixels") || root.has("optics")) {
+                return readModern(root);
+            }
+
+            CybereyeVisualConfig.Layout migrated = readLegacy(root);
+            save(playerId, migrated);
+
+            return migrated;
+        } catch (Throwable throwable) {
+            CreateCybernetics.LOGGER.error("Failed to load cybereye visual configuration for {}", playerId, throwable);
+            return CybereyeVisualConfig.defaults();
+        }
+    }
+
+    private static CybereyeVisualConfig.Layout readModern(JsonObject root) {
+        CybereyeVisualConfig.Layout layout = new CybereyeVisualConfig.Layout();
+
+        if (root.has("primaryPixels") && root.get("primaryPixels").isJsonArray()) {
+            readPixels(root.getAsJsonArray("primaryPixels"), layout.primary);
+        }
+
+        if (root.has("secondaryPixels") && root.get("secondaryPixels").isJsonArray()) {
+            readPixels(root.getAsJsonArray("secondaryPixels"), layout.secondary);
+        }
+
+        if (root.has("optics") && root.get("optics").isJsonObject()) {
+            JsonObject optics = root.getAsJsonObject("optics");
+
+            for (CybereyeVisualConfig.OpticsType type : CybereyeVisualConfig.OpticsType.values()) {
+                if (!optics.has(type.id) || !optics.get(type.id).isJsonObject()) continue;
+
+                JsonObject entry = optics.getAsJsonObject(type.id);
+
+                int x = entry.has("x") ? entry.get("x").getAsInt() : 0;
+                int y = entry.has("y") ? entry.get("y").getAsInt() : 0;
+
+                layout.optics.put(type, new CybereyeVisualConfig.Offset(x, y));
+            }
+        }
+
+        return layout;
+    }
+
+    private static CybereyeVisualConfig.Layout readLegacy(JsonObject root) {
+        CybereyeVisualConfig.Layout layout = new CybereyeVisualConfig.Layout();
+
+        migrateLegacyEye(root, "left", layout.primary, 2, 4);
+        migrateLegacyEye(root, "right", layout.secondary, 5, 4);
+
+        return layout;
+    }
+
+    private static void migrateLegacyEye(JsonObject root, String key, CybereyeVisualConfig.PixelMask target, int defaultLocalX, int defaultLocalY) {
+        int x = defaultLocalX;
+        int y = defaultLocalY;
+        int width = 1;
+        int height = 1;
+
+        if (root.has(key) && root.get(key).isJsonObject()) {
+            JsonObject eye = root.getAsJsonObject(key);
+
+            x = eye.has("x") ? eye.get("x").getAsInt() : defaultLocalX;
+            y = eye.has("y") ? eye.get("y").getAsInt() : defaultLocalY;
+
+            String size = eye.has("size") ? eye.get("size").getAsString() : "1x1";
+
+            if ("1x2".equals(size)) {
+                height = 2;
+            } else if ("2x2".equals(size)) {
+                width = 2;
+                height = 2;
+            }
+        }
+
+        int textureX = 8 + x;
+        int textureY = 8 + y;
+
+        for (int dy = 0; dy < height; dy++) {
+            for (int dx = 0; dx < width; dx++) {
+                target.set(textureX + dx, textureY + dy, true);
+            }
+        }
+    }
+
+    private static JsonArray writePixels(CybereyeVisualConfig.PixelMask mask) {
+        JsonArray array = new JsonArray();
+
+        for (int v = 0; v < CybereyeVisualConfig.HEAD_UV_HEIGHT; v++) {
+            for (int u = 0; u < CybereyeVisualConfig.HEAD_UV_WIDTH; u++) {
+                if (!mask.get(u, v)) continue;
+
+                JsonArray pixel = new JsonArray();
+                pixel.add(u);
+                pixel.add(v);
+
+                array.add(pixel);
+            }
+        }
+
+        return array;
+    }
+
+    private static void readPixels(JsonArray array, CybereyeVisualConfig.PixelMask target) {
+        if (array == null) return;
+
+        for (JsonElement element : array) {
+            if (!element.isJsonArray()) continue;
+
+            JsonArray pixel = element.getAsJsonArray();
+            if (pixel.size() < 2) continue;
+
+            target.set(pixel.get(0).getAsInt(), pixel.get(1).getAsInt(), true);
+        }
     }
 
     private static Path fileFor(UUID playerId) {
         Path dir = FMLPaths.CONFIGDIR.get().resolve(CreateCybernetics.MODID);
         return dir.resolve("cybereye_iris_" + playerId + ".json");
-    }
-
-    /** Main entrypoint for overlay rendering. Always returns something valid. */
-    public static Layout get(UUID playerId) {
-        return CACHE.computeIfAbsent(playerId, CybereyeIrisConfigClient::loadOrDefault);
-    }
-
-    /** Forces reload from disk (use on relog/login). */
-    public static void reload(UUID playerId) {
-        CACHE.put(playerId, loadOrDefault(playerId));
-    }
-
-    /** Clears cached data for that UUID. */
-    public static void invalidate(UUID playerId) {
-        CACHE.remove(playerId);
-    }
-
-    /** Deletes file + resets cached layout to defaults. */
-    public static void reset(UUID playerId) {
-        try {
-            Files.deleteIfExists(fileFor(playerId));
-        } catch (Throwable ignored) {}
-        CACHE.put(playerId, defaultLayout());
-    }
-
-    /** Persist a layout to disk and update cache. Call this from your UI when the player hits Save. */
-    public static void save(UUID playerId, Layout layout) {
-        if (layout == null) return;
-
-        // clamp before saving so disk always stays valid
-        clamp(layout.left);
-        clamp(layout.right);
-
-        CACHE.put(playerId, layout.copy());
-
-        Path file = fileFor(playerId);
-        try {
-            Files.createDirectories(file.getParent());
-
-            JsonObject root = new JsonObject();
-
-            JsonObject l = new JsonObject();
-            l.addProperty("size", layout.left.size.id);
-            l.addProperty("x", layout.left.x);
-            l.addProperty("y", layout.left.y);
-
-            JsonObject r = new JsonObject();
-            r.addProperty("size", layout.right.size.id);
-            r.addProperty("x", layout.right.x);
-            r.addProperty("y", layout.right.y);
-
-            root.add("left", l);
-            root.add("right", r);
-
-            try (Writer w = Files.newBufferedWriter(file)) {
-                GSON.toJson(root, w);
-            }
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private static Layout loadOrDefault(UUID playerId) {
-        Path file = fileFor(playerId);
-        if (!Files.exists(file)) {
-            return defaultLayout();
-        }
-
-        try (Reader r = Files.newBufferedReader(file)) {
-            JsonObject obj = GSON.fromJson(r, JsonObject.class);
-            if (obj == null) return defaultLayout();
-
-            EyeLayout left = new EyeLayout(IrisSize.ONE_BY_ONE, 3, 5);
-            EyeLayout right = new EyeLayout(IrisSize.ONE_BY_ONE, 3, 5);
-
-            if (obj.has("left")) {
-                JsonObject l = obj.getAsJsonObject("left");
-                left.size = IrisSize.fromId(l.has("size") ? l.get("size").getAsString() : "1x1");
-                left.x = l.has("x") ? l.get("x").getAsInt() : 3;
-                left.y = l.has("y") ? l.get("y").getAsInt() : 5;
-            }
-
-            if (obj.has("right")) {
-                JsonObject rr = obj.getAsJsonObject("right");
-                right.size = IrisSize.fromId(rr.has("size") ? rr.get("size").getAsString() : "1x1");
-                right.x = rr.has("x") ? rr.get("x").getAsInt() : 3;
-                right.y = rr.has("y") ? rr.get("y").getAsInt() : 5;
-            }
-
-            clamp(left);
-            clamp(right);
-
-            return new Layout(left, right);
-        } catch (Throwable ignored) {
-            return defaultLayout();
-        }
     }
 }

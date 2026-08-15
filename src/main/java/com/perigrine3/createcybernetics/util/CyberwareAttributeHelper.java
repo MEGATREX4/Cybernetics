@@ -369,6 +369,16 @@ public class CyberwareAttributeHelper {
                 ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ballisticgel_toughness"),
                 5, AttributeModifier.Operation.ADD_VALUE));
 
+        registerModifier("heavyknuckles_attackspeed", new AttributeModifierData(attackSpeedAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "heavyknuckles_attackspeed"),
+                -3.4, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("heavyknuckles_attackdamage", new AttributeModifierData(attackDamageAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "heavyknuckles_attackdamage"),
+                6, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("heavyknuckles_knockback", new AttributeModifierData(attackDamageAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "heavyknuckles_knockback"),
+                0.25, AttributeModifier.Operation.ADD_VALUE));
+
 
 
 

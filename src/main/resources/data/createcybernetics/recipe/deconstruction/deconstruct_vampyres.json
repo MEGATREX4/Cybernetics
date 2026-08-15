@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:lungsupgrades_vampyres"
+    },
+    {
+      "item": "createcybernetics:scavenged_vampyres"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 5
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 1
+    }
+  ]
+}

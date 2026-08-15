@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_empthreading"
+    },
+    {
+      "item": "createcybernetics:scavenged_empthreading"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 3
+    }
+  ]
+}

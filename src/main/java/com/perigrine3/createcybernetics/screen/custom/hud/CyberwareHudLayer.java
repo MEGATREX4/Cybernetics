@@ -7,7 +7,6 @@ import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
 import com.perigrine3.createcybernetics.client.HudConfigClient;
-import com.perigrine3.createcybernetics.client.gui.HudLayoutScreen;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.compat.creatingspace.CreatingSpaceSuitPredicate;
@@ -38,28 +37,15 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@EventBusSubscriber(modid = CreateCybernetics.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = CreateCybernetics.MODID, value = Dist.CLIENT)
 public final class CyberwareHudLayer {
 
     private CyberwareHudLayer() {}
-
-    public static final ResourceLocation HUD_LAYER_LEFT =
-            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cyberware_hud_left");
-
-    public static final ResourceLocation HUD_LAYER_RIGHT =
-            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cyberware_hud_right");
-
-    public static final ResourceLocation HUD_WIDGETS_LAYER =
-            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cyberware_hud_widgets");
-
-    public static final ResourceLocation CROSSHAIR_LAYER =
-            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cyberware_hud_crosshair");
 
     private static final ResourceLocation FRAME =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/gui/hud/hud_batteryframe.png");
@@ -157,11 +143,8 @@ public final class CyberwareHudLayer {
     private static final float HEAT_TIME_SCALE_REL = 1f;
 
     @SubscribeEvent
-    public static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAbove(VanillaGuiLayers.HOTBAR, HUD_LAYER_LEFT, CyberwareHudLayer::renderHudLayerLeft);
-        event.registerAbove(VanillaGuiLayers.HOTBAR, HUD_LAYER_RIGHT, CyberwareHudLayer::renderHudLayerRight);
-        event.registerAbove(VanillaGuiLayers.HOTBAR, HUD_WIDGETS_LAYER, CyberwareHudLayer::renderHud);
-        event.registerAbove(VanillaGuiLayers.CROSSHAIR, CROSSHAIR_LAYER, CyberwareHudLayer::renderCrosshairOverlay);
+    public static void onRenderGuiPre(RenderGuiEvent.Pre event) {
+        renderAllHud(event.getGuiGraphics(), event.getPartialTick());
     }
 
     public enum HudLayerSide {
@@ -452,33 +435,8 @@ public final class CyberwareHudLayer {
         gg.pose().popPose();
     }
 
-    private static void renderHudLayerLeft(GuiGraphics gg, DeltaTracker delta) {
-        renderHudLayerSide(gg, delta, HudLayerSide.LEFT);
-    }
-
-    private static void renderHudLayerRight(GuiGraphics gg, DeltaTracker delta) {
-        renderHudLayerSide(gg, delta, HudLayerSide.RIGHT);
-    }
-
-    private static void renderHudLayerSide(GuiGraphics gg, DeltaTracker delta, HudLayerSide side) {
-        if (hudLayoutEditorOpen()) return;
-
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null) return;
-        if (mc.options.hideGui) return;
-        if (!mc.options.getCameraType().isFirstPerson()) return;
-        if (!CyberwareInstallQueries.hasHudAccess(player)) return;
-
-        HudConfigClient.HudConfig cfg = HudConfigClient.get(player.getUUID());
-        if (!cfg.hudLayer.enabled) return;
-
-        int hudTintArgb = resolveHudTintArgb(player);
-        renderHudLayerSidePixels(gg, cfg, side, hudTintArgb);
-    }
-
-    private static void renderHud(GuiGraphics gg, DeltaTracker delta) {
-        if (hudLayoutEditorOpen()) return;
+    private static void renderAllHud(GuiGraphics gg, DeltaTracker delta) {
+        if (normalScreenOpen()) return;
 
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
@@ -494,35 +452,23 @@ public final class CyberwareHudLayer {
             partialTick = delta.getGameTimeDeltaPartialTick(true);
         } catch (Throwable ignored) {
             partialTick = 0.0f;
+        }
+
+        int hudTintArgb = resolveHudTintArgb(player);
+
+        if (cfg.hudLayer.enabled) {
+            renderHudLayerSidePixels(gg, cfg, HudLayerSide.LEFT, hudTintArgb);
+            renderHudLayerSidePixels(gg, cfg, HudLayerSide.RIGHT, hudTintArgb);
         }
 
         renderHudPreview(gg, partialTick, cfg);
-    }
-
-    private static void renderCrosshairOverlay(GuiGraphics gg, DeltaTracker delta) {
-        if (hudLayoutEditorOpen()) return;
-
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer player = mc.player;
-        if (player == null) return;
-        if (mc.options.hideGui) return;
-        if (!mc.options.getCameraType().isFirstPerson()) return;
-        if (!CyberwareInstallQueries.hasHudAccess(player)) return;
-
-        HudConfigClient.HudConfig cfg = HudConfigClient.get(player.getUUID());
-
-        float partialTick;
-        try {
-            partialTick = delta.getGameTimeDeltaPartialTick(true);
-        } catch (Throwable ignored) {
-            partialTick = 0.0f;
-        }
-
         renderCrosshairPreview(gg, partialTick, cfg);
+
+        gg.flush();
     }
 
-    private static boolean hudLayoutEditorOpen() {
-        return Minecraft.getInstance().screen instanceof HudLayoutScreen;
+    private static boolean normalScreenOpen() {
+        return Minecraft.getInstance().screen != null;
     }
 
     private static void renderHudLayerSidePixels(GuiGraphics gg, HudConfigClient.HudConfig cfg, HudLayerSide side, int tintArgb) {

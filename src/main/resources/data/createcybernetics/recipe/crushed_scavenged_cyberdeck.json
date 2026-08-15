@@ -25,6 +25,10 @@
       "id": "createcybernetics:component_diodes"
     },
     {
+      "chance": 0.30,
+      "id": "createcybernetics:component_ssd"
+    },
+    {
       "chance": 0.25,
       "id": "create:electron_tube"
     },

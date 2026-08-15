@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_oregrinder"
+    },
+    {
+      "item": "createcybernetics:scavenged_oregrinder"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 4
+    }
+  ]
+}

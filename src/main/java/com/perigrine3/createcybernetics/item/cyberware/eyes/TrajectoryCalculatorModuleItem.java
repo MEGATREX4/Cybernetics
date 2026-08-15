@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
@@ -75,6 +74,16 @@ public class TrajectoryCalculatorModuleItem extends Item implements ICyberwareIt
     @Override
     public Set<CyberwareSlot> getReplacedOrgans() {
         return Set.of();
+    }
+
+    @Override
+    public int getEnergyUsedPerTick(LivingEntity entity, ItemStack installedStack, CyberwareSlot slot) {
+        return 3;
+    }
+
+    @Override
+    public boolean requiresEnergyToFunction(LivingEntity entity, ItemStack installedStack, CyberwareSlot slot) {
+        return true;
     }
 
     @Override

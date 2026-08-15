@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_chipwareslots"
+    },
+    {
+      "item": "createcybernetics:scavenged_chipwareslots"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 1
+    }
+  ]
+}

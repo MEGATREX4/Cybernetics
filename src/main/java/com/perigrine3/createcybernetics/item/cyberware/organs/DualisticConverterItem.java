@@ -20,7 +20,7 @@ public class DualisticConverterItem extends Item implements ICyberwareItem {
 
     private final int humanityCost;
 
-    private static final int ENERGY_PER_TICK = 50;
+    private static final int ENERGY_PER_TICK = 25;
 
     public DualisticConverterItem(Properties props, int humanityCost) {
         super(props);
@@ -98,6 +98,11 @@ public class DualisticConverterItem extends Item implements ICyberwareItem {
     @Override
     public int maxStacksPerSlotType(ItemStack stack, CyberwareSlot slotType) {
         return 1;
+    }
+
+    @Override
+    public Set<Item> incompatibleCyberware(ItemStack installedStack, CyberwareSlot slot) {
+        return Set.of(ModItems.ORGANSUPGRADES_MAGICCATALYST.get(), ModItems.ORGANSUPGRADES_DUALISTICCONVERTER.get());
     }
 
     @Override

@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_drillfist"
+    },
+    {
+      "item": "createcybernetics:scavenged_drillfist"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 2
+    },
+    {
+      "id": "minecraft:diamond",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:titanium",
+      "count": 6
+    }
+  ]
+}

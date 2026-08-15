@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_diamondwaferstack"
+    },
+    {
+      "item": "createcybernetics:scavenged_diamondwaferstack"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 5
+    },
+    {
+      "id": "minecraft:diamond",
+      "count": 3
+    }
+  ]
+}

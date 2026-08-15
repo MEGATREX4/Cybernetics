@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_neuralprocessor"
+    },
+    {
+      "item": "createcybernetics:scavenged_neuralprocessor"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 4
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -19,6 +20,9 @@ import java.util.List;
 import java.util.Set;
 
 public class WardenAntlersItem extends Item implements ICyberwareItem {
+    private static final int NIGHT_VISION_DURATION_TICKS = 40;
+    private static final int NIGHT_VISION_REFRESH_INTERVAL_TICKS = 20;
+
     private final int humanityCost;
 
     public WardenAntlersItem(Properties props, int humanityCost) {
@@ -29,8 +33,7 @@ public class WardenAntlersItem extends Item implements ICyberwareItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
-            tooltip.add(Component.translatable("tooltip.createcybernetics.humanity", humanityCost)
-                    .withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("tooltip.createcybernetics.humanity", humanityCost).withStyle(ChatFormatting.GOLD));
         }
     }
 
@@ -76,12 +79,10 @@ public class WardenAntlersItem extends Item implements ICyberwareItem {
 
     @Override
     public void onInstalled(LivingEntity entity) {
-
     }
 
     @Override
     public void onRemoved(LivingEntity entity) {
-
     }
 
     @Override
@@ -89,13 +90,17 @@ public class WardenAntlersItem extends Item implements ICyberwareItem {
         if (entity.hasEffect(MobEffects.BLINDNESS)) {
             entity.removeEffect(MobEffects.BLINDNESS);
         }
+
         if (entity.hasEffect(MobEffects.DARKNESS)) {
             entity.removeEffect(MobEffects.DARKNESS);
+        }
+
+        if (!entity.level().isClientSide && entity.tickCount % NIGHT_VISION_REFRESH_INTERVAL_TICKS == 0) {
+            entity.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, NIGHT_VISION_DURATION_TICKS, 0, false, false, false));
         }
     }
 
     @Override
     public void onTick(LivingEntity entity) {
-
     }
 }

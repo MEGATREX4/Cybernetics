@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_kerenzikov"
+    },
+    {
+      "item": "createcybernetics:scavenged_kerenzikov"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 10
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 4
+    }
+  ]
+}

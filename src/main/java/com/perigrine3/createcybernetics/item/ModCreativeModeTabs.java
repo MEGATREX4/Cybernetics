@@ -163,6 +163,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SCAVENGED_CYBERDECK);
                         output.accept(ModItems.SCAVENGED_NEURALPROCESSOR);
                         output.accept(ModItems.SCAVENGED_ICEPROTOCOL);
+                        //output.accept(ModItems.SCAVENGED_COAXIALPORT);
+                        output.accept(ModItems.SCAVENGED_KERENZIKOV);
+                        output.accept(ModItems.SCAVENGED_BERSERK);
                         output.accept(ModItems.SCAVENGED_IDEM);
                         output.accept(ModItems.SCAVENGED_CHIPWARESLOTS);
                         output.accept(ModItems.SCAVENGED_CYBERHEART);
@@ -206,6 +209,7 @@ public class ModCreativeModeTabs {
                         }
 
                         output.accept(ModItems.SCAVENGED_SYNTHMUSCLE);
+                        output.accept(ModItems.SCAVENGED_REINFORCEDTENDONS);
                         output.accept(ModItems.SCAVENGED_WIREDREFLEXES);
                         output.accept(ModItems.SCAVENGED_BALLISTICGEL);
 
@@ -274,6 +278,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.ARMUPGRADES_MANTISBLADE_GOLD);
                         output.accept(ModItems.ARMUPGRADES_MANTISBLADE_DIAMOND);
                         output.accept(ModItems.ARMUPGRADES_MANTISBLADE_NETHERITE);
+                        output.accept(ModItems.ARMUPGRADES_HEAVYKNUCKLES);
                     //LEG UPGRADES
                         output.accept(ModItems.LEGUPGRADES_METALDETECTOR);
                         output.accept(ModItems.LEGUPGRADES_ANKLEBRACERS);
@@ -311,6 +316,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BRAINUPGRADES_CHIPWARESLOTS);
                         output.accept(ModItems.BRAINUPGRADES_NEURALPROCESSOR);
                         output.accept(ModItems.BRAINUPGRADES_ICEPROTOCOL);
+                        //output.accept(ModItems.BRAINUPGRADES_COAXIALPORT);
+                        output.accept(ModItems.BRAINUPGRADES_KERENZIKOV);
+                        output.accept(ModItems.BRAINUPGRADES_BERSERK);
 
                         if (ModItems.BRAINUPGRADES_SPELLJAMMER != null) {
                             output.accept(ModItems.BRAINUPGRADES_SPELLJAMMER);
@@ -372,6 +380,7 @@ public class ModCreativeModeTabs {
 
                     //MUSCLE UPGRADES
                         output.accept(ModItems.MUSCLEUPGRADES_SYNTHMUSCLE);
+                        output.accept(ModItems.MUSCLEUPGRADES_REINFORCEDTENDONS);
                         output.accept(ModItems.MUSCLEUPGRADES_WIREDREFLEXES);
                         output.accept(ModItems.MUSCLEUPGRADES_BALLISTICGEL);
                     //WETWARE UPGRADES

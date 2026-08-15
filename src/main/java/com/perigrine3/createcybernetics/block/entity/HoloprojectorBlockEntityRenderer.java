@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
@@ -141,20 +142,22 @@ public final class HoloprojectorBlockEntityRenderer implements BlockEntityRender
         }
 
         // ------------------------------------------------------------
-        // CYBEREYE IRIS LAYOUT -> HOLOGRAM (client-side copy)
+        // CYBEREYE VISUAL LAYOUT -> HOLOGRAM (client-side copy)
         // ------------------------------------------------------------
         Player real = level.getPlayerByUUID(uuid);
         if (real != null) {
-            CompoundTag eyeRoot = real.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
+            CompoundTag eyeRoot = real.getPersistentData().getCompound(CybereyeVisualConfig.NBT_ROOT);
 
             if (eyeRoot != null && !eyeRoot.isEmpty()) {
-                pd.put(CybereyeOverlayHandler.NBT_ROOT, eyeRoot.copy());
-                CybereyeOverlayHandler.invalidate(hologram);
+                pd.put(CybereyeVisualConfig.NBT_ROOT, eyeRoot.copy());
             } else {
-                pd.remove(CybereyeOverlayHandler.NBT_ROOT);
+                pd.remove(CybereyeVisualConfig.NBT_ROOT);
             }
+
+            CybereyeOverlayHandler.invalidate(hologram);
         } else {
-            pd.remove(CybereyeOverlayHandler.NBT_ROOT);
+            pd.remove(CybereyeVisualConfig.NBT_ROOT);
+            CybereyeOverlayHandler.invalidate(hologram);
         }
 
 

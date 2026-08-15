@@ -6,6 +6,7 @@ import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
 import com.perigrine3.createcybernetics.client.render.RobosurgeonPreviewOverlayContext;
+import com.perigrine3.createcybernetics.client.surgery.SurgeryPreviewDiagnostics;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.common.humanity.DataIntegrityHandler;
@@ -58,12 +59,17 @@ public class RobosurgeonScreen extends AbstractContainerScreen<RobosurgeonMenu> 
     private static final int HUMANITY_BAR_HEIGHT = 75;
     private static final int WARNING_W = 12;
     private static final int WARNING_H = 12;
-    private static final int WARNING_X = -15;
+    private static final int WARNING_X = 16;
     private static final int WARNING_Y = 8;
+    private static final int ENERGY_BAR_WIDTH = 10;
+    private static final int ENERGY_BAR_HEIGHT = 75;
+    private static final int ENERGY_BAR_X = 24;
+    private static final int ENERGY_BAR_Y = 30;
 
     private final ItemStack renderSkin = new ItemStack(ModItems.BODYPART_SKIN.get());
     private final ItemStack renderMuscle = new ItemStack(ModItems.BODYPART_MUSCLE.get());
     private final ItemStack renderBone = new ItemStack(Items.BONE);
+    private SurgeryPreviewDiagnostics.Preview currentDiagnostics = SurgeryPreviewDiagnostics.emptyPreview();
 
     // -----------------------
     // Resources
@@ -277,7 +283,9 @@ public class RobosurgeonScreen extends AbstractContainerScreen<RobosurgeonMenu> 
         RenderSystem.setShaderTexture(0, GUI_TEXTURE);
         guiGraphics.blit(GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight, 176, 222);
 
+        updateDiagnostics();
         drawHumanityBar(guiGraphics);
+        drawEnergyBar(guiGraphics);
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -999,7 +1007,7 @@ public class RobosurgeonScreen extends AbstractContainerScreen<RobosurgeonMenu> 
         renderMarkerToggleLabel(gui);
         renderMarkerToggle(gui, mouseX, mouseY);
 
-        renderRemovalWarning(gui, mouseX, mouseY);
+        renderSurgeryWarning(gui, mouseX, mouseY);
         this.renderTooltip(gui, mouseX, mouseY);
     }
 
@@ -1164,54 +1172,104 @@ public class RobosurgeonScreen extends AbstractContainerScreen<RobosurgeonMenu> 
         return count;
     }
 
-    private boolean hasDefaultOrganMarkedForRemoval() {
-        for (Slot slot : menu.slots) {
-            if (!(slot instanceof RobosurgeonSlotItemHandler rsSlot)) continue;
+    private void updateDiagnostics() {
+        Player player = minecraft.player;
+        if (player == null) {
+            currentDiagnostics = SurgeryPreviewDiagnostics.emptyPreview();
+            return;
+        }
 
-            int handlerIndex = rsSlot.getSlotIndex();
-            if (!menu.isMarkedForRemoval(handlerIndex)) continue;
+        PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+        if (data == null) {
+            currentDiagnostics = SurgeryPreviewDiagnostics.emptyPreview();
+            return;
+        }
 
-            ItemStack stack = rsSlot.getItem();
-            if (!stack.isEmpty() && stack.is(ModTags.Items.BODY_PARTS)) {
-                return true;
+        currentDiagnostics = SurgeryPreviewDiagnostics.analyze(player, data, this::getSurgeryStack, menu::isStaged, menu::isMarkedForRemoval);
+
+        if (!usesDataIntegrityPreview(data)) {
+            int humanity = calculatePreviewHumanity();
+            int maxHumanity = Math.max(1, getConfiguredBaseHumanity(player));
+
+            if (humanity < maxHumanity * 0.25f) {
+                currentDiagnostics = SurgeryPreviewDiagnostics.addWarning(currentDiagnostics, Component.translatable("gui.createcybernetics.surgery.warning.humanity_rejection", humanity, maxHumanity).withStyle(ChatFormatting.RED));
             }
         }
-        return false;
     }
 
-    private void renderRemovalWarning(GuiGraphics gui, int mouseX, int mouseY) {
-
-        if (!hasDefaultOrganMarkedForRemoval()) return;
-
-        int x = leftPos + WARNING_X;
-        int y = topPos + WARNING_Y;
-
-        gui.pose().pushPose();
-        gui.pose().translate(0, 0, 400);
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        gui.blit(WARNING_ICON, x, y, 0, 0, WARNING_W, WARNING_H, WARNING_W, WARNING_H);
-
-        boolean hovering = isMouseOverRect(x, y, WARNING_W, WARNING_H, mouseX, mouseY);
-        if (hovering) {
-
-            List<Component> tip = List.of(
-                    Component.translatable("gui.warning.title").withStyle(ChatFormatting.RED),
-                    Component.translatable("gui.warning.desc1").withStyle(ChatFormatting.RED),
-                    Component.translatable("gui.warning.desc2").withStyle(ChatFormatting.RED));
-
-            gui.renderComponentTooltip(this.font, tip, mouseX, mouseY);
+    private ItemStack getSurgeryStack(int inventoryIndex) {
+        for (Slot slot : menu.slots) {
+            if (slot instanceof RobosurgeonSlotItemHandler rsSlot && rsSlot.getSlotIndex() == inventoryIndex) {
+                return rsSlot.getItem();
+            }
         }
 
-        RenderSystem.disableBlend();
+        return ItemStack.EMPTY;
+    }
+
+    private void drawEnergyBar(GuiGraphics gui) {
+        SurgeryPreviewDiagnostics.EnergyPreview energy = currentDiagnostics.energy();
+        int generated = energy.generatedPerTick();
+        int required = energy.requiredPerTick();
+        int x = leftPos + ENERGY_BAR_X;
+        int y = topPos + ENERGY_BAR_Y;
+        int scaleMaximum = Math.max(1, Math.max(generated, required));
+        int requirementHeight = required <= 0 ? 0 : Math.max(1, Math.round(ENERGY_BAR_HEIGHT * (required / (float) scaleMaximum)));
+        int generationY = y + ENERGY_BAR_HEIGHT - Math.round(ENERGY_BAR_HEIGHT * (generated / (float) scaleMaximum));
+        generationY = Mth.clamp(generationY, y, y + ENERGY_BAR_HEIGHT - 1);
+
+        gui.fill(x, y, x + ENERGY_BAR_WIDTH, y + ENERGY_BAR_HEIGHT, 0xFF202020);
+
+        if (requirementHeight > 0) {
+            int requirementColor = energy.sufficient() ? 0xFF20B33A : 0xFFD12B2B;
+            gui.fill(x, y + ENERGY_BAR_HEIGHT - requirementHeight, x + ENERGY_BAR_WIDTH, y + ENERGY_BAR_HEIGHT, requirementColor);
+        }
+
+        gui.fill(x - 1, generationY, x + ENERGY_BAR_WIDTH + 1, generationY + 2, 0xFF39A8FF);
+
+        String text = Integer.toString(required);
+        float labelScale = 0.5f;
+        int textW = this.font.width(text);
+        int textX = x + (ENERGY_BAR_WIDTH / 2) - Math.round((textW * labelScale) / 2f);
+
+        gui.pose().pushPose();
+        gui.pose().scale(labelScale, labelScale, 1f);
+        gui.drawString(minecraft.font, text, (int) (textX / labelScale), (int) ((y - 7) / labelScale), energy.sufficient() ? 0xFF55FF55 : 0xFFFF5555, false);
         gui.pose().popPose();
     }
 
-    // -----------------------
-    // Mouse Interaction
-    // -----------------------
+    private boolean isMouseOverEnergyBar(int mouseX, int mouseY) {
+        int x = leftPos + ENERGY_BAR_X;
+        int y = topPos + ENERGY_BAR_Y;
+        return mouseX >= x && mouseX < x + ENERGY_BAR_WIDTH && mouseY >= y && mouseY < y + ENERGY_BAR_HEIGHT;
+    }
+
+    private void renderSurgeryWarning(GuiGraphics gui, int mouseX, int mouseY) {
+        if (!currentDiagnostics.hasWarnings()) return;
+
+        int x = leftPos + WARNING_X;
+        int y = topPos + WARNING_Y;
+        float time = minecraft.level == null ? 0f : minecraft.level.getGameTime() + minecraft.getTimer().getGameTimeDeltaTicks();
+        boolean visible = ((int) (time / 10f) & 1) == 0;
+
+        gui.pose().pushPose();
+        gui.pose().translate(0, 0, 400);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        gui.setColor(1f, 1f, 1f, visible ? 1f : 0.1f);
+        gui.blit(WARNING_ICON, x, y, 0, 0, WARNING_W, WARNING_H, WARNING_W, WARNING_H);
+        gui.setColor(1f, 1f, 1f, 1f);
+        RenderSystem.disableBlend();
+        gui.pose().popPose();
+
+        if (isMouseOverRect(x, y, WARNING_W, WARNING_H, mouseX, mouseY)) {
+            List<Component> tooltip = new ArrayList<>();
+            tooltip.add(Component.translatable("gui.createcybernetics.surgery.warning.title").withStyle(ChatFormatting.RED));
+            tooltip.addAll(currentDiagnostics.warnings());
+            gui.renderComponentTooltip(font, tooltip, mouseX, mouseY);
+        }
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
 
@@ -1284,6 +1342,17 @@ public class RobosurgeonScreen extends AbstractContainerScreen<RobosurgeonMenu> 
 
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (isMouseOverEnergyBar(mouseX, mouseY)) {
+            SurgeryPreviewDiagnostics.EnergyPreview energy = currentDiagnostics.energy();
+            List<Component> tooltip = List.of(
+                    Component.translatable("gui.createcybernetics.surgery.energy.title").withStyle(ChatFormatting.AQUA),
+                    Component.translatable("gui.createcybernetics.surgery.energy.generated", energy.generatedPerTick()).withStyle(ChatFormatting.BLUE),
+                    Component.translatable("gui.createcybernetics.surgery.energy.required", energy.requiredPerTick()).withStyle(energy.sufficient() ? ChatFormatting.GREEN : ChatFormatting.RED)
+            );
+            guiGraphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
+            return;
+        }
+
         if (isMouseOverHumanityBar(mouseX, mouseY)) {
             Player player = minecraft.player;
 

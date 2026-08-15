@@ -4,6 +4,7 @@ import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import com.perigrine3.createcybernetics.compat.ModCompats;
 import com.perigrine3.createcybernetics.compat.curios.CuriosCompat;
 import com.perigrine3.createcybernetics.event.custom.FullBorgHandler;
@@ -305,6 +306,10 @@ public class SkinModifierManager {
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/flywheel_larm_wide.png");
     private static final ResourceLocation FLYWHEEL_RARM_WIDE =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/flywheel_rarm_wide.png");
+    private static final ResourceLocation HEAVY_KNUCKLES_LARM_WIDE =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/heavyknuckles_left_wide.png");
+    private static final ResourceLocation HEAVY_KNUCKLES_RARM_WIDE =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/heavyknuckles_right_wide.png");
     private static final ResourceLocation MANASKIN_WIDE =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/manaskin.png");
     private static final ResourceLocation DRAGONSKIN_WIDE =
@@ -413,6 +418,10 @@ public class SkinModifierManager {
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/flywheel_larm_slim.png");
     private static final ResourceLocation FLYWHEEL_RARM_SLIM =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/flywheel_rarm_slim.png");
+    private static final ResourceLocation HEAVY_KNUCKLES_LARM_SLIM =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/heavyknuckles_left_slim.png");
+    private static final ResourceLocation HEAVY_KNUCKLES_RARM_SLIM =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/heavyknuckles_right_slim.png");
     private static final ResourceLocation MANASKIN_SLIM =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/manaskin_slim.png");
     private static final ResourceLocation DRAGONSKIN_SLIM =
@@ -482,6 +491,92 @@ public class SkinModifierManager {
     private static final ResourceLocation EXOSUIT1_SLIM =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/exosuit1_slim.png");
 
+
+// DURABILITY VISUAL DAMAGE
+    private static final ResourceLocation BRAIN_DAMAGE_MEAT =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_brain_meat.png");
+    private static final ResourceLocation BRAIN_DAMAGE_METAL =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_brain_metal.png");
+    private static final ResourceLocation LARM_DAMAGE_MEAT_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_leftarm_25.png");
+    private static final ResourceLocation LARM_DAMAGE_MEAT_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_leftarm_50.png");
+    private static final ResourceLocation LARM_DAMAGE_MEAT_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_leftarm_75.png");
+    private static final ResourceLocation LLEG_DAMAGE_MEAT_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_leftleg_25.png");
+    private static final ResourceLocation LLEG_DAMAGE_MEAT_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_leftleg_50.png");
+    private static final ResourceLocation LLEG_DAMAGE_MEAT_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_leftleg_75.png");
+    private static final ResourceLocation RARM_DAMAGE_MEAT_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_rightarm_25.png");
+    private static final ResourceLocation RARM_DAMAGE_MEAT_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_rightarm_50.png");
+    private static final ResourceLocation RARM_DAMAGE_MEAT_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_rightarm_75.png");
+    private static final ResourceLocation RLEG_DAMAGE_MEAT_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_rightleg_25.png");
+    private static final ResourceLocation RLEG_DAMAGE_MEAT_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_rightleg_50.png");
+    private static final ResourceLocation RLEG_DAMAGE_MEAT_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_rightleg_75.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_MEAT_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_25.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_MEAT_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_50.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_MEAT_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_75.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_CFRAME_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_50_capacitorframe.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_CFRAME_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_75_capacitorframe.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_LFRAME_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_50_linearframe.png");
+    private static final ResourceLocation LUNGS_HEART_DAMAGE_LFRAME_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_lungsandheart_75_linearframe.png");
+    private static final ResourceLocation ORGANS_DAMAGE_MEAT_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_organs_25.png");
+    private static final ResourceLocation ORGANS_DAMAGE_MEAT_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_organs_50.png");
+    private static final ResourceLocation ORGANS_DAMAGE_MEAT_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/meatdamage_organs_75.png");
+    private static final ResourceLocation LARM_DAMAGE_METAL_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_leftarm_25.png");
+    private static final ResourceLocation LARM_DAMAGE_METAL_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_leftarm_50.png");
+    private static final ResourceLocation LARM_DAMAGE_METAL_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_leftarm_75.png");
+    private static final ResourceLocation LLEG_DAMAGE_METAL_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_leftleg_25.png");
+    private static final ResourceLocation LLEG_DAMAGE_METAL_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_leftleg_50.png");
+    private static final ResourceLocation LLEG_DAMAGE_METAL_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_leftleg_75.png");
+    private static final ResourceLocation RARM_DAMAGE_METAL_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_rightarm_25.png");
+    private static final ResourceLocation RARM_DAMAGE_METAL_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_rightarm_50.png");
+    private static final ResourceLocation RARM_DAMAGE_METAL_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_rightarm_75.png");
+    private static final ResourceLocation RLEG_DAMAGE_METAL_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_rightleg_25.png");
+    private static final ResourceLocation RLEG_DAMAGE_METAL_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_rightleg_50.png");
+    private static final ResourceLocation RLEG_DAMAGE_METAL_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metaldamage_rightleg_75.png");
+    private static final ResourceLocation SKIN_DAMAGE_TORSO_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/skindamage_torso_25.png");
+    private static final ResourceLocation SKIN_DAMAGE_TORSO_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/skindamage_torso_50.png");
+    private static final ResourceLocation SKIN_DAMAGE_TORSO_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/skindamage_torso_75.png");
+    private static final ResourceLocation METALPLATING_DAMAGE_TORSO_25 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metalplating_torso_25.png");
+    private static final ResourceLocation METALPLATING_DAMAGE_TORSO_50 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metalplating_torso_50.png");
+    private static final ResourceLocation METALPLATING_DAMAGE_TORSO_75 =
+            ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/durability/metalplating_torso_75.png");
 
 
 // CYBERWARE TRIMS
@@ -1763,90 +1858,387 @@ public class SkinModifierManager {
             }
         }
 
+
+
+// DURABILITY VISUAL DAMAGE
+        boolean fullBorgDurability = FullBorgHandler.isFullBorg(data);
+
+        // MEAT LIMBS
+        float rightArmDurability = data.getDurabilityPercent(ModItems.BODYPART_RIGHTARM.get(), CyberwareSlot.RARM);
+
+        if (rightArmDurability >= 0.0F) {
+            if (rightArmDurability <= 0.25F) {
+                state.addModifier(SkinModifier.rightArm(RARM_DAMAGE_MEAT_75, RARM_DAMAGE_MEAT_75, 0xFFFFFFFF));
+            } else if (rightArmDurability <= 0.50F) {
+                state.addModifier(SkinModifier.rightArm(RARM_DAMAGE_MEAT_50, RARM_DAMAGE_MEAT_50, 0xFFFFFFFF));
+            } else if (rightArmDurability <= 0.75F) {
+                state.addModifier(SkinModifier.rightArm(RARM_DAMAGE_MEAT_25, RARM_DAMAGE_MEAT_25, 0xFFFFFFFF));
+            }
+        }
+
+        float leftArmDurability = data.getDurabilityPercent(ModItems.BODYPART_LEFTARM.get(), CyberwareSlot.LARM);
+
+        if (leftArmDurability >= 0.0F) {
+            if (leftArmDurability <= 0.25F) {
+                state.addModifier(SkinModifier.leftArm(LARM_DAMAGE_MEAT_75, LARM_DAMAGE_MEAT_75, 0xFFFFFFFF));
+            } else if (leftArmDurability <= 0.50F) {
+                state.addModifier(SkinModifier.leftArm(LARM_DAMAGE_MEAT_50, LARM_DAMAGE_MEAT_50, 0xFFFFFFFF));
+            } else if (leftArmDurability <= 0.75F) {
+                state.addModifier(SkinModifier.leftArm(LARM_DAMAGE_MEAT_25, LARM_DAMAGE_MEAT_25, 0xFFFFFFFF));
+            }
+        }
+
+        float rightLegDurability = data.getDurabilityPercent(ModItems.BODYPART_RIGHTLEG.get(), CyberwareSlot.RLEG);
+
+        if (rightLegDurability >= 0.0F) {
+            if (rightLegDurability <= 0.25F) {
+                state.addModifier(SkinModifier.rightLeg(RLEG_DAMAGE_MEAT_75, RLEG_DAMAGE_MEAT_75, 0xFFFFFFFF));
+            } else if (rightLegDurability <= 0.50F) {
+                state.addModifier(SkinModifier.rightLeg(RLEG_DAMAGE_MEAT_50, RLEG_DAMAGE_MEAT_50, 0xFFFFFFFF));
+            } else if (rightLegDurability <= 0.75F) {
+                state.addModifier(SkinModifier.rightLeg(RLEG_DAMAGE_MEAT_25, RLEG_DAMAGE_MEAT_25, 0xFFFFFFFF));
+            }
+        }
+
+        float leftLegDurability = data.getDurabilityPercent(ModItems.BODYPART_LEFTLEG.get(), CyberwareSlot.LLEG);
+
+        if (leftLegDurability >= 0.0F) {
+            if (leftLegDurability <= 0.25F) {
+                state.addModifier(SkinModifier.leftLeg(LLEG_DAMAGE_MEAT_75, LLEG_DAMAGE_MEAT_75, 0xFFFFFFFF));
+            } else if (leftLegDurability <= 0.50F) {
+                state.addModifier(SkinModifier.leftLeg(LLEG_DAMAGE_MEAT_50, LLEG_DAMAGE_MEAT_50, 0xFFFFFFFF));
+            } else if (leftLegDurability <= 0.75F) {
+                state.addModifier(SkinModifier.leftLeg(LLEG_DAMAGE_MEAT_25, LLEG_DAMAGE_MEAT_25, 0xFFFFFFFF));
+            }
+        }
+
+        // NATURAL / SYNTH SKIN
+        float skinDurability = data.getDurabilityPercent(ModItems.BODYPART_SKIN.get(), CyberwareSlot.SKIN);
+        float synthSkinDurability = data.getDurabilityPercent(ModItems.SKINUPGRADES_SYNTHSKIN.get(), CyberwareSlot.SKIN);
+
+        float bodySkinDurability = -1.0F;
+
+        if (skinDurability >= 0.0F) {
+            bodySkinDurability = skinDurability;
+        } else if (synthSkinDurability >= 0.0F) {
+            bodySkinDurability = synthSkinDurability;
+        }
+
+        if (bodySkinDurability >= 0.0F) {
+            if (bodySkinDurability <= 0.25F) {
+                state.addModifier(new SkinModifier(SKIN_DAMAGE_TORSO_75, SKIN_DAMAGE_TORSO_75, 0xFFFFFFFF, false, EnumSet.noneOf(SkinModifier.HideVanilla.class)));
+            } else if (bodySkinDurability <= 0.50F) {
+                state.addModifier(new SkinModifier(SKIN_DAMAGE_TORSO_50, SKIN_DAMAGE_TORSO_50, 0xFFFFFFFF, false, EnumSet.noneOf(SkinModifier.HideVanilla.class)));
+            } else if (bodySkinDurability <= 0.75F) {
+                state.addModifier(new SkinModifier(SKIN_DAMAGE_TORSO_25, SKIN_DAMAGE_TORSO_25, 0xFFFFFFFF, false, EnumSet.noneOf(SkinModifier.HideVanilla.class)));
+            }
+        }
+
+        // BRAIN
+        float brainDurability = data.getDurabilityPercent(ModItems.BODYPART_BRAIN.get(), CyberwareSlot.BRAIN);
+
+        if (brainDurability >= 0.0F && brainDurability <= 0.90F) {
+            if (fullBorgDurability || data.hasSpecificItem(ModItems.BONEUPGRADES_CYBERSKULL.get(), CyberwareSlot.BONE)) {
+                state.addModifier(new SkinModifier(BRAIN_DAMAGE_METAL, BRAIN_DAMAGE_METAL, 0xFFFFFFFF, false, EnumSet.of(SkinModifier.HideVanilla.HAT)));
+            } else {
+                state.addModifier(new SkinModifier(BRAIN_DAMAGE_MEAT, BRAIN_DAMAGE_MEAT, 0xFFFFFFFF, false, EnumSet.of(SkinModifier.HideVanilla.HAT)));
+            }
+        }
+
+        // LUNGS / HEART
+        if (!fullBorgDurability) {
+            float lungsDurability = data.getDurabilityPercent(ModItems.BODYPART_LUNGS.get(), CyberwareSlot.LUNGS);
+            float heartDurability = data.getDurabilityPercent(ModItems.BODYPART_HEART.get(), CyberwareSlot.HEART);
+
+            float lungsHeartDurability = 1.0F;
+            boolean hasLungsHeartSource = false;
+
+            if (lungsDurability >= 0.0F) {
+                lungsHeartDurability = Math.min(lungsHeartDurability, lungsDurability);
+                hasLungsHeartSource = true;
+            }
+
+            if (heartDurability >= 0.0F) {
+                lungsHeartDurability = Math.min(lungsHeartDurability, heartDurability);
+                hasLungsHeartSource = true;
+            }
+
+            boolean hasCapacitorFrame = data.hasSpecificItem(ModItems.BONEUPGRADES_CAPACITORFRAME.get(), CyberwareSlot.BONE);
+            boolean hasLinearFrame = data.hasSpecificItem(ModItems.BASECYBERWARE_LINEARFRAME.get(), CyberwareSlot.BONE);
+
+            if (hasLungsHeartSource) {
+                if (lungsHeartDurability <= 0.25F) {
+                    if (hasCapacitorFrame) {
+                        state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_CFRAME_75, LUNGS_HEART_DAMAGE_CFRAME_75, 0xFFFFFFFF, false));
+                    } else if (hasLinearFrame) {
+                        state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_LFRAME_75, LUNGS_HEART_DAMAGE_LFRAME_75, 0xFFFFFFFF, false));
+                    } else {
+                        state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_MEAT_75, LUNGS_HEART_DAMAGE_MEAT_75, 0xFFFFFFFF, false));
+                    }
+                } else if (lungsHeartDurability <= 0.50F) {
+                    if (hasCapacitorFrame) {
+                        state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_CFRAME_50, LUNGS_HEART_DAMAGE_CFRAME_50, 0xFFFFFFFF, false));
+                    } else if (hasLinearFrame) {
+                        state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_LFRAME_50, LUNGS_HEART_DAMAGE_LFRAME_50, 0xFFFFFFFF, false));
+                    } else {
+                        state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_MEAT_50, LUNGS_HEART_DAMAGE_MEAT_50, 0xFFFFFFFF, false));
+                    }
+                } else if (lungsHeartDurability <= 0.75F) {
+                    state.addModifier(new SkinModifier(LUNGS_HEART_DAMAGE_MEAT_25, LUNGS_HEART_DAMAGE_MEAT_25, 0xFFFFFFFF, false));
+                }
+            }
+        }
+
+        // LIVER / INTESTINES
+        if (!fullBorgDurability) {
+            float liverDurability = data.getDurabilityPercent(ModItems.BODYPART_LIVER.get(), CyberwareSlot.ORGANS);
+            float intestinesDurability = data.getDurabilityPercent(ModItems.BODYPART_INTESTINES.get(), CyberwareSlot.ORGANS);
+
+            float organsDurability = 1.0F;
+            boolean hasOrgansSource = false;
+
+            if (liverDurability >= 0.0F) {
+                organsDurability = Math.min(organsDurability, liverDurability);
+                hasOrgansSource = true;
+            }
+
+            if (intestinesDurability >= 0.0F) {
+                organsDurability = Math.min(organsDurability, intestinesDurability);
+                hasOrgansSource = true;
+            }
+
+            if (hasOrgansSource) {
+                if (organsDurability <= 0.25F) {
+                    state.addModifier(new SkinModifier(ORGANS_DAMAGE_MEAT_75, ORGANS_DAMAGE_MEAT_75, 0xFFFFFFFF, false));
+                } else if (organsDurability <= 0.50F) {
+                    state.addModifier(new SkinModifier(ORGANS_DAMAGE_MEAT_50, ORGANS_DAMAGE_MEAT_50, 0xFFFFFFFF, false));
+                } else if (organsDurability <= 0.75F) {
+                    state.addModifier(new SkinModifier(ORGANS_DAMAGE_MEAT_25, ORGANS_DAMAGE_MEAT_25, 0xFFFFFFFF, false));
+                }
+            }
+        }
+
+        // CYBERLIMBS
+        float rightArmMetalDurability = -1.0F;
+
+        if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTARM.get(), CyberwareSlot.RARM)) {
+            rightArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTARM.get(), CyberwareSlot.RARM);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTARM_COPPERPLATED.get(), CyberwareSlot.RARM)) {
+            rightArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTARM_COPPERPLATED.get(), CyberwareSlot.RARM);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTARM_IRONPLATED.get(), CyberwareSlot.RARM)) {
+            rightArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTARM_IRONPLATED.get(), CyberwareSlot.RARM);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTARM_GOLDPLATED.get(), CyberwareSlot.RARM)) {
+            rightArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTARM_GOLDPLATED.get(), CyberwareSlot.RARM);
+        }
+
+        if (rightArmMetalDurability >= 0.0F) {
+            if (rightArmMetalDurability <= 0.25F) {
+                state.addModifier(SkinModifier.rightArm(RARM_DAMAGE_METAL_75, RARM_DAMAGE_METAL_75, 0xFFFFFFFF));
+            } else if (rightArmMetalDurability <= 0.50F) {
+                state.addModifier(SkinModifier.rightArm(RARM_DAMAGE_METAL_50, RARM_DAMAGE_METAL_50, 0xFFFFFFFF));
+            } else if (rightArmMetalDurability <= 0.75F) {
+                state.addModifier(SkinModifier.rightArm(RARM_DAMAGE_METAL_25, RARM_DAMAGE_METAL_25, 0xFFFFFFFF));
+            }
+        }
+
+        float leftArmMetalDurability = -1.0F;
+
+        if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTARM.get(), CyberwareSlot.LARM)) {
+            leftArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTARM.get(), CyberwareSlot.LARM);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTARM_COPPERPLATED.get(), CyberwareSlot.LARM)) {
+            leftArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTARM_COPPERPLATED.get(), CyberwareSlot.LARM);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTARM_IRONPLATED.get(), CyberwareSlot.LARM)) {
+            leftArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTARM_IRONPLATED.get(), CyberwareSlot.LARM);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTARM_GOLDPLATED.get(), CyberwareSlot.LARM)) {
+            leftArmMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTARM_GOLDPLATED.get(), CyberwareSlot.LARM);
+        }
+
+        if (leftArmMetalDurability >= 0.0F) {
+            if (leftArmMetalDurability <= 0.25F) {
+                state.addModifier(SkinModifier.leftArm(LARM_DAMAGE_METAL_75, LARM_DAMAGE_METAL_75, 0xFFFFFFFF));
+            } else if (leftArmMetalDurability <= 0.50F) {
+                state.addModifier(SkinModifier.leftArm(LARM_DAMAGE_METAL_50, LARM_DAMAGE_METAL_50, 0xFFFFFFFF));
+            } else if (leftArmMetalDurability <= 0.75F) {
+                state.addModifier(SkinModifier.leftArm(LARM_DAMAGE_METAL_25, LARM_DAMAGE_METAL_25, 0xFFFFFFFF));
+            }
+        }
+
+        float rightLegMetalDurability = -1.0F;
+
+        if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTLEG.get(), CyberwareSlot.RLEG)) {
+            rightLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTLEG.get(), CyberwareSlot.RLEG);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTLEG_COPPERPLATED.get(), CyberwareSlot.RLEG)) {
+            rightLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTLEG_COPPERPLATED.get(), CyberwareSlot.RLEG);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTLEG_IRONPLATED.get(), CyberwareSlot.RLEG)) {
+            rightLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTLEG_IRONPLATED.get(), CyberwareSlot.RLEG);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_RIGHTLEG_GOLDPLATED.get(), CyberwareSlot.RLEG)) {
+            rightLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_RIGHTLEG_GOLDPLATED.get(), CyberwareSlot.RLEG);
+        }
+
+        if (rightLegMetalDurability >= 0.0F) {
+            if (rightLegMetalDurability <= 0.25F) {
+                state.addModifier(SkinModifier.rightLeg(RLEG_DAMAGE_METAL_75, RLEG_DAMAGE_METAL_75, 0xFFFFFFFF));
+            } else if (rightLegMetalDurability <= 0.50F) {
+                state.addModifier(SkinModifier.rightLeg(RLEG_DAMAGE_METAL_50, RLEG_DAMAGE_METAL_50, 0xFFFFFFFF));
+            } else if (rightLegMetalDurability <= 0.75F) {
+                state.addModifier(SkinModifier.rightLeg(RLEG_DAMAGE_METAL_25, RLEG_DAMAGE_METAL_25, 0xFFFFFFFF));
+            }
+        }
+
+        float leftLegMetalDurability = -1.0F;
+
+        if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTLEG.get(), CyberwareSlot.LLEG)) {
+            leftLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTLEG.get(), CyberwareSlot.LLEG);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTLEG_COPPERPLATED.get(), CyberwareSlot.LLEG)) {
+            leftLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTLEG_COPPERPLATED.get(), CyberwareSlot.LLEG);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTLEG_IRONPLATED.get(), CyberwareSlot.LLEG)) {
+            leftLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTLEG_IRONPLATED.get(), CyberwareSlot.LLEG);
+        } else if (data.hasSpecificItem(ModItems.BASECYBERWARE_LEFTLEG_GOLDPLATED.get(), CyberwareSlot.LLEG)) {
+            leftLegMetalDurability = data.getDurabilityPercent(ModItems.BASECYBERWARE_LEFTLEG_GOLDPLATED.get(), CyberwareSlot.LLEG);
+        }
+
+        if (leftLegMetalDurability >= 0.0F) {
+            if (leftLegMetalDurability <= 0.25F) {
+                state.addModifier(SkinModifier.leftLeg(LLEG_DAMAGE_METAL_75, LLEG_DAMAGE_METAL_75, 0xFFFFFFFF));
+            } else if (leftLegMetalDurability <= 0.50F) {
+                state.addModifier(SkinModifier.leftLeg(LLEG_DAMAGE_METAL_50, LLEG_DAMAGE_METAL_50, 0xFFFFFFFF));
+            } else if (leftLegMetalDurability <= 0.75F) {
+                state.addModifier(SkinModifier.leftLeg(LLEG_DAMAGE_METAL_25, LLEG_DAMAGE_METAL_25, 0xFFFFFFFF));
+            }
+        }
+
+        // METAL PLATING
+        float metalPlatingDurability = data.getDurabilityPercent(ModItems.SKINUPGRADES_METALPLATING.get(), CyberwareSlot.SKIN);
+
+        if (metalPlatingDurability >= 0.0F) {
+            if (fullBorgDurability) {
+                if (metalPlatingDurability <= 0.25F) {
+                    state.addModifier(new SkinModifier(METALPLATING_DAMAGE_TORSO_75, METALPLATING_DAMAGE_TORSO_75, 0xFFFFFFFF, false));
+                } else if (metalPlatingDurability <= 0.50F) {
+                    state.addModifier(new SkinModifier(METALPLATING_DAMAGE_TORSO_50, METALPLATING_DAMAGE_TORSO_50, 0xFFFFFFFF, false));
+                } else if (metalPlatingDurability <= 0.75F) {
+                    state.addModifier(new SkinModifier(METALPLATING_DAMAGE_TORSO_25, METALPLATING_DAMAGE_TORSO_25, 0xFFFFFFFF, false));
+                }
+            } else {
+                if (metalPlatingDurability <= 0.25F) {
+                    state.addModifier(new SkinModifier(SKIN_DAMAGE_TORSO_75, SKIN_DAMAGE_TORSO_75, 0xFFFFFFFF, false, EnumSet.noneOf(SkinModifier.HideVanilla.class)));
+                } else if (metalPlatingDurability <= 0.50F) {
+                    state.addModifier(new SkinModifier(SKIN_DAMAGE_TORSO_50, SKIN_DAMAGE_TORSO_50, 0xFFFFFFFF, false, EnumSet.noneOf(SkinModifier.HideVanilla.class)));
+                } else if (metalPlatingDurability <= 0.75F) {
+                    state.addModifier(new SkinModifier(SKIN_DAMAGE_TORSO_25, SKIN_DAMAGE_TORSO_25, 0xFFFFFFFF, false, EnumSet.noneOf(SkinModifier.HideVanilla.class)));
+                }
+            }
+        }
+
+
+
+
+
+
+
 // MONOVISION
         if (data.hasSpecificItem(ModItems.EYEUPGRADES_MONOVISION.get(), CyberwareSlot.EYES)) {
+            ResourceLocation monovision = CybereyeOpticsOverlayHandler.getShifted(player, MONOVISION, CybereyeVisualConfig.OpticsType.MONOVISION);
+            ResourceLocation monovisionDyed = CybereyeOpticsOverlayHandler.getShifted(player, MONOVISION_DYED, CybereyeVisualConfig.OpticsType.MONOVISION);
+            ResourceLocation monovisionHighlight = CybereyeOpticsOverlayHandler.getShifted(player, MONOVISION_HIGHLIGHT, CybereyeVisualConfig.OpticsType.MONOVISION);
+
+            state.addModifier(new SkinModifier(monovision, monovision,
+                    0xFFFFFFFF, false));
+
             if (data.isDyed(ModItems.EYEUPGRADES_MONOVISION.get(), CyberwareSlot.EYES)) {
                 int tint = data.dyeColor(ModItems.EYEUPGRADES_MONOVISION.get(), CyberwareSlot.EYES);
-                state.addModifier(new SkinModifier(MONOVISION, MONOVISION,
-                        0xFFFFFFFF,  false));
-                state.addModifier(new SkinModifier(MONOVISION_DYED, MONOVISION_DYED,
+
+                state.addModifier(new SkinModifier(monovisionDyed, monovisionDyed,
                         tint, false));
-                state.addHighlight(new SkinHighlight(MONOVISION_HIGHLIGHT, MONOVISION_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(monovisionHighlight, monovisionHighlight,
                         tint, true, true));
             } else {
-                state.addModifier(new SkinModifier(MONOVISION, MONOVISION,
-                        0xFFFFFFFF,  false));
-                state.addHighlight(new SkinHighlight(MONOVISION_HIGHLIGHT, MONOVISION_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(monovisionHighlight, monovisionHighlight,
                         0xFFFFFFFF, true, true));
-
             }
         }
 
 // MULTIOPTICS
         if (data.hasSpecificItem(ModItems.EYEUPGRADES_MULTIOPTICS1.get(), CyberwareSlot.EYES)) {
-            state.addModifier(new SkinModifier(MULTIOPTICS1, MULTIOPTICS1,
+            ResourceLocation base = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS1, CybereyeVisualConfig.OpticsType.MULTIOPTICS_1);
+            ResourceLocation dyed = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS1_DYED, CybereyeVisualConfig.OpticsType.MULTIOPTICS_1);
+            ResourceLocation highlight = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS1_HIGHLIGHT, CybereyeVisualConfig.OpticsType.MULTIOPTICS_1);
+
+            state.addModifier(new SkinModifier(base, base,
                     0xFFFFFFFF, false));
 
             if (data.isDyed(ModItems.EYEUPGRADES_MULTIOPTICS1.get(), CyberwareSlot.EYES)) {
                 int tint = data.dyeColor(ModItems.EYEUPGRADES_MULTIOPTICS1.get(), CyberwareSlot.EYES);
 
-                state.addModifier(new SkinModifier(MULTIOPTICS1_DYED, MULTIOPTICS1_DYED,
+                state.addModifier(new SkinModifier(dyed, dyed,
                         tint, false));
-                state.addHighlight(new SkinHighlight(MULTIOPTICS1_HIGHLIGHT, MULTIOPTICS1_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         tint, true, true));
             } else {
-                state.addHighlight(new SkinHighlight(MULTIOPTICS1_HIGHLIGHT, MULTIOPTICS1_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         0xFFB00000, true, true));
             }
         }
 
         if (data.hasSpecificItem(ModItems.EYEUPGRADES_MULTIOPTICS2.get(), CyberwareSlot.EYES)) {
-            state.addModifier(new SkinModifier(MULTIOPTICS2, MULTIOPTICS2,
+            ResourceLocation base = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS2, CybereyeVisualConfig.OpticsType.MULTIOPTICS_2);
+            ResourceLocation dyed = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS2_DYED, CybereyeVisualConfig.OpticsType.MULTIOPTICS_2);
+            ResourceLocation highlight = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS2_HIGHLIGHT, CybereyeVisualConfig.OpticsType.MULTIOPTICS_2);
+
+            state.addModifier(new SkinModifier(base, base,
                     0xFFFFFFFF, false));
 
             if (data.isDyed(ModItems.EYEUPGRADES_MULTIOPTICS2.get(), CyberwareSlot.EYES)) {
                 int tint = data.dyeColor(ModItems.EYEUPGRADES_MULTIOPTICS2.get(), CyberwareSlot.EYES);
 
-                state.addModifier(new SkinModifier(MULTIOPTICS2_DYED, MULTIOPTICS2_DYED,
+                state.addModifier(new SkinModifier(dyed, dyed,
                         tint, false));
-                state.addHighlight(new SkinHighlight(MULTIOPTICS2_HIGHLIGHT, MULTIOPTICS2_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         tint, true, true));
             } else {
-                state.addHighlight(new SkinHighlight(MULTIOPTICS2_HIGHLIGHT, MULTIOPTICS2_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         0xFFB00000, true, true));
             }
         }
 
         if (data.hasSpecificItem(ModItems.EYEUPGRADES_MULTIOPTICS3.get(), CyberwareSlot.EYES)) {
-            state.addModifier(new SkinModifier(MULTIOPTICS3, MULTIOPTICS3,
+            ResourceLocation base = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS3, CybereyeVisualConfig.OpticsType.MULTIOPTICS_3);
+            ResourceLocation dyed = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS3_DYED, CybereyeVisualConfig.OpticsType.MULTIOPTICS_3);
+            ResourceLocation highlight = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS3_HIGHLIGHT, CybereyeVisualConfig.OpticsType.MULTIOPTICS_3);
+
+            state.addModifier(new SkinModifier(base, base,
                     0xFFFFFFFF, false));
 
             if (data.isDyed(ModItems.EYEUPGRADES_MULTIOPTICS3.get(), CyberwareSlot.EYES)) {
                 int tint = data.dyeColor(ModItems.EYEUPGRADES_MULTIOPTICS3.get(), CyberwareSlot.EYES);
 
-                state.addModifier(new SkinModifier(MULTIOPTICS3_DYED, MULTIOPTICS3_DYED,
+                state.addModifier(new SkinModifier(dyed, dyed,
                         tint, false));
-                state.addHighlight(new SkinHighlight(MULTIOPTICS3_HIGHLIGHT, MULTIOPTICS3_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         tint, true, true));
             } else {
-                state.addHighlight(new SkinHighlight(MULTIOPTICS3_HIGHLIGHT, MULTIOPTICS3_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         0xFFB00000, true, true));
             }
         }
 
         if (data.hasSpecificItem(ModItems.EYEUPGRADES_MULTIOPTICS4.get(), CyberwareSlot.EYES)) {
-            state.addModifier(new SkinModifier(MULTIOPTICS4, MULTIOPTICS4,
+            ResourceLocation base = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS4, CybereyeVisualConfig.OpticsType.MULTIOPTICS_4);
+            ResourceLocation dyed = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS4_DYED, CybereyeVisualConfig.OpticsType.MULTIOPTICS_4);
+            ResourceLocation highlight = CybereyeOpticsOverlayHandler.getShifted(player, MULTIOPTICS4_HIGHLIGHT, CybereyeVisualConfig.OpticsType.MULTIOPTICS_4);
+
+            state.addModifier(new SkinModifier(base, base,
                     0xFFFFFFFF, false));
 
             if (data.isDyed(ModItems.EYEUPGRADES_MULTIOPTICS4.get(), CyberwareSlot.EYES)) {
                 int tint = data.dyeColor(ModItems.EYEUPGRADES_MULTIOPTICS4.get(), CyberwareSlot.EYES);
 
-                state.addModifier(new SkinModifier(MULTIOPTICS4_DYED, MULTIOPTICS4_DYED,
+                state.addModifier(new SkinModifier(dyed, dyed,
                         tint, false));
-                state.addHighlight(new SkinHighlight(MULTIOPTICS4_HIGHLIGHT, MULTIOPTICS4_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         tint, true, true));
             } else {
-                state.addHighlight(new SkinHighlight(MULTIOPTICS4_HIGHLIGHT, MULTIOPTICS4_HIGHLIGHT,
+                state.addHighlight(new SkinHighlight(highlight, highlight,
                         0xFFB00000, true, true));
             }
         }
@@ -2030,6 +2422,17 @@ public class SkinModifierManager {
                     0xFFFFFFFF, true));
         }
 
+// LEFT HEAVY KNUCKLES
+        if (data.hasSpecificItem(ModItems.ARMUPGRADES_HEAVYKNUCKLES.get(), CyberwareSlot.LARM)) {
+            state.addModifier(new SkinModifier(HEAVY_KNUCKLES_LARM_WIDE, HEAVY_KNUCKLES_LARM_SLIM,
+                    0xFFFFFFFF, false));
+        }
+// RIGHT HEAVY KNUCKLES
+        if (data.hasSpecificItem(ModItems.ARMUPGRADES_HEAVYKNUCKLES.get(), CyberwareSlot.RARM)) {
+            state.addModifier(new SkinModifier(HEAVY_KNUCKLES_RARM_WIDE, HEAVY_KNUCKLES_RARM_SLIM,
+                    0xFFFFFFFF, false));
+        }
+
 // EXOSUIT
         ItemStack chestSlot = player.getItemBySlot(EquipmentSlot.CHEST);
         if (chestSlot.is(ModItems.EXOSUIT1)) {
@@ -2040,6 +2443,20 @@ public class SkinModifierManager {
         addTattooModifierIfLayer(state, player, TattooLayer.OVER_CYBERWARE);
         return state;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2251,5 +2668,4 @@ public class SkinModifierManager {
                 false
         ));
     }
-
 }

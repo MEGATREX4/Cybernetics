@@ -2,6 +2,7 @@ package com.perigrine3.createcybernetics.screen.custom.crafting;
 
 import com.perigrine3.createcybernetics.block.ModBlocks;
 import com.perigrine3.createcybernetics.block.entity.EngineeringTableBlockEntity;
+import com.perigrine3.createcybernetics.recipe.EngineeringDeconstructRecipeInput;
 import com.perigrine3.createcybernetics.recipe.EngineeringTableRecipe;
 import com.perigrine3.createcybernetics.recipe.EngineeringTableRecipeInput;
 import com.perigrine3.createcybernetics.recipe.ModRecipes;
@@ -35,7 +36,6 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
     private static final int RESULT_X = 175;
     private static final int RESULT_Y = 101;
 
-    // Deconstruct panel (input + 6 outputs)
     private static final int DECON_INPUT_X = 28;
     private static final int DECON_INPUT_Y = 62;
 
@@ -77,14 +77,10 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
         this.pos = pos;
         this.access = ContainerLevelAccess.create(this.level, pos);
 
-        // Default fallbacks (only used if BE isn't available for some reason)
         ItemStackHandler gridHandler = new ItemStackHandler(GRID_SLOTS);
         ItemStackHandler deconInHandler = new ItemStackHandler(EngineeringTableBlockEntity.DECONSTRUCT_INPUT_SIZE);
         ItemStackHandler deconOutHandler = new ItemStackHandler(EngineeringTableBlockEntity.DECONSTRUCT_OUTPUT_SIZE);
 
-        // IMPORTANT: Bind handlers on BOTH sides.
-        // Server: use server BE.
-        // Client: use client BE (from client level).
         if (this.level.getBlockEntity(pos) instanceof EngineeringTableBlockEntity be) {
             gridHandler = be.getCrafting();
             deconInHandler = be.getDeconstructInput();
@@ -95,58 +91,34 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
         this.deconstructInput = deconInHandler;
         this.deconstructOutputs = deconOutHandler;
 
-        // 0 = craft result
         this.addSlot(new EngineeringResultSlot(this.resultSlots, 0, RESULT_X, RESULT_Y));
 
-        // 1..25 = craft grid
         int idx = 0;
+
         for (int row = 0; row < GRID_H; row++) {
             for (int col = 0; col < GRID_W; col++) {
-                this.addSlot(new GridSlot(
-                        this.grid,
-                        idx++,
-                        CRAFT_START_X + col * SLOT_SPACING,
-                        CRAFT_START_Y + row * SLOT_SPACING
-                ));
+                this.addSlot(new GridSlot(this.grid, idx++, CRAFT_START_X + col * SLOT_SPACING, CRAFT_START_Y + row * SLOT_SPACING));
             }
         }
 
-        // 26 = deconstruct input
         this.addSlot(new DeconstructInputSlot(this.deconstructInput, 0, DECON_INPUT_X, DECON_INPUT_Y));
 
-        // 27..32 = deconstruct outputs (6 slots), 2 cols x 3 rows
         int outIndex = 0;
+
         for (int row = 0; row < DECON_OUT_ROWS; row++) {
             for (int col = 0; col < DECON_OUT_COLS; col++) {
-                this.addSlot(new DeconstructOutputSlot(
-                        this.deconstructOutputs,
-                        outIndex++,
-                        DECON_OUT_START_X + col * SLOT_SPACING,
-                        DECON_OUT_START_Y + row * SLOT_SPACING
-                ));
+                this.addSlot(new DeconstructOutputSlot(this.deconstructOutputs, outIndex++, DECON_OUT_START_X + col * SLOT_SPACING, DECON_OUT_START_Y + row * SLOT_SPACING));
             }
         }
 
-        // 33..59 = player inv (27)
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                this.addSlot(new Slot(
-                        inv,
-                        9 + row * 9 + col,
-                        INV_START_X + col * SLOT_SPACING,
-                        INV_START_Y + row * SLOT_SPACING
-                ));
+                this.addSlot(new Slot(inv, 9 + row * 9 + col, INV_START_X + col * SLOT_SPACING, INV_START_Y + row * SLOT_SPACING));
             }
         }
 
-        // 60..68 = hotbar (9)
         for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(
-                    inv,
-                    col,
-                    INV_START_X + col * SLOT_SPACING,
-                    HOTBAR_Y
-            ));
+            this.addSlot(new Slot(inv, col, INV_START_X + col * SLOT_SPACING, HOTBAR_Y));
         }
 
         if (!this.level.isClientSide) {
@@ -162,14 +134,15 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        // Do NOT clear handlers; they persist in the BE.
     }
 
     private EngineeringTableRecipeInput buildEngineeringInput() {
         List<ItemStack> items = new ArrayList<>(GRID_SLOTS);
+
         for (int i = 0; i < GRID_SLOTS; i++) {
             items.add(this.grid.getStackInSlot(i).copy());
         }
+
         return new EngineeringTableRecipeInput(items);
     }
 
@@ -184,6 +157,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
         this.lastRecipe = opt.orElse(null);
 
         ItemStack out = ItemStack.EMPTY;
+
         if (this.lastRecipe != null) {
             out = this.lastRecipe.value().assemble(input, this.level.registryAccess());
         }
@@ -196,55 +170,57 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
         for (int i = 0; i < EngineeringTableBlockEntity.DECONSTRUCT_OUTPUT_SIZE; i++) {
             if (!deconstructOutputs.getStackInSlot(i).isEmpty()) return false;
         }
+
         return true;
+    }
+
+    private boolean hasDeconstructRecipe(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+
+        EngineeringDeconstructRecipeInput input = new EngineeringDeconstructRecipeInput(stack);
+
+        return this.level.getRecipeManager().getRecipeFor(ModRecipes.ENGINEERING_DECONSTRUCT_TYPE.get(), input, this.level).isPresent();
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack empty = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
+
         if (slot == null || !slot.hasItem()) return empty;
 
         ItemStack stack = slot.getItem();
         ItemStack copy = stack.copy();
 
-        // Slot layout:
-        // 0 = craft result
-        // 1..25 = craft grid
-        // 26 = deconstruct input
-        // 27..32 = deconstruct outputs (6)
-        // 33..59 = player inv
-        // 60..68 = hotbar
         final int CRAFT_RESULT = 0;
         final int CRAFT_GRID_START = 1;
-        final int CRAFT_GRID_END_EXCL = 26; // 1..25
+        final int CRAFT_GRID_END_EXCL = 26;
         final int DECON_INPUT = 26;
         final int DECON_OUT_START = 27;
-        final int DECON_OUT_END_EXCL = 33; // 27..32
+        final int DECON_OUT_END_EXCL = 33;
         final int PLAYER_INV_START = 33;
-        final int PLAYER_INV_END_EXCL = 69; // 33..68
+        final int PLAYER_INV_END_EXCL = 69;
 
         if (index == CRAFT_RESULT) {
             if (!this.moveItemStackTo(stack, PLAYER_INV_START, PLAYER_INV_END_EXCL, true)) return ItemStack.EMPTY;
             slot.onQuickCraft(stack, copy);
         } else if (index >= DECON_OUT_START && index < DECON_OUT_END_EXCL) {
-            // shift-click outputs -> player inventory
             if (!this.moveItemStackTo(stack, PLAYER_INV_START, PLAYER_INV_END_EXCL, true)) return ItemStack.EMPTY;
         } else if (index >= PLAYER_INV_START && index < PLAYER_INV_END_EXCL) {
-            // shift-click from player -> craft grid ONLY (never into deconstruct input)
             if (!this.moveItemStackTo(stack, CRAFT_GRID_START, CRAFT_GRID_END_EXCL, false)) return ItemStack.EMPTY;
         } else if (index >= CRAFT_GRID_START && index < CRAFT_GRID_END_EXCL) {
-            // shift-click from craft grid -> player
             if (!this.moveItemStackTo(stack, PLAYER_INV_START, PLAYER_INV_END_EXCL, false)) return ItemStack.EMPTY;
         } else if (index == DECON_INPUT) {
-            // If somehow shift-clicked, push back to player inventory.
             if (!this.moveItemStackTo(stack, PLAYER_INV_START, PLAYER_INV_END_EXCL, false)) return ItemStack.EMPTY;
         } else {
             if (!this.moveItemStackTo(stack, PLAYER_INV_START, PLAYER_INV_END_EXCL, false)) return ItemStack.EMPTY;
         }
 
-        if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
-        else slot.setChanged();
+        if (stack.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
 
         if (stack.getCount() == copy.getCount()) return ItemStack.EMPTY;
 
@@ -258,6 +234,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
     }
 
     private final class GridSlot extends SlotItemHandler {
+
         private GridSlot(ItemStackHandler handler, int index, int x, int y) {
             super(handler, index, x, y);
         }
@@ -265,48 +242,53 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
         @Override
         public void setChanged() {
             super.setChanged();
-            if (!level.isClientSide) updateResult();
+
+            if (!level.isClientSide) {
+                updateResult();
+            }
         }
 
         @Override
         public void set(ItemStack stack) {
             super.set(stack);
-            if (!level.isClientSide) updateResult();
+
+            if (!level.isClientSide) {
+                updateResult();
+            }
         }
 
         @Override
         public ItemStack remove(int amount) {
             ItemStack out = super.remove(amount);
-            if (!level.isClientSide) updateResult();
+
+            if (!level.isClientSide) {
+                updateResult();
+            }
+
             return out;
         }
     }
 
     private final class DeconstructInputSlot extends SlotItemHandler {
+
         private DeconstructInputSlot(ItemStackHandler handler, int index, int x, int y) {
             super(handler, index, x, y);
         }
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            // Only accept cyberware/scavenged, and only if outputs are empty.
-            if (!EngineeringTableBlockEntity.isDeconstructable(stack)) return false;
             if (!deconstructOutputsEmpty()) return false;
-            return true;
+            return hasDeconstructRecipe(stack);
         }
 
         @Override
         public int getMaxStackSize() {
             return 1;
         }
-
-        @Override
-        public void set(ItemStack stack) {
-            super.set(stack);
-        }
     }
 
     private final class DeconstructOutputSlot extends SlotItemHandler {
+
         private DeconstructOutputSlot(ItemStackHandler handler, int index, int x, int y) {
             super(handler, index, x, y);
         }
@@ -322,6 +304,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
     private Placement findPlacement(EngineeringTableRecipe recipe, EngineeringTableRecipeInput input) {
         int w = recipe.width();
         int h = recipe.height();
+
         if (w <= 0 || h <= 0 || w > GRID_W || h > GRID_H) return null;
 
         int maxX = GRID_W - w;
@@ -333,6 +316,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
                 if (recipe.accept_mirrored() && matchesAt(recipe, input, offX, offY, true)) return new Placement(offX, offY, true);
             }
         }
+
         return null;
     }
 
@@ -363,13 +347,16 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
                 int patIndex = patX + relY * w;
 
                 Ingredient ing = ings.get(patIndex);
+
                 if (!ing.test(stack)) return false;
             }
         }
+
         return true;
     }
 
     private final class EngineeringResultSlot extends Slot {
+
         private EngineeringResultSlot(ResultContainer container, int slot, int x, int y) {
             super(container, slot, x, y);
         }
@@ -394,6 +381,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
             EngineeringTableRecipeInput input = buildEngineeringInput();
 
             Placement placement = findPlacement(recipe, input);
+
             if (placement == null) {
                 updateResult();
                 return;
@@ -409,6 +397,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
                     int patIndex = patX + relY * w;
 
                     Ingredient ing = ings.get(patIndex);
+
                     if (ing.isEmpty()) continue;
 
                     int gridX = placement.offX + relX;
@@ -416,6 +405,7 @@ public class EngineeringTableMenu extends AbstractContainerMenu {
                     int gridIndex = gridX + gridY * GRID_W;
 
                     ItemStack in = grid.getStackInSlot(gridIndex);
+
                     if (!in.isEmpty()) {
                         in.shrink(1);
                         grid.setStackInSlot(gridIndex, in);

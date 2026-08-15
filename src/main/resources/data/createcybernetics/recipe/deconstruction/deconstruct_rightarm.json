@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:basecyberware_rightarm"
+    },
+    {
+      "item": "createcybernetics:scavenged_rightarm"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 1
+    }
+  ]
+}

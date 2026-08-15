@@ -1,0 +1,44 @@
+{
+"type": "create:crushing",
+  "ingredients": [
+    {
+      "type": "neoforge:compound",
+      "ingredients": [
+        {
+          "item": "createcybernetics:brainupgrades_berserk"
+        }
+      ]
+    }
+  ],
+  "processing_time": 100,
+  "results": [
+    {
+      "chance": 0.70,
+      "id": "createcybernetics:component_wiring"
+    },
+    {
+      "chance": 0.20,
+      "id": "createcybernetics:component_wiring"
+    },
+    {
+      "chance": 0.20,
+      "id": "createcybernetics:plastic_sheet"
+    },
+    {
+      "chance": 0.20,
+      "id": "createcybernetics:component_diodes"
+    },
+    {
+      "chance": 0.20,
+      "id": "createcybernetics:empty_autoinjector"
+    },
+    {
+      "chance": 0.20,
+      "id": "createcybernetics:component_ssd"
+    },
+    {
+      "chance": 0.25,
+      "id": "create:experience_nugget"
+    }
+  ]
+}

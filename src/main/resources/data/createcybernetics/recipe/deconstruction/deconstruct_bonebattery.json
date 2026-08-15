@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_bonebattery"
+    },
+    {
+      "item": "createcybernetics:scavenged_bonebattery"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    }
+  ]
+}

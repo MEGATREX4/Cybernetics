@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_coaxialport"
+    },
+    {
+      "item": "createcybernetics:scavenged_coaxialport"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 1
+    }
+  ]
+}

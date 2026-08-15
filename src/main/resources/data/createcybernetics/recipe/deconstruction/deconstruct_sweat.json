@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_sweat"
+    },
+    {
+      "item": "createcybernetics:scavenged_sweat"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    }
+  ]
+}

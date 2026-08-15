@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_dualisticconverter"
+    },
+    {
+      "item": "createcybernetics:scavenged_dualisticconverter"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 7
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 6
+    },
+    {
+      "id": "minecraft:redstone",
+      "count": 3
+    },
+    {
+      "id": "minecraft:lapis_lazuli",
+      "count": 3
+    }
+  ]
+}

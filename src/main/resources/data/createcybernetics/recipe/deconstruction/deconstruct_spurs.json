@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:legupgrades_spurs"
+    },
+    {
+      "item": "createcybernetics:scavenged_spurs"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 1
+    }
+  ]
+}

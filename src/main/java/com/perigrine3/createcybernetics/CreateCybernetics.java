@@ -34,7 +34,6 @@ import com.perigrine3.createcybernetics.entity.client.renderers.PigstromRenderer
 import com.perigrine3.createcybernetics.entity.client.renderers.PunklinRenderer;
 import com.perigrine3.createcybernetics.entity.client.renderers.RipperRenderer;
 import com.perigrine3.createcybernetics.entity.client.renderers.SmasherRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.TatHogRenderer;
 import com.perigrine3.createcybernetics.item.ModCreativeModeTabs;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.loot.ModLootModifiers;
@@ -259,7 +258,6 @@ public class CreateCybernetics {
 
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(ModItems.RIPPER_SPAWN_EGG);
-            event.accept(ModItems.TATHOG_SPAWN_EGG);
 
             event.accept(ModItems.SMASHER_SPAWN_EGG);
             event.accept(ModItems.CYBERZOMBIE_SPAWN_EGG);
@@ -451,7 +449,6 @@ public class CreateCybernetics {
             EntityRenderers.register(ModEntities.ARC_LIGHTNING_BOLT.get(), ArcLightningBoltRenderer::new);
 
             EntityRenderers.register(ModEntities.RIPPER.get(), RipperRenderer::new);
-            EntityRenderers.register(ModEntities.TATHOG.get(), TatHogRenderer::new);
 
             EntityRenderers.register(ModEntities.SMASHER.get(), SmasherRenderer::new);
             EntityRenderers.register(ModEntities.CYBERZOMBIE.get(), CyberzombieRenderer::new);

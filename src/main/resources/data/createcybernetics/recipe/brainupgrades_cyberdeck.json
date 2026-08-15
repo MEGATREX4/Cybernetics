@@ -25,6 +25,9 @@
     "D": {
       "item": "createcybernetics:component_diodes"
     },
+    "S": {
+      "item": "createcybernetics:component_ssd"
+    },
     "E": {
       "item": "createcybernetics:component_led"
     }
@@ -34,8 +37,8 @@
     "R    ",
     "PPPPP",
     "PWDEP",
-    "PPPPP",
-    "     "
+    "PSSSP",
+    "PPPPP"
   ],
 
   "result": {

@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_crafthands"
+    },
+    {
+      "item": "createcybernetics:scavenged_crafthands"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 1
+    }
+  ]
+}

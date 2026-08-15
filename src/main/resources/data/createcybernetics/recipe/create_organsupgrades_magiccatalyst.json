@@ -7,29 +7,26 @@
     "N": {
       "item": "minecraft:nether_star"
     },
-    "R": {
-      "item": "minecraft:red_dye"
-    },
-    "B": {
-      "item": "minecraft:blue_dye"
-    },
-    "T": {
+    "X": {
       "item": "minecraft:ghast_tear"
     },
-    "W": {
-      "item": "createcybernetics:component_wiring"
+    "Q": {
+      "item": "createcybernetics:netherite_qpu"
     },
     "D": {
       "item": "createcybernetics:organsupgrades_dualisticconverter"
+    },
+    "T": {
+      "item": "createcybernetics:component_diodes"
     }
   },
 
   "pattern": [
-    "  T  ",
-    " TNT ",
-    "RWDWB",
-    " TNT ",
-    "  T  "
+    " XTX ",
+    "XTNTX",
+    " QDQ ",
+    "XTNTX",
+    " XTX "
   ],
 
   "result": {

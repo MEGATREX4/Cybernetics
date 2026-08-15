@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:eyeupgrades_biomonitor"
+    },
+    {
+      "item": "createcybernetics:scavenged_biomonitor"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_netheriteplating"
+    },
+    {
+      "item": "createcybernetics:scavenged_netheriteplating"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 6
+    },
+    {
+      "id": "minecraft:slimeball",
+      "count": 6
+    },
+    {
+      "id": "minecraft:netherite_scrap",
+      "count": 3
+    }
+  ]
+}

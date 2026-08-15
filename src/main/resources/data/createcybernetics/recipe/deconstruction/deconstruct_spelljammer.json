@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_spelljammer"
+    },
+    {
+      "item": "createcybernetics:scavenged_spelljammer"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 1
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "category": "misc",
+
+  "key": {
+    "N": {
+      "item": "createcybernetics:titaniumnugget"
+    },
+    "M": {
+      "item": "createcybernetics:component_mesh"
+    },
+    "T": {
+      "item": "createcybernetics:titaniumingot"
+    },
+    "E": {
+      "item": "createcybernetics:graphene_elastomer"
+    }
+  },
+
+  "pattern": [
+    "  MMM",
+    "  MTM",
+    " MEMM",
+    "NEM  ",
+    "NN   "
+  ],
+
+  "result": {
+    "count": 1,
+    "id": "createcybernetics:muscleupgrades_reinforcedtendons"
+  },
+  "show_notification": false
+}

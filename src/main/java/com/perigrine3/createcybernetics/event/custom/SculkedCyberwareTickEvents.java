@@ -8,14 +8,12 @@ import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.effect.ModEffects;
 import com.perigrine3.createcybernetics.item.sculked.SculkedIntestinesItem;
 import com.perigrine3.createcybernetics.item.sculked.SculkedMuscleItem;
-import net.minecraft.core.BlockPos;
+import com.perigrine3.createcybernetics.util.SculkedConversionHelper;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -25,17 +23,18 @@ import java.util.Map;
 @EventBusSubscriber(modid = CreateCybernetics.MODID)
 public final class SculkedCyberwareTickEvents {
     private static final int SCULKED_EFFECT_CHECK_INTERVAL_TICKS = 24000;
-    private static final float SCULKED_EFFECT_CHANCE = 0.25f;
+    private static final float SCULKED_EFFECT_CHANCE = 0.25F;
 
-    private static final int XP_CHECK_INTERVAL_TICKS = 20;
-    private static final int XP_PER_FOOD_POINT = 3;
-    private static final float SATURATION_PER_FOOD_POINT = 0.15f;
+    private static final int FOOD_CHECK_INTERVAL_TICKS = 20;
+    private static final int XP_PER_FOOD_POINT = 250;
+    private static final float SATURATION_PER_FOOD_POINT = 0.15F;
 
-    private static final int MUSCLE_EFFECT_CHECK_INTERVAL_TICKS = 20;
-    private static final int MUSCLE_EFFECT_DURATION_TICKS = 60;
+    private static final int EFFECT_CHECK_INTERVAL_TICKS = 20;
+    private static final int EFFECT_DURATION_TICKS = 60;
 
-    private static final int STRENGTH_AMPLIFIER = 0;
-    private static final int WEAKNESS_AMPLIFIER = 0;
+    private static final int XP_LEVEL_TIER_1 = 10;
+    private static final int XP_LEVEL_TIER_2 = 20;
+    private static final int XP_LEVEL_TIER_3 = 30;
 
     private SculkedCyberwareTickEvents() {}
 
@@ -47,26 +46,33 @@ public final class SculkedCyberwareTickEvents {
             return;
         }
 
-        InstalledSculkedCyberware installed = getInstalledSculkedCyberware(player);
+        if (!player.hasData(ModAttachments.CYBERWARE)) {
+            return;
+        }
 
-        if (!installed.hasAnySculkedCyberware()) {
+        PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+
+        InstalledSculkedCyberware installed = getInstalledSculkedCyberware(data);
+        boolean fullConversion = SculkedConversionHelper.hasFullDefaultSculkConversion(data);
+
+        if (!installed.hasAnySculkedCyberware() && !fullConversion) {
             return;
         }
 
         tickSculkedEffect(player);
 
+        boolean standingOnSculk = SculkedConversionHelper.isStandingOnSculk(player);
+
         if (installed.hasIntestines()) {
-            tickExperienceFeeding(player);
+            tickExperienceFeeding(player, standingOnSculk);
         }
 
-        if (installed.hasMuscle()) {
-            tickSculkMuscleEffects(player);
+        if (installed.hasMuscle() || fullConversion) {
+            tickPhysicalEffects(player, standingOnSculk, fullConversion);
         }
     }
 
-    private static InstalledSculkedCyberware getInstalledSculkedCyberware(Player player) {
-        PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
-
+    private static InstalledSculkedCyberware getInstalledSculkedCyberware(PlayerCyberwareData data) {
         boolean hasIntestines = false;
         boolean hasMuscle = false;
 
@@ -119,8 +125,8 @@ public final class SculkedCyberwareTickEvents {
         }
     }
 
-    private static void tickExperienceFeeding(Player player) {
-        if ((player.tickCount % XP_CHECK_INTERVAL_TICKS) != 0) {
+    private static void tickExperienceFeeding(Player player, boolean standingOnSculk) {
+        if ((player.tickCount % FOOD_CHECK_INTERVAL_TICKS) != 0) {
             return;
         }
 
@@ -130,44 +136,75 @@ public final class SculkedCyberwareTickEvents {
             return;
         }
 
-        if (player.totalExperience < XP_PER_FOOD_POINT) {
-            return;
-        }
-
         int beforeFood = foodData.getFoodLevel();
 
-        player.giveExperiencePoints(-XP_PER_FOOD_POINT);
-        foodData.eat(1, SATURATION_PER_FOOD_POINT);
+        if (standingOnSculk) {
+            foodData.eat(1, SATURATION_PER_FOOD_POINT);
+        } else {
+            if (player.totalExperience < XP_PER_FOOD_POINT) {
+                return;
+            }
+
+            player.giveExperiencePoints(-XP_PER_FOOD_POINT);
+            foodData.eat(1, SATURATION_PER_FOOD_POINT);
+        }
 
         if (beforeFood < 20 && foodData.getFoodLevel() >= 20) {
             applyGoldenAppleEffects(player);
         }
     }
 
-    private static void applyGoldenAppleEffects(Player player) {
-        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 1, false, false, true));
-        player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 2400, 2, false, false, true));
-    }
-
-    private static void tickSculkMuscleEffects(Player player) {
-        if ((player.tickCount % MUSCLE_EFFECT_CHECK_INTERVAL_TICKS) != 0) {
+    private static void tickPhysicalEffects(Player player, boolean standingOnSculk, boolean fullConversion) {
+        if ((player.tickCount % EFFECT_CHECK_INTERVAL_TICKS) != 0) {
             return;
         }
 
-        if (isStandingOnSculk(player)) {
-            player.removeEffect(MobEffects.WEAKNESS);
-            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, MUSCLE_EFFECT_DURATION_TICKS, STRENGTH_AMPLIFIER, false, false, true));
+        int strengthAmplifier = -1;
+        int speedAmplifier = -1;
+
+        if (standingOnSculk) {
+            strengthAmplifier = 0;
+
+            if (fullConversion) {
+                speedAmplifier = 0;
+            }
         } else {
-            player.removeEffect(MobEffects.DAMAGE_BOOST);
-            player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, MUSCLE_EFFECT_DURATION_TICKS, WEAKNESS_AMPLIFIER, false, false, true));
+            player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, EFFECT_DURATION_TICKS, 0, false, false, true));
+
+            if (fullConversion) {
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_DURATION_TICKS, 0, false, false, true));
+            }
+        }
+
+        if (fullConversion) {
+            int xpLevel = player.experienceLevel;
+
+            if (xpLevel >= XP_LEVEL_TIER_1) {
+                strengthAmplifier = Math.max(strengthAmplifier, 0);
+            }
+
+            if (xpLevel >= XP_LEVEL_TIER_2) {
+                speedAmplifier = Math.max(speedAmplifier, 0);
+            }
+
+            if (xpLevel >= XP_LEVEL_TIER_3) {
+                strengthAmplifier = Math.max(strengthAmplifier, 1);
+                speedAmplifier = Math.max(speedAmplifier, 1);
+            }
+        }
+
+        if (strengthAmplifier >= 0) {
+            player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, EFFECT_DURATION_TICKS, strengthAmplifier, false, false, true));
+        }
+
+        if (speedAmplifier >= 0) {
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, EFFECT_DURATION_TICKS, speedAmplifier, false, false, true));
         }
     }
 
-    private static boolean isStandingOnSculk(Player player) {
-        BlockPos below = player.blockPosition().below();
-        BlockState state = player.level().getBlockState(below);
-
-        return state.is(Blocks.SCULK);
+    private static void applyGoldenAppleEffects(Player player) {
+        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 1, false, false, true));
+        player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 2400, 2, false, false, true));
     }
 
     private record InstalledSculkedCyberware(boolean hasIntestines, boolean hasMuscle) {

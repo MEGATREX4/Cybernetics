@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.perigrine3.createcybernetics.ConfigValues;
 import com.perigrine3.createcybernetics.client.skin.*;
-import com.perigrine3.createcybernetics.effect.ModEffects;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -18,13 +17,15 @@ import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
 public final class CyberwareRejectionHeadLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
     private static final Minecraft MC = Minecraft.getInstance();
     private static final float TAU = Mth.TWO_PI;
+
+    private static final float LEVEL_3_HEAD_GLITCH_PHASE_LENGTH = 8.0F;
+    private static final float LEVEL_3_HEAD_GLITCH_THRESHOLD = 0.68F;
 
     public CyberwareRejectionHeadLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {
         super(parent);
@@ -33,26 +34,28 @@ public final class CyberwareRejectionHeadLayer extends RenderLayer<AbstractClien
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         if (ConfigValues.EPILEPSY_MODE) return;
-        if (!shouldRender(player)) return;
+        if (!shouldRenderRejectionVisuals(player)) return;
 
-        MobEffectInstance rejection = player.getEffect(ModEffects.CYBERWARE_REJECTION);
-        if (rejection == null) return;
-
-        int level = Mth.clamp(rejection.getAmplifier() + 1, 1, 3);
-        boolean fugue = player.hasEffect(ModEffects.CYBERPSYCHOSIS_FUGUE);
+        int level = CyberwareRejectionClientState.getRejectionLevel(player);
+        boolean fugue = CyberwareRejectionClientState.isInFugue(player);
         float time = player.tickCount + partialTick;
-        float intensity = getIntensity(level, fugue);
 
         PlayerModel<AbstractClientPlayer> model = getParentModel();
-        boolean renderHat = player.isModelPartShown(PlayerModelPart.HAT);
 
+        CyberwareRejectionEyeGlitchRenderer.render(poseStack, bufferSource, model, player, level, fugue, partialTick);
+
+        if (!shouldRenderHeadGlitch(player, level, fugue, time)) return;
+
+        float intensity = getIntensity(level, fugue);
+        boolean renderHat = player.isModelPartShown(PlayerModelPart.HAT);
         SkinModifierState skinState = SkinModifierManager.getPlayerSkinState(player);
 
         renderContinuousAberration(poseStack, bufferSource, model, renderHat, packedLight, player, skinState, time, level, fugue);
         renderSpikeGlitch(poseStack, bufferSource, model, renderHat, packedLight, player, skinState, time, level, intensity, fugue);
     }
 
-    private static void renderContinuousAberration(PoseStack poseStack, MultiBufferSource bufferSource, PlayerModel<AbstractClientPlayer> model, boolean renderHat, int packedLight, AbstractClientPlayer player, SkinModifierState skinState, float time, int level, boolean fugue) {        float slowWave = Mth.sin(time * 0.24F + player.getId() * 0.37F);
+    private static void renderContinuousAberration(PoseStack poseStack, MultiBufferSource bufferSource, PlayerModel<AbstractClientPlayer> model, boolean renderHat, int packedLight, AbstractClientPlayer player, SkinModifierState skinState, float time, int level, boolean fugue) {
+        float slowWave = Mth.sin(time * 0.24F + player.getId() * 0.37F);
         float fastWave = Mth.sin(time * 2.65F + player.getId() * 1.91F);
         float verticalWave = Mth.sin(time * 4.73F + player.getId() * 0.83F);
 
@@ -98,7 +101,8 @@ public final class CyberwareRejectionHeadLayer extends RenderLayer<AbstractClien
         renderHeadCopy(poseStack, bufferSource, player, skinState, model, renderHat, packedLight, horizontalJitter, verticalJitter, -0.0015F, color(centerAlpha, 0.70F, 0.22F, 0.90F));
     }
 
-    private static void renderSpikeGlitch(PoseStack poseStack, MultiBufferSource bufferSource, PlayerModel<AbstractClientPlayer> model, boolean renderHat, int packedLight, AbstractClientPlayer player, SkinModifierState skinState, float time, int level, float intensity, boolean fugue) {        int burstPhase = Mth.floor(time / getSpikePhaseLength(level, fugue));
+    private static void renderSpikeGlitch(PoseStack poseStack, MultiBufferSource bufferSource, PlayerModel<AbstractClientPlayer> model, boolean renderHat, int packedLight, AbstractClientPlayer player, SkinModifierState skinState, float time, int level, float intensity, boolean fugue) {
+        int burstPhase = Mth.floor(time / getSpikePhaseLength(level, fugue));
         int rapidPhase = Mth.floor(time * getRapidPhaseSpeed(level, fugue));
 
         float burstRoll = hash(player.getId() + 419, burstPhase);
@@ -341,11 +345,19 @@ public final class CyberwareRejectionHeadLayer extends RenderLayer<AbstractClien
         return FastColor.ARGB32.color(alpha, red, green, blue);
     }
 
-    private static boolean shouldRender(AbstractClientPlayer player) {
+    private static boolean shouldRenderRejectionVisuals(AbstractClientPlayer player) {
         if (player == null || !player.isAlive() || player.isSpectator() || player.isInvisible()) return false;
-        if (!player.hasEffect(ModEffects.CYBERWARE_REJECTION)) return false;
+        if (CyberwareRejectionClientState.getRejectionLevel(player) <= 0) return false;
 
         return player != MC.player || MC.options.getCameraType() != CameraType.FIRST_PERSON;
+    }
+
+    private static boolean shouldRenderHeadGlitch(AbstractClientPlayer player, int level, boolean fugue, float time) {
+        if (fugue) return true;
+        if (level < 3) return false;
+
+        int phase = Mth.floor(time / LEVEL_3_HEAD_GLITCH_PHASE_LENGTH);
+        return hash(player.getId() + 2237, phase) > LEVEL_3_HEAD_GLITCH_THRESHOLD;
     }
 
     private static float getIntensity(int level, boolean fugue) {

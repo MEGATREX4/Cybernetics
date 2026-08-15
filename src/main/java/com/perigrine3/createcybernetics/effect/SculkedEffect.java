@@ -25,7 +25,7 @@ import java.util.List;
 
 public class SculkedEffect extends MobEffect {
 
-    private static final float CHANCE = 0.5f;
+    private static final float CHANCE = 0.5F;
 
     public SculkedEffect() {
         super(MobEffectCategory.HARMFUL, 0x0A0F14);
@@ -50,6 +50,7 @@ public class SculkedEffect extends MobEffect {
         if (eligible.isEmpty()) return true;
 
         Replacement chosen = eligible.get(rng.nextInt(eligible.size()));
+
         if (replaceIfStillDefault(player, data, chosen)) {
             data.recomputeHumanityBaseFromInstalled(player);
             data.clampEnergyToCapacity(player);
@@ -59,21 +60,18 @@ public class SculkedEffect extends MobEffect {
         return true;
     }
 
-    /* ---------------- replacement selection ---------------- */
-
     private record Replacement(CyberwareSlot slot, int index, Item sculkItem) {}
 
     private static List<Replacement> findEligibleReplacements(PlayerCyberwareData data) {
         List<Replacement> out = new ArrayList<>(16);
 
-        // INTERNALS
         addIfEligible(data, out, CyberwareSlot.BRAIN, 0, ModItems.BODYPART_SCULKBRAIN.get());
+        addIfEligible(data, out, CyberwareSlot.HEART, 0, ModItems.WETWARE_SCULKHEART.get());
         addIfEligible(data, out, CyberwareSlot.ORGANS, 0, ModItems.BODYPART_SCULKLIVER.get());
         addIfEligible(data, out, CyberwareSlot.ORGANS, 1, ModItems.BODYPART_SCULKINTESTINES.get());
         addIfEligible(data, out, CyberwareSlot.MUSCLE, 0, ModItems.BODYPART_SCULKMUSCLE.get());
         addIfEligible(data, out, CyberwareSlot.SKIN, 0, ModItems.BODYPART_SCULKSKIN.get());
 
-        // LIMBS
         addIfEligible(data, out, CyberwareSlot.RLEG, 0, ModItems.BODYPART_SCULKRIGHTLEG.get());
         addIfEligible(data, out, CyberwareSlot.LLEG, 0, ModItems.BODYPART_SCULKLEFTLEG.get());
         addIfEligible(data, out, CyberwareSlot.RARM, 0, ModItems.BODYPART_SCULKRIGHTARM.get());
@@ -86,37 +84,39 @@ public class SculkedEffect extends MobEffect {
         if (sculkItem == null) return;
 
         InstalledCyberware cur = data.get(slot, index);
-        ItemStack curStack = (cur == null || cur.getItem() == null) ? ItemStack.EMPTY : cur.getItem();
+        ItemStack curStack = cur == null || cur.getItem() == null ? ItemStack.EMPTY : cur.getItem();
 
         ItemStack def = DefaultOrgans.get(slot, index);
+
         if (isStillDefault(curStack, def)) {
             out.add(new Replacement(slot, index, sculkItem));
         }
     }
 
-    private static boolean replaceIfStillDefault(ServerPlayer player, PlayerCyberwareData data, Replacement r) {
-        InstalledCyberware cur = data.get(r.slot, r.index);
-        ItemStack curStack = (cur == null || cur.getItem() == null) ? ItemStack.EMPTY : cur.getItem();
+    private static boolean replaceIfStillDefault(ServerPlayer player, PlayerCyberwareData data, Replacement replacement) {
+        InstalledCyberware cur = data.get(replacement.slot, replacement.index);
+        ItemStack curStack = cur == null || cur.getItem() == null ? ItemStack.EMPTY : cur.getItem();
 
-        ItemStack def = DefaultOrgans.get(r.slot, r.index);
+        ItemStack def = DefaultOrgans.get(replacement.slot, replacement.index);
+
         if (!isStillDefault(curStack, def)) return false;
 
-        // NOTE: we overwrite the slot directly (no remove) because this is a default organ swap.
-        ItemStack replacement = new ItemStack(r.sculkItem);
-        replacement.setCount(1);
+        ItemStack replacementStack = new ItemStack(replacement.sculkItem);
+        replacementStack.setCount(1);
 
         int humanityCost = 0;
-        if (replacement.getItem() instanceof ICyberwareItem cw) {
-            humanityCost = cw.getHumanityCost();
+
+        if (replacementStack.getItem() instanceof ICyberwareItem cyberwareItem) {
+            humanityCost = cyberwareItem.getHumanityCost();
         }
 
-        InstalledCyberware installed = new InstalledCyberware(replacement, r.slot, r.index, humanityCost);
+        InstalledCyberware installed = new InstalledCyberware(replacementStack, replacement.slot, replacement.index, humanityCost);
         installed.setPowered(true);
 
-        data.set(r.slot, r.index, installed);
+        data.set(replacement.slot, replacement.index, installed);
 
-        if (replacement.getItem() instanceof ICyberwareItem cw) {
-            cw.onInstalled(player);
+        if (replacementStack.getItem() instanceof ICyberwareItem cyberwareItem) {
+            cyberwareItem.onInstalled(player);
         }
 
         return true;
@@ -126,7 +126,9 @@ public class SculkedEffect extends MobEffect {
         if (def == null || def.isEmpty()) {
             return curStack == null || curStack.isEmpty();
         }
+
         if (curStack == null || curStack.isEmpty()) return false;
+
         return curStack.is(def.getItem());
     }
 
@@ -138,13 +140,14 @@ public class SculkedEffect extends MobEffect {
         @SubscribeEvent
         public static void onEffectRemove(MobEffectEvent.Remove event) {
             LivingEntity entity = event.getEntity();
+
             if (entity.level().isClientSide) return;
 
             MobEffectInstance inst = event.getEffectInstance();
+
             if (inst == null) return;
             if (inst.getEffect() != ModEffects.SCULKED_EFFECT) return;
 
-            // "milk can't remove it, but dying can"
             if (entity.isAlive()) {
                 event.setCanceled(true);
             }

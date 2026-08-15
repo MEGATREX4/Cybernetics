@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:lungsupgrades_hyperoxygenation"
+    },
+    {
+      "item": "createcybernetics:scavenged_hyperoxygenation"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 1
+    }
+  ]
+}

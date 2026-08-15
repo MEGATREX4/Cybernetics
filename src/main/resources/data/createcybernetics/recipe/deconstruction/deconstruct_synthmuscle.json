@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:muscleupgrades_synthmuscle"
+    },
+    {
+      "item": "createcybernetics:scavenged_synthmuscle"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:graphene_elastomer",
+      "count": 10
+    }
+  ]
+}

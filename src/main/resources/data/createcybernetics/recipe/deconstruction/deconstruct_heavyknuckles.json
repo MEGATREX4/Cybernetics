@@ -1,0 +1,26 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_heavyknuckles"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 7
+    }
+  ]
+}

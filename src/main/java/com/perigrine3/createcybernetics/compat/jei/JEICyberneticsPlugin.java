@@ -6,6 +6,7 @@ import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.block.ModBlocks;
 import com.perigrine3.createcybernetics.common.durability.CyberwareDurabilityData;
 import com.perigrine3.createcybernetics.item.ModItems;
+import com.perigrine3.createcybernetics.recipe.EngineeringDeconstructRecipe;
 import com.perigrine3.createcybernetics.recipe.EngineeringTableRecipe;
 import com.perigrine3.createcybernetics.recipe.GraftingTableRecipe;
 import com.perigrine3.createcybernetics.recipe.ModRecipes;
@@ -50,6 +51,7 @@ public class JEICyberneticsPlugin implements IModPlugin {
 
         registration.addRecipeCategories(
                 new EngineeringTableRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
+                new EngineeringDeconstructRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new GraftingTableRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new GraftingTableRepairRecipeCategory(registration.getJeiHelpers().getGuiHelper()),
                 new DynamicPotionAutoinjectorCraftingCategory(registration.getJeiHelpers().getGuiHelper()),
@@ -121,6 +123,15 @@ public class JEICyberneticsPlugin implements IModPlugin {
                 engineeringTableRecipes
         );
 
+        List<RecipeHolder<EngineeringDeconstructRecipe>> engineeringDeconstructRecipes = recipeManager.getAllRecipesFor(ModRecipes.ENGINEERING_DECONSTRUCT_TYPE.get());
+
+        CreateCybernetics.LOGGER.info("[Create Cybernetics JEI] Engineering deconstruct recipes: {}", engineeringDeconstructRecipes.size());
+
+        registration.addRecipes(
+                EngineeringDeconstructRecipeCategory.ENGINEERING_DECONSTRUCT_RECIPE_TYPE,
+                engineeringDeconstructRecipes
+        );
+
         List<RecipeHolder<GraftingTableRecipe>> graftingTableRecipes = recipeManager.getAllRecipesFor(ModRecipes.GRAFTING_TABLE_TYPE.get());
 
         CreateCybernetics.LOGGER.info("[Create Cybernetics JEI] Grafting table recipes: {}", graftingTableRecipes.size());
@@ -137,7 +148,8 @@ public class JEICyberneticsPlugin implements IModPlugin {
 
         registration.addRecipeCatalyst(
                 new ItemStack(ModBlocks.ENGINEERING_TABLE.get()),
-                EngineeringTableRecipeCategory.ENGINEERING_TABLE_RECIPE_TYPE
+                EngineeringTableRecipeCategory.ENGINEERING_TABLE_RECIPE_TYPE,
+                EngineeringDeconstructRecipeCategory.ENGINEERING_DECONSTRUCT_RECIPE_TYPE
         );
 
         registration.addRecipeCatalyst(
@@ -195,6 +207,13 @@ public class JEICyberneticsPlugin implements IModPlugin {
                 157, 103,
                 16, 11,
                 EngineeringTableRecipeCategory.ENGINEERING_TABLE_RECIPE_TYPE
+        );
+
+        registration.addRecipeClickArea(
+                EngineeringTableScreen.class,
+                17, 58,
+                38, 92,
+                EngineeringDeconstructRecipeCategory.ENGINEERING_DECONSTRUCT_RECIPE_TYPE
         );
 
         registration.addRecipeClickArea(

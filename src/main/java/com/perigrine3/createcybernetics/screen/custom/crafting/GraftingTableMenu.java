@@ -107,11 +107,12 @@ public final class GraftingTableMenu extends AbstractContainerMenu {
                 return inv.player;
             }
         }
+
         return null;
     }
 
     private GraftingTableRecipeInput buildRecipeInput() {
-        return new com.perigrine3.createcybernetics.recipe.GraftingTableRecipeInput(java.util.List.of(
+        return new GraftingTableRecipeInput(java.util.List.of(
                 inputs.getItem(0),
                 inputs.getItem(1),
                 inputs.getItem(2),
@@ -168,8 +169,15 @@ public final class GraftingTableMenu extends AbstractContainerMenu {
             if (!this.moveItemStackTo(stack, SLOT_PLAYER_START, playerEnd, true)) return empty;
         }
 
-        if (stack.isEmpty()) slot.set(ItemStack.EMPTY);
-        else slot.setChanged();
+        if (stack.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+
+        if (stack.getCount() == copy.getCount()) return empty;
+
+        slot.onTake(player, stack);
 
         return copy;
     }

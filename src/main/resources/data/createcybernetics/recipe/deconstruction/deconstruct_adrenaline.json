@@ -1,0 +1,17 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_adrenaline"
+    },
+    {
+      "item": "createcybernetics:scavenged_adrenaline"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 5
+    }
+  ]
+}

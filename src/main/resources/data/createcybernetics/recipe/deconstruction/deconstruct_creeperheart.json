@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:heartupgrades_creeperheart"
+    },
+    {
+      "item": "createcybernetics:scavenged_creeperheart"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 1
+    },
+    {
+      "id": "minecraft:tnt",
+      "count": 1
+    }
+  ]
+}

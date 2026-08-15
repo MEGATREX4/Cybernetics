@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_mantisblade_titanium"
+    },
+    {
+      "item": "createcybernetics:scavenged_mantisblade_titanium"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:titaniumsheet",
+      "count": 4
+    }
+  ]
+}

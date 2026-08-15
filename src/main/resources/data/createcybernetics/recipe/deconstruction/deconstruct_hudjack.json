@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:eyeupgrades_hudjack"
+    },
+    {
+      "item": "createcybernetics:scavenged_hudjack"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_fiberoptics",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 1
+    }
+  ]
+}

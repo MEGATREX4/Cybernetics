@@ -1,0 +1,44 @@
+{
+  "type": "createcybernetics:engineering_table",
+  "accept_mirrored": true,
+
+  "key": {
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "G": {
+      "item": "minecraft:enchanted_golden_apple"
+    },
+    "P": {
+      "item": "createcybernetics:component_plating"
+    },
+    "A": {
+      "item": "createcybernetics:empty_autoinjector"
+    },
+    "W": {
+      "item": "createcybernetics:component_wiring"
+    },
+    "X": {
+      "item": "createcybernetics:plastic_sheet"
+    },
+    "D": {
+      "item": "createcybernetics:component_diodes"
+    },
+    "S": {
+      "item": "createcybernetics:component_ssd"
+    }
+  },
+
+  "pattern": [
+    "R XPA",
+    " DPGP",
+    " XSPX",
+    "XWXD ",
+    "DX  R"
+  ],
+
+  "result": {
+    "count": 1,
+    "id": "createcybernetics:brainupgrades_berserk"
+  }
+}

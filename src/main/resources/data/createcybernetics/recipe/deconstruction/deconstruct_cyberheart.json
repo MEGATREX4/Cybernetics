@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:heartupgrades_cyberheart"
+    },
+    {
+      "item": "createcybernetics:scavenged_cyberheart"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 6
+    },
+    {
+      "id": "minecraft:redstone",
+      "count": 1
+    }
+  ]
+}

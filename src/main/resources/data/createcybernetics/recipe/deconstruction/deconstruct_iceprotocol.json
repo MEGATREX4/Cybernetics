@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_iceprotocol"
+    },
+    {
+      "item": "createcybernetics:scavenged_iceprotocol"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 2
+    }
+  ]
+}

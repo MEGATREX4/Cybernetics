@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_solarskin"
+    },
+    {
+      "item": "createcybernetics:scavenged_solarskin"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 3
+    },
+    {
+      "id": "minecraft:lapis_lazuli",
+      "count": 6
+    }
+  ]
+}

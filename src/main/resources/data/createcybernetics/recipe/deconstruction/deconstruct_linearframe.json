@@ -1,0 +1,38 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "create"
+      }
+    }
+  ],
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:basecyberware_linearframe"
+    },
+    {
+      "item": "createcybernetics:scavenged_linearframe"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_led",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 3
+    }
+  ]
+}

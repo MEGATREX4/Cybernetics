@@ -1072,6 +1072,71 @@ public class PlayerCyberwareData implements ICyberwareData {
 
     /* ---------------- DURABILITY ---------------- */
 
+    public InstalledCyberware getInstalledSpecificItem(Item item, CyberwareSlot... slotsToCheck) {
+        if (item == null || slotsToCheck == null) return null;
+
+        for (CyberwareSlot slot : slotsToCheck) {
+            if (slot == null) continue;
+
+            InstalledCyberware[] arr = slots.get(slot);
+            if (arr == null) continue;
+
+            for (InstalledCyberware installed : arr) {
+                if (installed == null) continue;
+
+                ItemStack stack = installed.getItem();
+                if (stack == null || stack.isEmpty()) continue;
+                if (!stack.is(item)) continue;
+
+                return installed;
+            }
+        }
+
+        return null;
+    }
+
+    public int getDurability(Item item, CyberwareSlot... slotsToCheck) {
+        InstalledCyberware installed = getInstalledSpecificItem(item, slotsToCheck);
+        if (installed == null) return -1;
+
+        return installed.getDurability();
+    }
+
+    public int getMaxDurability(Item item, CyberwareSlot... slotsToCheck) {
+        InstalledCyberware installed = getInstalledSpecificItem(item, slotsToCheck);
+        if (installed == null) return -1;
+
+        return installed.getMaxDurability();
+    }
+
+    public float getDurabilityPercent(Item item, CyberwareSlot... slotsToCheck) {
+        InstalledCyberware installed = getInstalledSpecificItem(item, slotsToCheck);
+        if (installed == null) return -1.0F;
+
+        return installed.getDurabilityPercent();
+    }
+
+    public boolean hasDurabilityAtOrBelow(Item item, float percent, CyberwareSlot... slotsToCheck) {
+        float durability = getDurabilityPercent(item, slotsToCheck);
+        if (durability < 0.0F) return false;
+
+        return durability <= Mth.clamp(percent, 0.0F, 1.0F);
+    }
+
+    public boolean hasDurabilityBelow(Item item, float percent, CyberwareSlot... slotsToCheck) {
+        float durability = getDurabilityPercent(item, slotsToCheck);
+        if (durability < 0.0F) return false;
+
+        return durability < Mth.clamp(percent, 0.0F, 1.0F);
+    }
+
+    public boolean isBroken(Item item, CyberwareSlot... slotsToCheck) {
+        InstalledCyberware installed = getInstalledSpecificItem(item, slotsToCheck);
+        if (installed == null) return false;
+
+        return installed.isBroken();
+    }
+
     public boolean isFunctional(Player player, CyberwareSlot slot, int index) {
         InstalledCyberware installed = get(slot, index);
         return CyberwareDurabilityManager.isFunctional(player, installed);

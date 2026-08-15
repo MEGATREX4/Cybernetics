@@ -3,6 +3,7 @@ package com.perigrine3.createcybernetics.effect;
 import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,9 +28,11 @@ public final class CyberwareRejectionController {
         }
 
         PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+
         if (data == null) {
             player.removeEffect(ModEffects.CYBERWARE_REJECTION);
             CyberpsychosisFugueController.clear(player);
+            syncVisualState(player);
             return;
         }
 
@@ -41,6 +44,7 @@ public final class CyberwareRejectionController {
             }
 
             CyberpsychosisFugueController.clear(player);
+            syncVisualState(player);
             return;
         }
 
@@ -53,6 +57,8 @@ public final class CyberwareRejectionController {
         } else {
             CyberpsychosisFugueController.clear(player);
         }
+
+        syncVisualState(player);
     }
 
     private static void refreshRejectionEffect(Player player, CyberpsychosisSeverity severity) {
@@ -60,14 +66,13 @@ public final class CyberwareRejectionController {
         int amplifier = severity.id() - 1;
 
         if (existing == null || existing.getDuration() <= DURATION - REFRESH_EVERY_TICKS || existing.getAmplifier() != amplifier) {
-            player.addEffect(new MobEffectInstance(
-                    ModEffects.CYBERWARE_REJECTION,
-                    DURATION,
-                    amplifier,
-                    false,
-                    true,
-                    true
-            ));
+            player.addEffect(new MobEffectInstance(ModEffects.CYBERWARE_REJECTION, DURATION, amplifier, false, true, true));
+        }
+    }
+
+    private static void syncVisualState(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            CyberwareRejectionVisualSync.syncIfChanged(serverPlayer);
         }
     }
 }

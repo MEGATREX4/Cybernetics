@@ -323,56 +323,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlocks("has_mantis_diamond", has(ModItems.ARMUPGRADES_MANTISBLADE_DIAMOND.get()))
                 .save(recipeOutput, "createcybernetics:armupgrades_mantisblade_netherite");
 
-//MULTIOPTICS VARIANTS
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
-                "multioptics2_from_multioptics1");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
-                "multioptics3_from_multioptics1");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
-                "multioptics4_from_multioptics1");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
-                "multioptics1_from_multioptics2");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
-                "multioptics3_from_multioptics2");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
-                "multioptics4_from_multioptics2");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
-                "multioptics1_from_multioptics3");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
-                "multioptics2_from_multioptics3");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
-                "multioptics4_from_multioptics3");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS1.get(),
-                "multioptics1_from_multioptics4");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS2.get(),
-                "multioptics2_from_multioptics4");
-        multiopticsStonecutting(recipeOutput,
-                ModItems.EYEUPGRADES_MULTIOPTICS4.get(),
-                ModItems.EYEUPGRADES_MULTIOPTICS3.get(),
-                "multioptics3_from_multioptics4");
-
 //FOOD COOKING
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModItems.BODYPART_BRAIN.get()),
                         RecipeCategory.FOOD, ModItems.COOKED_BRAIN.get(), 0.35f, 200)

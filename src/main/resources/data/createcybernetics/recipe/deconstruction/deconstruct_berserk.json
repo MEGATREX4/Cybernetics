@@ -1,0 +1,33 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_berserk"
+    },
+    {
+      "item": "createcybernetics:scavenged_berserk"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:plastic_sheet",
+      "count": 4
+    }
+  ]
+}

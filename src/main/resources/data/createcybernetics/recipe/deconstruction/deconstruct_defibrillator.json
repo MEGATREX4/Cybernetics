@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:heartupgrades_defibrillator"
+    },
+    {
+      "item": "createcybernetics:scavenged_defibrillator"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 12
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 1
+    }
+  ]
+}

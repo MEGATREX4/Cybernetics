@@ -219,10 +219,6 @@ dependencies {
 
     //compileOnly "curse.maven:neosync-1521718:8233799"
     implementation "curse.maven:neosync-1521718:8233799"
-
-    implementation "curse.maven:relics-mod-445274:8158315"
-    implementation "curse.maven:shatterbyte-lib-916747:8040848"
-
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -1,0 +1,37 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": true,
+  "category": "misc",
+
+  "key": {
+    "X": {
+      "item": "minecraft:heavy_core"
+    },
+    "P": {
+      "item": "createcybernetics:component_plating"
+    },
+    "A": {
+      "item": "createcybernetics:component_actuator"
+    },
+    "T": {
+      "item": "createcybernetics:titaniumingot"
+    },
+    "W": {
+      "item": "createcybernetics:component_wiring"
+    }
+  },
+
+  "pattern": [
+    "    T",
+    "TATPA",
+    "TATXW",
+    "TATPP",
+    "     "
+  ],
+
+  "result": {
+    "count": 1,
+    "id": "createcybernetics:armupgrades_heavyknuckles"
+  },
+  "show_notification": false
+}

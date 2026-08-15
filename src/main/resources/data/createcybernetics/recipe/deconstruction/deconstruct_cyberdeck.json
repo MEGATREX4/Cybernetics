@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_cyberdeck"
+    },
+    {
+      "item": "createcybernetics:scavenged_cyberdeck"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 12
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 1
+    }
+  ]
+}

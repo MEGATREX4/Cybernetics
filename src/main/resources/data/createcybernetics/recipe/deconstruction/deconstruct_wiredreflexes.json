@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:muscleupgrades_wiredreflexes"
+    },
+    {
+      "item": "createcybernetics:scavenged_wiredreflexes"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 1
+    }
+  ]
+}

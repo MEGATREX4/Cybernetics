@@ -1,0 +1,37 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:basecyberware_cybereyes"
+    },
+    {
+      "item": "createcybernetics:scavenged_cybereyes"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_fiberoptics",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 2
+    }
+  ]
+}

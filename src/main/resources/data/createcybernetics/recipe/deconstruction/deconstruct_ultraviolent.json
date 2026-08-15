@@ -1,0 +1,17 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_ultraviolent"
+    },
+    {
+      "item": "createcybernetics:scavenged_ultraviolent"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 8
+    }
+  ]
+}

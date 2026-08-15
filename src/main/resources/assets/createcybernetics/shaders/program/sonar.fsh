@@ -5,6 +5,8 @@ uniform sampler2D DepthSampler;
 
 uniform vec2 InSize;
 
+uniform float PassMode;
+
 uniform float EdgeThreshold;
 uniform float EdgeBoost;
 
@@ -16,11 +18,18 @@ uniform float Far;
 uniform float SoundCount;
 uniform float SoundLifeSeconds;
 
-uniform float WaveSpeed;       // blocks/sec
-uniform float WaveThickness;   // thickness of bright rim (blocks)
-uniform float WaveFeather;     // softness (blocks)
-uniform float WaveMaxRadius;   // clamp radius (blocks)
-uniform float SkyDepthEps;     // raw depth cutoff for sky exclusion
+uniform float WaveSpeed;
+uniform float WaveMaxRadius;
+
+uniform float RingBrightness;
+uniform float RingHalfWidth;
+uniform float GroundHeightRange;
+
+uniform float SkyDepthEps;
+
+uniform float WorldUpX;
+uniform float WorldUpY;
+uniform float WorldUpZ;
 
 uniform float SoundPosX0; uniform float SoundPosY0; uniform float SoundPosZ0; uniform float SoundAge0;
 uniform float SoundPosX1; uniform float SoundPosY1; uniform float SoundPosZ1; uniform float SoundAge1;
@@ -42,135 +51,298 @@ uniform float SoundPosX15; uniform float SoundPosY15; uniform float SoundPosZ15;
 in vec2 texCoord;
 out vec4 fragColor;
 
+const float ILLUMINATION_CORE_HALF_WIDTH = 1.0;
+const float ILLUMINATION_FEATHER_WIDTH = 2;
+const float ILLUMINATION_VERTICAL_CORE = 1.75;
+const float ILLUMINATION_VERTICAL_FEATHER = 3.0;
+
 vec3 sonarColor(float t) {
     vec3 deepBlue = vec3(0.05, 0.20, 0.90);
-    vec3 cyan     = vec3(0.10, 0.95, 0.95);
+    vec3 cyan = vec3(0.10, 0.95, 0.95);
+
     return mix(deepBlue, cyan, clamp(t, 0.0, 1.0));
 }
 
 float linearizeDepth(float depth01) {
     float z = depth01 * 2.0 - 1.0;
-    float denom = (Far + Near) - z * (Far - Near);
-    return (2.0 * Far * Near) / max(denom, 1e-6);
+    float denom = Far + Near - z * (Far - Near);
+
+    return (2.0 * Far * Near) / max(denom, 0.000001);
 }
 
-// KEEP YOUR ORIGINAL VIEWPOS (this is the one that actually works in your setup)
 vec3 reconstructViewPos(vec2 uv, float depth01) {
-    float vz = linearizeDepth(depth01);
+    float distance = linearizeDepth(depth01);
     vec2 ndc = uv * 2.0 - 1.0;
 
-    float x = ndc.x * vz * TanHalfFov * Aspect;
-    float y = ndc.y * vz * TanHalfFov;
-    float z = -vz;
+    float x = ndc.x * distance * TanHalfFov * Aspect;
+    float y = ndc.y * distance * TanHalfFov;
+    float z = -distance;
 
     return vec3(x, y, z);
 }
 
-/*
-  FIXED WAVE:
-  - Rim is a thin shell at radius r
-  - Tail is ALSO a band near the rim, not the entire interior
-  - This guarantees you get an expanding sphere, not "everything on"
-*/
-float waveMask(vec3 viewPos, vec3 sPos, float ageSec) {
-    if (ageSec < 0.0) return 0.0;
+float acousticOutlineMask(vec3 scene) {
+    vec3 target = vec3(0.0, 0.6666667, 0.6666667);
+    float difference = length(scene - target);
 
-    float life = clamp(1.0 - (ageSec / max(SoundLifeSeconds, 1e-3)), 0.0, 1.0);
-    if (life <= 0.0) return 0.0;
-
-    // slow fade (your preference)
-    life = pow(life, 0.1);
-
-    float r = min(WaveSpeed * ageSec, WaveMaxRadius);
-    float d = length(viewPos - sPos);
-
-    // We work in "distance-to-front" space so the wave is always a shell.
-    float distToFront = abs(d - r);
-
-    // Rim thickness + feather
-    float halfT = 0.5 * max(WaveThickness, 1e-3);
-    float rim = 1.0 - smoothstep(halfT, halfT + WaveFeather, distToFront);
-
-    // Tail: only BEHIND the front, within TailLen, but still banded (not interior fill)
-    const float TAIL_SECONDS = 1.25;
-    float tailLen = max(WaveSpeed * TAIL_SECONDS, 1e-3);
-
-    // behind amount = r - d (positive behind the front)
-    float behind = r - d;
-    float tailBand = 0.0;
-    if (behind >= 0.0 && behind <= tailLen) {
-        // fade from 1 at the front to 0 at the end of the tail
-        float f = 1.0 - (behind / tailLen);
-        // broaden tail slightly but KEEP it near the front by also requiring small distToFront
-        float nearFront = 1.0 - smoothstep(halfT * 2.0, halfT * 2.0 + WaveFeather * 2.0, distToFront);
-        tailBand = smoothstep(0.0, 1.0, f) * 0.65 * nearFront;
-    }
-
-    return clamp((max(rim, tailBand)) * life, 0.0, 1.0);
+    return 1.0 - smoothstep(0.08, 0.26, difference);
 }
 
-float wavesMask(vec3 viewPos) {
+float soundLife(float ageSec) {
+    if (ageSec < 0.0 || ageSec >= SoundLifeSeconds) {
+        return 0.0;
+    }
+
+    float progress = ageSec / max(SoundLifeSeconds, 0.001);
+
+    return 1.0 - smoothstep(0.90, 1.0, progress);
+}
+
+void soundCoordinates(
+vec3 viewPos,
+vec3 soundPos,
+out float horizontalDistance,
+out float verticalDistance
+) {
+    vec3 up = normalize(vec3(WorldUpX, WorldUpY, WorldUpZ));
+    vec3 delta = viewPos - soundPos;
+
+    verticalDistance = dot(delta, up);
+
+    vec3 horizontalDelta = delta - up * verticalDistance;
+
+    horizontalDistance = length(horizontalDelta);
+}
+
+float groundRingForSound(vec3 viewPos, vec3 soundPos, float ageSec) {
+    float life = soundLife(ageSec);
+
+    if (life <= 0.0) {
+        return 0.0;
+    }
+
+    float horizontalDistance;
+    float verticalDistance;
+
+    soundCoordinates(
+    viewPos,
+    soundPos,
+    horizontalDistance,
+    verticalDistance
+    );
+
+    if (abs(verticalDistance) > GroundHeightRange) {
+        return 0.0;
+    }
+
+    float radius = min(ageSec * WaveSpeed, WaveMaxRadius);
+    float distanceToRing = abs(horizontalDistance - radius);
+
+    float radialAntialias = max(fwidth(horizontalDistance), 0.01);
+
+    float radialMask = 1.0 - smoothstep(
+    RingHalfWidth,
+    RingHalfWidth + radialAntialias,
+    distanceToRing
+    );
+
+    float verticalMask = 1.0 - smoothstep(
+    GroundHeightRange * 0.60,
+    GroundHeightRange,
+    abs(verticalDistance)
+    );
+
+    return clamp(
+    radialMask * verticalMask * life,
+    0.0,
+    1.0
+    );
+}
+
+float illuminationForSound(vec3 viewPos, vec3 soundPos, float ageSec) {
+    float life = soundLife(ageSec);
+
+    if (life <= 0.0) {
+        return 0.0;
+    }
+
+    float horizontalDistance;
+    float verticalDistance;
+
+    soundCoordinates(
+    viewPos,
+    soundPos,
+    horizontalDistance,
+    verticalDistance
+    );
+
+    float radius = min(ageSec * WaveSpeed, WaveMaxRadius);
+    float distanceToWave = abs(horizontalDistance - radius);
+
+    float radialMask = 1.0 - smoothstep(
+    ILLUMINATION_CORE_HALF_WIDTH,
+    ILLUMINATION_CORE_HALF_WIDTH + ILLUMINATION_FEATHER_WIDTH,
+    distanceToWave
+    );
+
+    float verticalMask = 1.0 - smoothstep(
+    ILLUMINATION_VERTICAL_CORE,
+    ILLUMINATION_VERTICAL_CORE + ILLUMINATION_VERTICAL_FEATHER,
+    abs(verticalDistance)
+    );
+
+    return clamp(
+    radialMask * verticalMask * life,
+    0.0,
+    1.0
+    );
+}
+
+float allGroundRings(vec3 viewPos) {
     int n = int(SoundCount + 0.5);
-    float m = 0.0;
+    float result = 0.0;
 
-    if (n > 0)  m = max(m, waveMask(viewPos, vec3(SoundPosX0,  SoundPosY0,  SoundPosZ0),  SoundAge0));
-    if (n > 1)  m = max(m, waveMask(viewPos, vec3(SoundPosX1,  SoundPosY1,  SoundPosZ1),  SoundAge1));
-    if (n > 2)  m = max(m, waveMask(viewPos, vec3(SoundPosX2,  SoundPosY2,  SoundPosZ2),  SoundAge2));
-    if (n > 3)  m = max(m, waveMask(viewPos, vec3(SoundPosX3,  SoundPosY3,  SoundPosZ3),  SoundAge3));
-    if (n > 4)  m = max(m, waveMask(viewPos, vec3(SoundPosX4,  SoundPosY4,  SoundPosZ4),  SoundAge4));
-    if (n > 5)  m = max(m, waveMask(viewPos, vec3(SoundPosX5,  SoundPosY5,  SoundPosZ5),  SoundAge5));
-    if (n > 6)  m = max(m, waveMask(viewPos, vec3(SoundPosX6,  SoundPosY6,  SoundPosZ6),  SoundAge6));
-    if (n > 7)  m = max(m, waveMask(viewPos, vec3(SoundPosX7,  SoundPosY7,  SoundPosZ7),  SoundAge7));
-    if (n > 8)  m = max(m, waveMask(viewPos, vec3(SoundPosX8,  SoundPosY8,  SoundPosZ8),  SoundAge8));
-    if (n > 9)  m = max(m, waveMask(viewPos, vec3(SoundPosX9,  SoundPosY9,  SoundPosZ9),  SoundAge9));
-    if (n > 10) m = max(m, waveMask(viewPos, vec3(SoundPosX10, SoundPosY10, SoundPosZ10), SoundAge10));
-    if (n > 11) m = max(m, waveMask(viewPos, vec3(SoundPosX11, SoundPosY11, SoundPosZ11), SoundAge11));
-    if (n > 12) m = max(m, waveMask(viewPos, vec3(SoundPosX12, SoundPosY12, SoundPosZ12), SoundAge12));
-    if (n > 13) m = max(m, waveMask(viewPos, vec3(SoundPosX13, SoundPosY13, SoundPosZ13), SoundAge13));
-    if (n > 14) m = max(m, waveMask(viewPos, vec3(SoundPosX14, SoundPosY14, SoundPosZ14), SoundAge14));
-    if (n > 15) m = max(m, waveMask(viewPos, vec3(SoundPosX15, SoundPosY15, SoundPosZ15), SoundAge15));
+    if (n > 0) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX0, SoundPosY0, SoundPosZ0), SoundAge0));
+    if (n > 1) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX1, SoundPosY1, SoundPosZ1), SoundAge1));
+    if (n > 2) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX2, SoundPosY2, SoundPosZ2), SoundAge2));
+    if (n > 3) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX3, SoundPosY3, SoundPosZ3), SoundAge3));
+    if (n > 4) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX4, SoundPosY4, SoundPosZ4), SoundAge4));
+    if (n > 5) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX5, SoundPosY5, SoundPosZ5), SoundAge5));
+    if (n > 6) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX6, SoundPosY6, SoundPosZ6), SoundAge6));
+    if (n > 7) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX7, SoundPosY7, SoundPosZ7), SoundAge7));
+    if (n > 8) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX8, SoundPosY8, SoundPosZ8), SoundAge8));
+    if (n > 9) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX9, SoundPosY9, SoundPosZ9), SoundAge9));
+    if (n > 10) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX10, SoundPosY10, SoundPosZ10), SoundAge10));
+    if (n > 11) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX11, SoundPosY11, SoundPosZ11), SoundAge11));
+    if (n > 12) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX12, SoundPosY12, SoundPosZ12), SoundAge12));
+    if (n > 13) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX13, SoundPosY13, SoundPosZ13), SoundAge13));
+    if (n > 14) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX14, SoundPosY14, SoundPosZ14), SoundAge14));
+    if (n > 15) result = max(result, groundRingForSound(viewPos, vec3(SoundPosX15, SoundPosY15, SoundPosZ15), SoundAge15));
 
-    return clamp(m, 0.0, 1.0);
+    return clamp(result, 0.0, 1.0);
+}
+
+float allIllumination(vec3 viewPos) {
+    int n = int(SoundCount + 0.5);
+    float result = 0.0;
+
+    if (n > 0) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX0, SoundPosY0, SoundPosZ0), SoundAge0));
+    if (n > 1) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX1, SoundPosY1, SoundPosZ1), SoundAge1));
+    if (n > 2) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX2, SoundPosY2, SoundPosZ2), SoundAge2));
+    if (n > 3) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX3, SoundPosY3, SoundPosZ3), SoundAge3));
+    if (n > 4) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX4, SoundPosY4, SoundPosZ4), SoundAge4));
+    if (n > 5) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX5, SoundPosY5, SoundPosZ5), SoundAge5));
+    if (n > 6) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX6, SoundPosY6, SoundPosZ6), SoundAge6));
+    if (n > 7) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX7, SoundPosY7, SoundPosZ7), SoundAge7));
+    if (n > 8) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX8, SoundPosY8, SoundPosZ8), SoundAge8));
+    if (n > 9) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX9, SoundPosY9, SoundPosZ9), SoundAge9));
+    if (n > 10) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX10, SoundPosY10, SoundPosZ10), SoundAge10));
+    if (n > 11) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX11, SoundPosY11, SoundPosZ11), SoundAge11));
+    if (n > 12) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX12, SoundPosY12, SoundPosZ12), SoundAge12));
+    if (n > 13) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX13, SoundPosY13, SoundPosZ13), SoundAge13));
+    if (n > 14) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX14, SoundPosY14, SoundPosZ14), SoundAge14));
+    if (n > 15) result = max(result, illuminationForSound(viewPos, vec3(SoundPosX15, SoundPosY15, SoundPosZ15), SoundAge15));
+
+    return clamp(result, 0.0, 1.0);
+}
+
+void renderHandPass(vec2 uv, vec3 scene, float rawDepth) {
+    if (rawDepth >= 1.0 - SkyDepthEps) {
+        fragColor = vec4(scene, 1.0);
+        return;
+    }
+
+    vec2 one = 1.0 / max(InSize, vec2(1.0, 1.0));
+
+    vec3 rightPixel = texture(DiffuseSampler, uv + vec2(one.x, 0.0)).rgb;
+    vec3 bottomPixel = texture(DiffuseSampler, uv + vec2(0.0, one.y)).rgb;
+
+    vec3 diff = abs(scene - rightPixel) + abs(scene - bottomPixel);
+    float diffLen = length(diff);
+
+    float edge = smoothstep(
+    EdgeThreshold,
+    EdgeThreshold * 1.75,
+    diffLen
+    );
+
+    float edgeStrength = clamp(
+    (diffLen - EdgeThreshold) * 6.0,
+    0.0,
+    1.0
+    );
+
+    vec3 edgeColor = sonarColor(edgeStrength) * EdgeBoost;
+
+    vec3 darkHand = scene * 0.08;
+    vec3 sonarHand = max(darkHand, edgeColor * edge);
+
+    fragColor = vec4(sonarHand, 1.0);
 }
 
 void main() {
     vec2 uv = texCoord;
 
     vec3 scene = texture(DiffuseSampler, uv).rgb;
-
-    // KEEP YOUR ORIGINAL SKY CHECK (this is what your setup needs)
     float rawDepth = texture(DepthSampler, uv).r;
-    if (rawDepth <= SkyDepthEps) {
-        fragColor = vec4(scene, 1.0);
+
+    if (PassMode > 0.5) {
+        renderHandPass(uv, scene, rawDepth);
         return;
     }
 
-    // Edge detect (White Sharp-ish)
+    float acousticOutline = acousticOutlineMask(scene);
+    vec3 acousticBase = scene * acousticOutline;
+
+    if (rawDepth >= 1.0 - SkyDepthEps) {
+        fragColor = vec4(acousticBase, 1.0);
+        return;
+    }
+
+    vec3 viewPos = reconstructViewPos(uv, rawDepth);
+
+    float groundRing = allGroundRings(viewPos);
+    float illumination = allIllumination(viewPos);
+
     vec2 one = 1.0 / max(InSize, vec2(1.0, 1.0));
-    vec3 rightPixel  = texture(DiffuseSampler, uv + vec2(one.x, 0.0)).rgb;
+
+    vec3 rightPixel = texture(DiffuseSampler, uv + vec2(one.x, 0.0)).rgb;
     vec3 bottomPixel = texture(DiffuseSampler, uv + vec2(0.0, one.y)).rgb;
 
     vec3 diff = abs(scene - rightPixel) + abs(scene - bottomPixel);
     float diffLen = length(diff);
-    float edge = smoothstep(EdgeThreshold, EdgeThreshold * 1.75, diffLen);
 
-    // reversed depth fix (KEEP THIS)
-    float depth01 = 1.0 - rawDepth;
-    vec3 viewPos = reconstructViewPos(uv, depth01);
+    float edge = smoothstep(
+    EdgeThreshold,
+    EdgeThreshold * 1.75,
+    diffLen
+    );
 
-    float mask = wavesMask(viewPos);
+    float edgeStrength = clamp(
+    (diffLen - EdgeThreshold) * 6.0,
+    0.0,
+    1.0
+    );
 
-    // Persistent black underlay while effect is enabled
-    vec3 base = vec3(0.0);
+    vec3 edgeColor = sonarColor(edgeStrength) * EdgeBoost;
 
-    if (mask <= 0.001) {
-        fragColor = vec4(base, 1.0);
-        return;
-    }
+    vec3 illuminatedEdges = edgeColor * edge * illumination;
 
-    // Edges only over black
-    float t = clamp((diffLen - EdgeThreshold) * 6.0, 0.0, 1.0);
-    vec3 lineCol = sonarColor(t) * EdgeBoost;
+    vec3 finalColor = max(
+    acousticBase,
+    illuminatedEdges
+    );
 
-    fragColor = vec4(lineCol * (edge * mask), 1.0);
+    vec3 ringColor = vec3(RingBrightness);
+
+    finalColor = mix(
+    finalColor,
+    ringColor,
+    groundRing
+    );
+
+    fragColor = vec4(
+    finalColor,
+    1.0
+    );
 }

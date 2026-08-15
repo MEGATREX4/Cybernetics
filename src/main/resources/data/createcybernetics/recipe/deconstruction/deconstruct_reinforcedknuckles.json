@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_reinforcedknuckles"
+    },
+    {
+      "item": "createcybernetics:scavenged_reinforcedknuckles"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 11
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 8
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 1
+    }
+  ]
+}

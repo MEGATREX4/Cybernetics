@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_corticalstack"
+    },
+    {
+      "item": "createcybernetics:scavenged_corticalstack"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:titaniumsheet",
+      "count": 6
+    }
+  ]
+}

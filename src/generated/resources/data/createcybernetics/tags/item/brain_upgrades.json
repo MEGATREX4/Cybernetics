@@ -12,6 +12,7 @@
     "createcybernetics:brainupgrades_neuralprocessor",
     "createcybernetics:brainupgrades_iceprotocol",
     "createcybernetics:brainupgrades_coaxialport",
+    "createcybernetics:brainupgrades_berserk",
     {
       "id": "createcybernetics:brainupgrades_consciousnesstransmitter",
       "required": false

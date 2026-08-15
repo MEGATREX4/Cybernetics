@@ -1,0 +1,17 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_enderjammer"
+    },
+    {
+      "item": "createcybernetics:scavenged_enderjammer"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "minecraft:ender_pearl",
+      "count": 3
+    }
+  ]
+}

@@ -103,6 +103,11 @@ public class MagicCatalystItem extends Item implements ICyberwareItem {
     }
 
     @Override
+    public Set<Item> incompatibleCyberware(ItemStack installedStack, CyberwareSlot slot) {
+        return Set.of(ModItems.ORGANSUPGRADES_MAGICCATALYST.get(), ModItems.ORGANSUPGRADES_DUALISTICCONVERTER.get());
+    }
+
+    @Override
     public void onInstalled(LivingEntity entity) {}
 
     @Override

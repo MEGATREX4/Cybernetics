@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:lungsupgrades_synthlungs"
+    },
+    {
+      "item": "createcybernetics:scavenged_synthlungs"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 18
+    },
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:titaniumsheet",
+      "count": 4
+    }
+  ]
+}

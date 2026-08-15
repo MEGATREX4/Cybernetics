@@ -1,12 +1,8 @@
 package com.perigrine3.createcybernetics.client.gui;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.perigrine3.createcybernetics.CreateCybernetics;
-import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
-import com.perigrine3.createcybernetics.network.payload.CybereyeIrisSyncC2SPayload;
+import com.perigrine3.createcybernetics.client.CybereyeIrisConfigClient;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -15,15 +11,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.chat.Component;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.UUID;
 
 public final class CybereyeSkinConfigScreen extends Screen {
@@ -31,73 +20,47 @@ public final class CybereyeSkinConfigScreen extends Screen {
     private static final int SKIN_TEX_W = 64;
     private static final int SKIN_TEX_H = 64;
 
-    // Base face (front): 8x8 at (8,8)
-    private static final int FACE_U = 8;
-    private static final int FACE_V = 8;
-    private static final int FACE_PX = 8;
+    private static final int GRID_COLS = 32;
+    private static final int GRID_ROWS = 16;
 
-    private static final int GRID_CELLS = 8;
+    private static final int GRID_LINE = 0x44FFFFFF;
+    private static final int GRID_BORDER = 0xAAFFFFFF;
 
-    private static final int PAD = 12;
-    private static final int BTN_W = 60;
+    private static final int PRIMARY_FILL = 0x8800FF00;
+    private static final int PRIMARY_EDGE = 0xFF00FF00;
+
+    private static final int SECONDARY_FILL = 0x8800AAFF;
+    private static final int SECONDARY_EDGE = 0xFF00AAFF;
+
+    private static final int HOVER_EDGE = 0xFFFFFFFF;
+    private static final int INVALID_FILL = 0xAA000000;
+    private static final int DIM_OVERLAY = 0xCC000000;
+
     private static final int BTN_H = 20;
     private static final int BTN_GAP = 6;
 
-    private static final int GRID_LINE   = 0x66FFFFFF;
-    private static final int GRID_BORDER = 0xAAFFFFFF;
-
-    // Active edit highlight (red)
-    private static final int ACTIVE_FILL = 0x66FF0000;
-    private static final int ACTIVE_EDGE = 0xCCFF0000;
-
-    // Saved/locked highlight (green)
-    private static final int SAVED_FILL  = 0x6600FF00;
-    private static final int SAVED_EDGE  = 0xCC00FF00;
-
-    private static final int DIM_OVERLAY = 0x88000000;
-
     private final Screen parent;
 
-    private int gridX, gridY, cell, gridW, gridH;
+    private @Nullable UUID playerId;
+    private CybereyeVisualConfig.Layout workingLayout = CybereyeVisualConfig.defaults();
+    private CybereyeVisualConfig.Channel activeChannel = CybereyeVisualConfig.Channel.PRIMARY;
 
-    private enum Eye { LEFT, RIGHT }
+    private int gridX;
+    private int gridY;
+    private int cell;
+    private int gridW;
+    private int gridH;
 
-    private enum IrisSize {
-        ONE_BY_ONE(1, 1),
-        ONE_BY_TWO(1, 2),
-        TWO_BY_TWO(2, 2);
+    private boolean painting = false;
+    private boolean paintValue = true;
+    private boolean saved = false;
 
-        final int w;
-        final int h;
-
-        IrisSize(int w, int h) {
-            this.w = w;
-            this.h = h;
-        }
-    }
-
-    private static final class EyeConfig {
-        IrisSize size = IrisSize.ONE_BY_ONE;
-        int x = 3;
-        int y = 5;
-        boolean locked = false;
-    }
-
-    private Eye activeEye = Eye.LEFT;
-    private boolean editing = true;
-
-    private final EyeConfig left = new EyeConfig();
-    private final EyeConfig right = new EyeConfig();
-
-    private boolean dragging = false;
-    private int dragOffX = 0;
-    private int dragOffY = 0;
-
-    private Button btnL, btnR, btnSave;
-    private Button btn11, btn12, btn22;
-    private Button btnBack;
-
-    private @Nullable UUID playerId = null;
+    private Button primaryButton;
+    private Button secondaryButton;
+    private Button clearButton;
+    private Button opticsButton;
+    private Button saveButton;
+    private Button backButton;
 
     public CybereyeSkinConfigScreen(Screen parent) {
         super(Component.translatable("screen.createcybernetics.cybereye_skin"));
@@ -106,222 +69,215 @@ public final class CybereyeSkinConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        LocalPlayer p = Minecraft.getInstance().player;
-        this.playerId = p != null ? p.getUUID() : null;
+        LocalPlayer player = Minecraft.getInstance().player;
+        this.playerId = player != null ? player.getUUID() : null;
 
         if (this.playerId != null) {
-            StoredConfig loaded = ConfigStore.load(this.playerId);
-            if (loaded != null) applyLoaded(loaded);
+            this.workingLayout = CybereyeIrisConfigClient.get(this.playerId).copy();
+        } else {
+            this.workingLayout = CybereyeVisualConfig.defaults();
         }
 
-        pushConfigToPlayerNbtAndInvalidate();
-        sendConfigToServer();
+        this.saved = false;
 
         cc$rebuildWidgets();
-        updateButtonStates();
+
+        if (player != null) {
+            CybereyeIrisConfigClient.applyLocalPreview(player, workingLayout);
+        }
     }
 
     @Override
-    public void resize(Minecraft mc, int width, int height) {
-        super.resize(mc, width, height);
+    public void resize(Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
         cc$rebuildWidgets();
-        updateButtonStates();
     }
 
-    protected void cc$rebuildWidgets() {
+    private void cc$rebuildWidgets() {
         clearWidgets();
         computeGridLayout();
 
-        int leftColX = gridX - (BTN_W + PAD);
-        int rightColX = gridX + gridW + PAD;
+        int controlsY = gridY + gridH + 10;
 
-        int topY = gridY;
+        int channelW = 76;
+        int clearW = 70;
+        int opticsW = 110;
+        int saveW = 60;
+        int backW = 60;
 
-        btnL = addRenderableWidget(Button.builder(Component.literal("L"), b -> selectEye(Eye.LEFT))
-                .pos(leftColX, topY)
-                .size(BTN_W, BTN_H)
+        int firstRowW = channelW * 2 + clearW + BTN_GAP * 2;
+        int firstRowX = (this.width - firstRowW) / 2;
+
+        primaryButton = addRenderableWidget(Button.builder(Component.literal("Primary"), button -> selectChannel(CybereyeVisualConfig.Channel.PRIMARY))
+                .pos(firstRowX, controlsY)
+                .size(channelW, BTN_H)
                 .build());
 
-        btnR = addRenderableWidget(Button.builder(Component.literal("R"), b -> selectEye(Eye.RIGHT))
-                .pos(leftColX, topY + (BTN_H + BTN_GAP))
-                .size(BTN_W, BTN_H)
+        secondaryButton = addRenderableWidget(Button.builder(Component.literal("Secondary"), button -> selectChannel(CybereyeVisualConfig.Channel.SECONDARY))
+                .pos(firstRowX + channelW + BTN_GAP, controlsY)
+                .size(channelW, BTN_H)
                 .build());
 
-        btnSave = addRenderableWidget(Button.builder(Component.translatable("gui.createcybernetics.save"), b -> saveActiveEye())
-                .pos(leftColX, topY + (BTN_H + BTN_GAP) * 2 + 4)
-                .size(BTN_W, BTN_H)
+        clearButton = addRenderableWidget(Button.builder(Component.literal("Clear"), button -> clearActiveChannel())
+                .pos(firstRowX + channelW * 2 + BTN_GAP * 2, controlsY)
+                .size(clearW, BTN_H)
                 .build());
 
-        btnBack = addRenderableWidget(Button.builder(Component.translatable("gui.back"), b -> Minecraft.getInstance().setScreen(parent))
-                .pos(leftColX, topY + (BTN_H + BTN_GAP) * 3 + 10)
-                .size(BTN_W, BTN_H)
+        int secondRowW = opticsW + saveW + backW + BTN_GAP * 2;
+        int secondRowX = (this.width - secondRowW) / 2;
+        int secondRowY = controlsY + BTN_H + BTN_GAP;
+
+        opticsButton = addRenderableWidget(Button.builder(Component.literal("Optics Alignment"), button -> openOpticsScreen())
+                .pos(secondRowX, secondRowY)
+                .size(opticsW, BTN_H)
                 .build());
 
-        btn11 = addRenderableWidget(Button.builder(Component.literal("1x1"), b -> setActiveSize(IrisSize.ONE_BY_ONE))
-                .pos(rightColX, topY)
-                .size(BTN_W, BTN_H)
+        saveButton = addRenderableWidget(Button.builder(Component.translatable("gui.createcybernetics.save"), button -> save())
+                .pos(secondRowX + opticsW + BTN_GAP, secondRowY)
+                .size(saveW, BTN_H)
                 .build());
 
-        btn12 = addRenderableWidget(Button.builder(Component.literal("1x2"), b -> setActiveSize(IrisSize.ONE_BY_TWO))
-                .pos(rightColX, topY + (BTN_H + BTN_GAP))
-                .size(BTN_W, BTN_H)
+        backButton = addRenderableWidget(Button.builder(Component.translatable("gui.back"), button -> cancelAndBack())
+                .pos(secondRowX + opticsW + saveW + BTN_GAP * 2, secondRowY)
+                .size(backW, BTN_H)
                 .build());
 
-        btn22 = addRenderableWidget(Button.builder(Component.literal("2x2"), b -> setActiveSize(IrisSize.TWO_BY_TWO))
-                .pos(rightColX, topY + (BTN_H + BTN_GAP) * 2)
-                .size(BTN_W, BTN_H)
-                .build());
+        updateButtonStates();
     }
 
     private void computeGridLayout() {
-        int sideReserve = (BTN_W + PAD) * 2 + PAD * 2;
-        int availW = Math.max(80, this.width - sideReserve);
-        int availH = Math.max(80, this.height - 70);
+        int availableWidth = Math.max(96, this.width - 32);
+        int availableHeight = Math.max(48, this.height - 120);
 
-        int maxCellByW = availW / GRID_CELLS;
-        int maxCellByH = availH / GRID_CELLS;
-        int chosen = Math.min(maxCellByW, maxCellByH);
+        int byWidth = availableWidth / GRID_COLS;
+        int byHeight = availableHeight / GRID_ROWS;
 
-        chosen = Math.max(10, Math.min(64, chosen));
-
-        this.cell = chosen;
-        this.gridW = cell * GRID_CELLS;
-        this.gridH = cell * GRID_CELLS;
+        this.cell = Math.max(3, Math.min(24, Math.min(byWidth, byHeight)));
+        this.gridW = GRID_COLS * cell;
+        this.gridH = GRID_ROWS * cell;
 
         this.gridX = (this.width - gridW) / 2;
-        this.gridY = 44 + (availH - gridH) / 2;
+        this.gridY = 48 + Math.max(0, (availableHeight - gridH) / 2);
     }
 
-    private void selectEye(Eye eye) {
-        this.activeEye = eye;
-        this.editing = true;
-        active().locked = false;
-        this.dragging = false;
+    private void selectChannel(CybereyeVisualConfig.Channel channel) {
+        this.activeChannel = channel;
         updateButtonStates();
     }
 
-    private void saveActiveEye() {
-        active().locked = true;
-        this.editing = false;
-        this.dragging = false;
+    private void clearActiveChannel() {
+        activeMask().clear();
+        preview();
+    }
 
-        if (this.playerId != null) {
-            ConfigStore.save(this.playerId, toStored());
+    private void openOpticsScreen() {
+        Minecraft.getInstance().setScreen(new CybereyeOpticsConfigScreen(this, workingLayout));
+    }
+
+    private void save() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+
+        CybereyeIrisConfigClient.saveAndSync(player, workingLayout);
+        saved = true;
+    }
+
+    private void cancelAndBack() {
+        if (!saved) {
+            LocalPlayer player = Minecraft.getInstance().player;
+
+            if (player != null) {
+                CybereyeIrisConfigClient.applyCachedConfigToPlayer(player);
+            }
         }
 
-        pushConfigToPlayerNbtAndInvalidate();
-        sendConfigToServer();
-
-        updateButtonStates();
-    }
-
-    private void setActiveSize(IrisSize size) {
-        if (!canEdit()) return;
-        EyeConfig cfg = active();
-        cfg.size = size;
-        clampSelection(cfg);
-        updateButtonStates();
-    }
-
-    private EyeConfig active() {
-        return activeEye == Eye.LEFT ? left : right;
-    }
-
-    private boolean canEdit() {
-        return editing && !active().locked;
-    }
-
-    private void updateButtonStates() {
-        boolean edit = canEdit();
-        if (btnSave != null) btnSave.active = edit;
-        if (btn11 != null) btn11.active = edit;
-        if (btn12 != null) btn12.active = edit;
-        if (btn22 != null) btn22.active = edit;
-        if (btnBack != null) btnBack.active = true;
-    }
-
-    @Override
-    public void onClose() {
         Minecraft.getInstance().setScreen(parent);
     }
 
-    @Override
-    public boolean shouldCloseOnEsc() {
-        return true;
+    private void updateButtonStates() {
+        if (primaryButton != null) {
+            primaryButton.active = activeChannel != CybereyeVisualConfig.Channel.PRIMARY;
+        }
+
+        if (secondaryButton != null) {
+            secondaryButton.active = activeChannel != CybereyeVisualConfig.Channel.SECONDARY;
+        }
+    }
+
+    private CybereyeVisualConfig.PixelMask activeMask() {
+        return activeChannel == CybereyeVisualConfig.Channel.PRIMARY ? workingLayout.primary : workingLayout.secondary;
+    }
+
+    private CybereyeVisualConfig.PixelMask otherMask() {
+        return activeChannel == CybereyeVisualConfig.Channel.PRIMARY ? workingLayout.secondary : workingLayout.primary;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (super.mouseClicked(mouseX, mouseY, button)) return true;
-        if (button != 0) return false;
-        if (!canEdit()) return false;
+        if (button != 0 && button != 1) return false;
         if (!isInGrid(mouseX, mouseY)) return false;
 
-        int cx = (int) ((mouseX - gridX) / cell);
-        int cy = (int) ((mouseY - gridY) / cell);
+        int u = (int) ((mouseX - gridX) / cell);
+        int v = (int) ((mouseY - gridY) / cell);
 
-        EyeConfig cfg = active();
+        if (!CybereyeVisualConfig.isSelectableHeadPixel(u, v)) return false;
 
-        if (isInsideSelectionCell(cfg, cx, cy)) {
-            dragging = true;
-            dragOffX = cx - cfg.x;
-            dragOffY = cy - cfg.y;
-            return true;
-        }
+        painting = true;
+        paintValue = button == 0;
 
-        cfg.x = cx;
-        cfg.y = cy;
-        clampSelection(cfg);
+        paintPixel(u, v);
 
-        dragging = true;
-        dragOffX = 0;
-        dragOffY = 0;
         return true;
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (super.mouseDragged(mouseX, mouseY, button, dragX, dragY)) return true;
-        if (button != 0) return false;
-        if (!dragging) return false;
-        if (!canEdit()) return false;
+        if (!painting) return false;
+        if (!isInGrid(mouseX, mouseY)) return true;
 
-        int cx = (int) Math.floor((mouseX - gridX) / (double) cell);
-        int cy = (int) Math.floor((mouseY - gridY) / (double) cell);
+        int u = (int) ((mouseX - gridX) / cell);
+        int v = (int) ((mouseY - gridY) / cell);
 
-        EyeConfig cfg = active();
-        cfg.x = cx - dragOffX;
-        cfg.y = cy - dragOffY;
+        if (CybereyeVisualConfig.isSelectableHeadPixel(u, v)) {
+            paintPixel(u, v);
+        }
 
-        clampSelection(cfg);
         return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (super.mouseReleased(mouseX, mouseY, button)) return true;
-        if (button == 0) dragging = false;
-        return false;
+        if (button == 0 || button == 1) {
+            painting = false;
+        }
+
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    private boolean isInsideSelectionCell(EyeConfig cfg, int cx, int cy) {
-        int w = cfg.size.w;
-        int h = cfg.size.h;
-        return cx >= cfg.x && cx < cfg.x + w && cy >= cfg.y && cy < cfg.y + h;
+    private void paintPixel(int u, int v) {
+        if (paintValue) {
+            activeMask().set(u, v, true);
+            otherMask().set(u, v, false);
+        } else {
+            workingLayout.primary.set(u, v, false);
+            workingLayout.secondary.set(u, v, false);
+        }
+
+        preview();
+    }
+
+    private void preview() {
+        LocalPlayer player = Minecraft.getInstance().player;
+
+        if (player != null) {
+            CybereyeIrisConfigClient.applyLocalPreview(player, workingLayout);
+        }
     }
 
     private boolean isInGrid(double mouseX, double mouseY) {
         return mouseX >= gridX && mouseX < gridX + gridW && mouseY >= gridY && mouseY < gridY + gridH;
-    }
-
-    private void clampSelection(EyeConfig cfg) {
-        int maxX = GRID_CELLS - cfg.size.w;
-        int maxY = GRID_CELLS - cfg.size.h;
-
-        if (cfg.x < 0) cfg.x = 0;
-        if (cfg.y < 0) cfg.y = 0;
-        if (cfg.x > maxX) cfg.x = maxX;
-        if (cfg.y > maxY) cfg.y = maxY;
     }
 
     @Override
@@ -332,24 +288,28 @@ public final class CybereyeSkinConfigScreen extends Screen {
 
         super.render(gg, mouseX, mouseY, partialTick);
 
-        gg.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
+        renderHeadTexture(gg);
+        renderInvalidCells(gg);
+        renderSelections(gg);
+        renderGrid(gg);
+        renderHover(gg, mouseX, mouseY);
 
-        EyeConfig cfg = active();
-        String eyeName = (activeEye == Eye.LEFT) ? "L" : "R";
-        Component status = Component.literal("Eye: " + eyeName + " | Iris: "
-                + cfg.size.w + "x" + cfg.size.h + " | "
-                + (cfg.locked ? "Saved" : (canEdit() ? "Editing" : "Locked")));
-        gg.drawCenteredString(this.font, status, this.width / 2, 26, 0xAAAAAA);
+        gg.drawCenteredString(this.font, this.title, this.width / 2, 10, 0xFFFFFF);
 
-        renderPlayerFaceScaledNearest(gg);
-        renderGridLines(gg);
+        Component status = Component.translatable(activeChannel == CybereyeVisualConfig.Channel.PRIMARY
+                ? "screen.createcybernetics.cybereye_skin.editing_primary"
+                : "screen.createcybernetics.cybereye_skin.editing_secondary");
 
-        renderSavedHighlights(gg);
-        renderActiveHighlight(gg);
+        gg.drawCenteredString(this.font, status, this.width / 2, 24,
+                activeChannel == CybereyeVisualConfig.Channel.PRIMARY ? 0x55FF55 : 0x55AAFF);
+
+        Component instructions = Component.translatable("screen.createcybernetics.cybereye_skin.instructions");
+        gg.drawCenteredString(this.font, instructions, this.width / 2, 34, 0xAAAAAA);
     }
 
-    private void renderPlayerFaceScaledNearest(GuiGraphics gg) {
+    private void renderHeadTexture(GuiGraphics gg) {
         Minecraft mc = Minecraft.getInstance();
+
         if (mc.player == null) {
             gg.fill(gridX, gridY, gridX + gridW, gridY + gridH, 0x66000000);
             return;
@@ -359,272 +319,109 @@ public final class CybereyeSkinConfigScreen extends Screen {
         var skin = player.getSkin().texture();
 
         try {
-            AbstractTexture tex = mc.getTextureManager().getTexture(skin);
-            if (tex != null) tex.setFilter(false, false);
+            AbstractTexture texture = mc.getTextureManager().getTexture(skin);
+            texture.setFilter(false, false);
         } catch (Throwable ignored) {
         }
 
         RenderSystem.setShaderTexture(0, skin);
 
-        gg.pose().pushPose();
-        gg.pose().translate(gridX, gridY, 0);
-        gg.pose().scale(cell, cell, 1.0f);
+        for (int v = 0; v < GRID_ROWS; v++) {
+            for (int u = 0; u < GRID_COLS; u++) {
+                int x = gridX + u * cell;
+                int y = gridY + v * cell;
 
-        gg.blit(
-                skin,
-                0, 0,
-                FACE_U, FACE_V,
-                FACE_PX, FACE_PX,
-                SKIN_TEX_W, SKIN_TEX_H
-        );
-
-        gg.pose().popPose();
+                gg.blit(
+                        skin,
+                        x, y,
+                        cell, cell,
+                        u, v,
+                        1, 1,
+                        SKIN_TEX_W, SKIN_TEX_H
+                );
+            }
+        }
     }
 
-    private void renderGridLines(GuiGraphics gg) {
+    private void renderInvalidCells(GuiGraphics gg) {
+        for (int v = 0; v < GRID_ROWS; v++) {
+            for (int u = 0; u < GRID_COLS; u++) {
+                if (CybereyeVisualConfig.isSelectableHeadPixel(u, v)) continue;
+
+                int x = gridX + u * cell;
+                int y = gridY + v * cell;
+
+                gg.fill(x, y, x + cell, y + cell, INVALID_FILL);
+            }
+        }
+    }
+
+    private void renderSelections(GuiGraphics gg) {
+        for (int v = 0; v < GRID_ROWS; v++) {
+            for (int u = 0; u < GRID_COLS; u++) {
+                if (workingLayout.primary.get(u, v)) {
+                    renderCellSelection(gg, u, v, PRIMARY_FILL, PRIMARY_EDGE);
+                }
+
+                if (workingLayout.secondary.get(u, v)) {
+                    renderCellSelection(gg, u, v, SECONDARY_FILL, SECONDARY_EDGE);
+                }
+            }
+        }
+    }
+
+    private void renderCellSelection(GuiGraphics gg, int u, int v, int fill, int edge) {
+        int x = gridX + u * cell;
+        int y = gridY + v * cell;
+
+        gg.fill(x, y, x + cell, y + cell, fill);
+        gg.hLine(x, x + cell, y, edge);
+        gg.hLine(x, x + cell, y + cell, edge);
+        gg.vLine(x, y, y + cell, edge);
+        gg.vLine(x + cell, y, y + cell, edge);
+    }
+
+    private void renderGrid(GuiGraphics gg) {
         gg.hLine(gridX, gridX + gridW, gridY, GRID_BORDER);
         gg.hLine(gridX, gridX + gridW, gridY + gridH, GRID_BORDER);
         gg.vLine(gridX, gridY, gridY + gridH, GRID_BORDER);
         gg.vLine(gridX + gridW, gridY, gridY + gridH, GRID_BORDER);
 
-        for (int i = 1; i < GRID_CELLS; i++) {
-            int x = gridX + i * cell;
-            int y = gridY + i * cell;
+        for (int x = 1; x < GRID_COLS; x++) {
+            int px = gridX + x * cell;
+            gg.vLine(px, gridY, gridY + gridH, GRID_LINE);
+        }
 
-            gg.vLine(x, gridY, gridY + gridH, GRID_LINE);
-            gg.hLine(gridX, gridX + gridW, y, GRID_LINE);
+        for (int y = 1; y < GRID_ROWS; y++) {
+            int py = gridY + y * cell;
+            gg.hLine(gridX, gridX + gridW, py, GRID_LINE);
         }
     }
 
-    private void renderSavedHighlights(GuiGraphics gg) {
-        if (left.locked) renderSelection(gg, left, SAVED_FILL, SAVED_EDGE);
-        if (right.locked) renderSelection(gg, right, SAVED_FILL, SAVED_EDGE);
+    private void renderHover(GuiGraphics gg, int mouseX, int mouseY) {
+        if (!isInGrid(mouseX, mouseY)) return;
+
+        int u = (mouseX - gridX) / cell;
+        int v = (mouseY - gridY) / cell;
+
+        if (!CybereyeVisualConfig.isSelectableHeadPixel(u, v)) return;
+
+        int x = gridX + u * cell;
+        int y = gridY + v * cell;
+
+        gg.hLine(x, x + cell, y, HOVER_EDGE);
+        gg.hLine(x, x + cell, y + cell, HOVER_EDGE);
+        gg.vLine(x, y, y + cell, HOVER_EDGE);
+        gg.vLine(x + cell, y, y + cell, HOVER_EDGE);
     }
 
-    private void renderActiveHighlight(GuiGraphics gg) {
-        renderSelection(gg, active(), ACTIVE_FILL, ACTIVE_EDGE);
+    @Override
+    public void onClose() {
+        cancelAndBack();
     }
 
-    private void renderSelection(GuiGraphics gg, EyeConfig cfg, int fill, int edge) {
-        int sx = gridX + cfg.x * cell;
-        int sy = gridY + cfg.y * cell;
-        int sw = cfg.size.w * cell;
-        int sh = cfg.size.h * cell;
-
-        gg.fill(sx, sy, sx + sw, sy + sh, fill);
-
-        gg.hLine(sx, sx + sw, sy, edge);
-        gg.hLine(sx, sx + sw, sy + sh, edge);
-        gg.vLine(sx, sy, sy + sh, edge);
-        gg.vLine(sx + sw, sy, sy + sh, edge);
-    }
-
-    private static final class StoredEye {
-        String size = "1x1";
-        int x = 3;
-        int y = 5;
-    }
-
-    private static final class StoredConfig {
-        StoredEye left = new StoredEye();
-        StoredEye right = new StoredEye();
-    }
-
-    private StoredConfig toStored() {
-        StoredConfig sc = new StoredConfig();
-        sc.left.size = encodeSize(left.size);
-        sc.left.x = left.x;
-        sc.left.y = left.y;
-
-        sc.right.size = encodeSize(right.size);
-        sc.right.x = right.x;
-        sc.right.y = right.y;
-
-        return sc;
-    }
-
-    private void applyLoaded(StoredConfig sc) {
-        left.size = decodeSize(sc.left.size);
-        left.x = sc.left.x;
-        left.y = sc.left.y;
-        left.locked = true;
-        clampSelection(left);
-
-        right.size = decodeSize(sc.right.size);
-        right.x = sc.right.x;
-        right.y = sc.right.y;
-        right.locked = true;
-        clampSelection(right);
-
-        editing = false;
-        activeEye = Eye.LEFT;
-        dragging = false;
-    }
-
-    private static String encodeSize(IrisSize s) {
-        return switch (s) {
-            case ONE_BY_ONE -> "1x1";
-            case ONE_BY_TWO -> "1x2";
-            case TWO_BY_TWO -> "2x2";
-        };
-    }
-
-    private static IrisSize decodeSize(String s) {
-        if (s == null) return IrisSize.ONE_BY_ONE;
-        return switch (s) {
-            case "1x2" -> IrisSize.ONE_BY_TWO;
-            case "2x2" -> IrisSize.TWO_BY_TWO;
-            default -> IrisSize.ONE_BY_ONE;
-        };
-    }
-
-    private static final class ConfigStore {
-        private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-
-        private static Path fileFor(UUID playerId) {
-            Path dir = FMLPaths.CONFIGDIR.get().resolve(CreateCybernetics.MODID);
-            return dir.resolve("cybereye_iris_" + playerId + ".json");
-        }
-
-        static @Nullable StoredConfig load(UUID playerId) {
-            Path file = fileFor(playerId);
-            if (!Files.exists(file)) return null;
-
-            try (Reader r = Files.newBufferedReader(file)) {
-                JsonObject obj = GSON.fromJson(r, JsonObject.class);
-                if (obj == null) return null;
-
-                StoredConfig sc = new StoredConfig();
-
-                if (obj.has("left")) {
-                    JsonObject l = obj.getAsJsonObject("left");
-                    sc.left.size = l.has("size") ? l.get("size").getAsString() : "1x1";
-                    sc.left.x = l.has("x") ? l.get("x").getAsInt() : 3;
-                    sc.left.y = l.has("y") ? l.get("y").getAsInt() : 5;
-                }
-
-                if (obj.has("right")) {
-                    JsonObject rr = obj.getAsJsonObject("right");
-                    sc.right.size = rr.has("size") ? rr.get("size").getAsString() : "1x1";
-                    sc.right.x = rr.has("x") ? rr.get("x").getAsInt() : 3;
-                    sc.right.y = rr.has("y") ? rr.get("y").getAsInt() : 5;
-                }
-
-                return sc;
-            } catch (Throwable ignored) {
-                return null;
-            }
-        }
-
-        static void save(UUID playerId, StoredConfig sc) {
-            if (sc == null) return;
-
-            Path file = fileFor(playerId);
-            try {
-                Files.createDirectories(file.getParent());
-
-                JsonObject root = new JsonObject();
-
-                JsonObject l = new JsonObject();
-                l.addProperty("size", sc.left.size);
-                l.addProperty("x", sc.left.x);
-                l.addProperty("y", sc.left.y);
-
-                JsonObject r = new JsonObject();
-                r.addProperty("size", sc.right.size);
-                r.addProperty("x", sc.right.x);
-                r.addProperty("y", sc.right.y);
-
-                root.add("left", l);
-                root.add("right", r);
-
-                try (Writer w = Files.newBufferedWriter(file)) {
-                    GSON.toJson(root, w);
-                }
-            } catch (IOException ignored) {
-            }
-        }
-    }
-
-    private void pushConfigToPlayerNbtAndInvalidate() {
-        Minecraft mc = Minecraft.getInstance();
-        LocalPlayer p = mc.player;
-        if (p == null) return;
-
-        var root = p.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
-
-        var l = new net.minecraft.nbt.CompoundTag();
-        l.putInt(CybereyeOverlayHandler.NBT_X, FACE_U + left.x);
-        l.putInt(CybereyeOverlayHandler.NBT_Y, FACE_V + left.y);
-        l.putInt(CybereyeOverlayHandler.NBT_VARIANT, encodeVariant(left.size));
-        root.put(CybereyeOverlayHandler.NBT_LEFT, l);
-
-        var r = new net.minecraft.nbt.CompoundTag();
-        r.putInt(CybereyeOverlayHandler.NBT_X, FACE_U + right.x);
-        r.putInt(CybereyeOverlayHandler.NBT_Y, FACE_V + right.y);
-        r.putInt(CybereyeOverlayHandler.NBT_VARIANT, encodeVariant(right.size));
-        root.put(CybereyeOverlayHandler.NBT_RIGHT, r);
-
-        p.getPersistentData().put(CybereyeOverlayHandler.NBT_ROOT, root);
-
-        CybereyeOverlayHandler.invalidate(p);
-    }
-
-    private void sendConfigToServer() {
-        LocalPlayer p = Minecraft.getInstance().player;
-        if (p == null) return;
-
-        int lx = FACE_U + left.x;
-        int ly = FACE_V + left.y;
-        int lv = encodeVariant(left.size);
-
-        int rx = FACE_U + right.x;
-        int ry = FACE_V + right.y;
-        int rv = encodeVariant(right.size);
-
-        PacketDistributor.sendToServer(new CybereyeIrisSyncC2SPayload(
-                lx, ly, lv,
-                rx, ry, rv
-        ));
-    }
-
-    private static int encodeVariant(IrisSize size) {
-        return switch (size) {
-            case ONE_BY_ONE -> 0;
-            case ONE_BY_TWO -> 1;
-            case TWO_BY_TWO -> 2;
-        };
-    }
-
-    public static void applyClientConfigToPlayerNbtAndInvalidate(LocalPlayer p) {
-        if (p == null) return;
-
-        var layout = com.perigrine3.createcybernetics.client.CybereyeIrisConfigClient.get(p.getUUID());
-
-        var root = p.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
-
-        var l = new net.minecraft.nbt.CompoundTag();
-        l.putInt(CybereyeOverlayHandler.NBT_X, FACE_U + layout.left.x);
-        l.putInt(CybereyeOverlayHandler.NBT_Y, FACE_V + layout.left.y);
-        l.putInt(CybereyeOverlayHandler.NBT_VARIANT, encodeVariant(convert(layout.left.size)));
-        root.put(CybereyeOverlayHandler.NBT_LEFT, l);
-
-        var r = new net.minecraft.nbt.CompoundTag();
-        r.putInt(CybereyeOverlayHandler.NBT_X, FACE_U + layout.right.x);
-        r.putInt(CybereyeOverlayHandler.NBT_Y, FACE_V + layout.right.y);
-        r.putInt(CybereyeOverlayHandler.NBT_VARIANT, encodeVariant(convert(layout.right.size)));
-        root.put(CybereyeOverlayHandler.NBT_RIGHT, r);
-
-        p.getPersistentData().put(CybereyeOverlayHandler.NBT_ROOT, root);
-
-        CybereyeOverlayHandler.invalidate(p);
-    }
-
-    private static IrisSize convert(com.perigrine3.createcybernetics.client.CybereyeIrisConfigClient.IrisSize s) {
-        return switch (s) {
-            case ONE_BY_ONE -> IrisSize.ONE_BY_ONE;
-            case ONE_BY_TWO -> IrisSize.ONE_BY_TWO;
-            case TWO_BY_TWO -> IrisSize.TWO_BY_TWO;
-        };
+    @Override
+    public boolean shouldCloseOnEsc() {
+        return true;
     }
 }

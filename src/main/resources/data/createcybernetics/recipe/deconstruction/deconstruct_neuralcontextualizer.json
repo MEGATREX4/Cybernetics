@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_neuralcontextualizer"
+    },
+    {
+      "item": "createcybernetics:scavenged_neuralcontextualizer"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 5
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    }
+  ]
+}

@@ -134,17 +134,6 @@ public final class ConfigValues {
 
 
 
-    /** Engineering Table deconstruction rolls for regular cyberware. */
-    public static List<EngineeringRoll> ENGINEERING_DECONSTRUCT_ROLLS = new ArrayList<>();
-
-    /** Engineering Table deconstruction rolls for scavenged cyberware. */
-    public static List<EngineeringRoll> ENGINEERING_SCAVENGED_DECONSTRUCT_ROLLS = new ArrayList<>();
-
-    public record EngineeringRoll(Item item, int min, int max, int weight) {
-    }
-
-
-
     public static List<EntitySlotRoll> ENTITY_SLOT_ROLLS = new ArrayList<>();
     public static List<EntityCyberwareRoll> ENTITY_CYBERWARE_ROLLS = new ArrayList<>();
 

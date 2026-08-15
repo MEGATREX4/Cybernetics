@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_synthskin"
+    },
+    {
+      "item": "createcybernetics:scavenged_synthskin"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 5
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:graphene_elastomer",
+      "count": 2
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_subdermalarmor"
+    },
+    {
+      "item": "createcybernetics:scavenged_subdermalarmor"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 12
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 3
+    }
+  ]
+}

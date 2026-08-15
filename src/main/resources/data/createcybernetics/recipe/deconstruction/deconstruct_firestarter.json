@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_firestarter"
+    },
+    {
+      "item": "createcybernetics:scavenged_firestarter"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 10
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    }
+  ]
+}

@@ -52,6 +52,8 @@
     "createcybernetics:scavenged_neuralprocessor",
     "createcybernetics:scavenged_iceprotocol",
     "createcybernetics:scavenged_coaxialport",
+    "createcybernetics:scavenged_kerenzikov",
+    "createcybernetics:scavenged_berserk",
     "createcybernetics:scavenged_idem",
     "createcybernetics:scavenged_cyberheart",
     "createcybernetics:scavenged_coupler",
@@ -84,6 +86,7 @@
     "createcybernetics:scavenged_syntheticsetules",
     "createcybernetics:scavenged_metalplating",
     "createcybernetics:scavenged_synthmuscle",
+    "createcybernetics:scavenged_reinforcedtendons",
     "createcybernetics:scavenged_wiredreflexes",
     "createcybernetics:scavenged_ballisticgel",
     {

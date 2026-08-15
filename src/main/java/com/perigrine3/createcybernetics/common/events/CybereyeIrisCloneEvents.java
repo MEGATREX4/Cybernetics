@@ -1,7 +1,7 @@
 package com.perigrine3.createcybernetics.common.events;
 
 import com.perigrine3.createcybernetics.CreateCybernetics;
-import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import com.perigrine3.createcybernetics.network.payload.CybereyeIrisSyncS2CPayload;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,10 +20,12 @@ public final class CybereyeIrisCloneEvents {
         if (!(event.getEntity() instanceof ServerPlayer newPlayer)) return;
         if (!(event.getOriginal() instanceof ServerPlayer oldPlayer)) return;
 
-        CompoundTag oldRoot = oldPlayer.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
-        if (oldRoot == null || oldRoot.isEmpty()) return;
+        CompoundTag oldRoot = oldPlayer.getPersistentData().getCompound(CybereyeVisualConfig.NBT_ROOT);
 
-        newPlayer.getPersistentData().put(CybereyeOverlayHandler.NBT_ROOT, oldRoot.copy());
+        if (!oldRoot.isEmpty()) {
+            newPlayer.getPersistentData().put(CybereyeVisualConfig.NBT_ROOT, oldRoot.copy());
+        }
+
         sendCurrentToSelfAndTrackers(newPlayer);
     }
 
@@ -44,37 +46,19 @@ public final class CybereyeIrisCloneEvents {
 
     private static void sendCurrentToSelfAndTrackers(ServerPlayer player) {
         CybereyeIrisSyncS2CPayload out = makePayload(player);
-        if (out == null) return;
 
         PacketDistributor.sendToPlayer(player, out);
         PacketDistributor.sendToPlayersTrackingEntity(player, out);
     }
 
     private static void sendCurrentToViewer(ServerPlayer target, ServerPlayer viewer) {
-        CybereyeIrisSyncS2CPayload out = makePayload(target);
-        if (out == null) return;
-
-        PacketDistributor.sendToPlayer(viewer, out);
+        PacketDistributor.sendToPlayer(viewer, makePayload(target));
     }
 
     private static CybereyeIrisSyncS2CPayload makePayload(ServerPlayer player) {
-        CompoundTag root = player.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
-        if (root == null || root.isEmpty()) return null;
+        CompoundTag root = player.getPersistentData().getCompound(CybereyeVisualConfig.NBT_ROOT);
+        CybereyeVisualConfig.Layout layout = CybereyeVisualConfig.readFromNbt(root);
 
-        CompoundTag left = root.getCompound(CybereyeOverlayHandler.NBT_LEFT);
-        CompoundTag right = root.getCompound(CybereyeOverlayHandler.NBT_RIGHT);
-
-        if (left == null || left.isEmpty()) return null;
-        if (right == null || right.isEmpty()) return null;
-
-        int lx = left.getInt(CybereyeOverlayHandler.NBT_X);
-        int ly = left.getInt(CybereyeOverlayHandler.NBT_Y);
-        int lv = left.getInt(CybereyeOverlayHandler.NBT_VARIANT);
-
-        int rx = right.getInt(CybereyeOverlayHandler.NBT_X);
-        int ry = right.getInt(CybereyeOverlayHandler.NBT_Y);
-        int rv = right.getInt(CybereyeOverlayHandler.NBT_VARIANT);
-
-        return new CybereyeIrisSyncS2CPayload(player.getUUID(), lx, ly, lv, rx, ry, rv);
+        return CybereyeIrisSyncS2CPayload.from(player.getUUID(), layout);
     }
 }

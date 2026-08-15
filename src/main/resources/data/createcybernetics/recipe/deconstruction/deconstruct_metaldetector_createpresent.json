@@ -1,0 +1,35 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:legupgrades_metaldetector"
+    },
+    {
+      "item": "createcybernetics:scavenged_metaldetector"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 10
+    },
+    {
+      "id": "create:electron_tube",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 6
+    },
+    {
+      "id": "minecraft:iron_ingot",
+      "count": 6
+    }
+  ]
+}

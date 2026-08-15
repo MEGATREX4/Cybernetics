@@ -1,0 +1,37 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrade_densebattery"
+    },
+    {
+      "item": "createcybernetics:scavenged_densebattery"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 9
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 1
+    },
+    {
+      "id": "minecraft:redstone",
+      "count": 6
+    },
+    {
+      "id": "minecraft:blaze_powder",
+      "count": 6
+    }
+  ]
+}

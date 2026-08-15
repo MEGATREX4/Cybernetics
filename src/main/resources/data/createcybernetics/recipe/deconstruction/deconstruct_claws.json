@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_claws"
+    },
+    {
+      "item": "createcybernetics:scavenged_claws"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 5
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 1
+    }
+  ]
+}

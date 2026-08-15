@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_piezo"
+    },
+    {
+      "item": "createcybernetics:scavenged_piezo"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 4
+    }
+  ]
+}

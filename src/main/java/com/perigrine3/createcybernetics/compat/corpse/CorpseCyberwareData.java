@@ -1,7 +1,7 @@
 package com.perigrine3.createcybernetics.compat.corpse;
 
-import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -26,7 +26,7 @@ public final class CorpseCyberwareData {
 
         snapshot = PlayerCyberwareData.createSnapshotTagFor(player, provider);
 
-        CompoundTag eyeRoot = player.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
+        CompoundTag eyeRoot = player.getPersistentData().getCompound(CybereyeVisualConfig.NBT_ROOT);
         cybereyeRoot = eyeRoot == null ? new CompoundTag() : eyeRoot.copy();
     }
 

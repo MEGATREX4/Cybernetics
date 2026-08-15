@@ -76,6 +76,52 @@ public class ChipwareSlotsItem extends Item implements ICyberwareItem {
 
     @Override
     public void onRemoved(LivingEntity entity) {
+        CyberwareAttributeHelper.removeModifier(entity, "redshard_strength");
+        CyberwareAttributeHelper.removeModifier(entity, "redshard_speed");
+        CyberwareAttributeHelper.removeModifier(entity, "redshard_knockback");
+        CyberwareAttributeHelper.removeModifier(entity, "orangeshard_ore");
+        CyberwareAttributeHelper.removeModifier(entity, "orangeshard_mining");
+        CyberwareAttributeHelper.removeModifier(entity, "yellowshard_haggling");
+        CyberwareAttributeHelper.removeModifier(entity, "greenshard_xp");
+        CyberwareAttributeHelper.removeModifier(entity, "cyanshard_aim");
+        CyberwareAttributeHelper.removeModifier(entity, "blueshard_swim");
+        CyberwareAttributeHelper.removeModifier(entity, "blueshard_mining");
+        CyberwareAttributeHelper.removeModifier(entity, "blueshard_movement");
+        CyberwareAttributeHelper.removeModifier(entity, "blueshard_oxygen");
+        CyberwareAttributeHelper.removeModifier(entity, "purpleshard_pearl");
+        CyberwareAttributeHelper.removeModifier(entity, "pinkshard_breeding");
+        CyberwareAttributeHelper.removeModifier(entity, "brownshard_crops");
+        CyberwareAttributeHelper.removeModifier(entity, "grayshard_speed");
+        CyberwareAttributeHelper.removeModifier(entity, "grayshard_handling");
+        CyberwareAttributeHelper.removeModifier(entity, "grayshard_speed");
+        CyberwareAttributeHelper.removeModifier(entity, "grayshard_handling");
+        CyberwareAttributeHelper.removeModifier(entity, "blackshard_sprint");
+        CyberwareAttributeHelper.removeModifier(entity, "blackshard_crouch");
+    }
+
+    @Override
+    public void onRemoved(Player player) {
+        CyberwareAttributeHelper.removeModifier(player, "redshard_strength");
+        CyberwareAttributeHelper.removeModifier(player, "redshard_speed");
+        CyberwareAttributeHelper.removeModifier(player, "redshard_knockback");
+        CyberwareAttributeHelper.removeModifier(player, "orangeshard_ore");
+        CyberwareAttributeHelper.removeModifier(player, "orangeshard_mining");
+        CyberwareAttributeHelper.removeModifier(player, "yellowshard_haggling");
+        CyberwareAttributeHelper.removeModifier(player, "greenshard_xp");
+        CyberwareAttributeHelper.removeModifier(player, "cyanshard_aim");
+        CyberwareAttributeHelper.removeModifier(player, "blueshard_swim");
+        CyberwareAttributeHelper.removeModifier(player, "blueshard_mining");
+        CyberwareAttributeHelper.removeModifier(player, "blueshard_movement");
+        CyberwareAttributeHelper.removeModifier(player, "blueshard_oxygen");
+        CyberwareAttributeHelper.removeModifier(player, "purpleshard_pearl");
+        CyberwareAttributeHelper.removeModifier(player, "pinkshard_breeding");
+        CyberwareAttributeHelper.removeModifier(player, "brownshard_crops");
+        CyberwareAttributeHelper.removeModifier(player, "grayshard_speed");
+        CyberwareAttributeHelper.removeModifier(player, "grayshard_handling");
+        CyberwareAttributeHelper.removeModifier(player, "grayshard_speed");
+        CyberwareAttributeHelper.removeModifier(player, "grayshard_handling");
+        CyberwareAttributeHelper.removeModifier(player, "blackshard_sprint");
+        CyberwareAttributeHelper.removeModifier(player, "blackshard_crouch");
     }
 
     @Override

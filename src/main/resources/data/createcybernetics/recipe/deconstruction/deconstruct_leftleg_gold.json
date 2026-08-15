@@ -1,0 +1,26 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:basecyberware_leftleg_goldplated"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 9
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 1
+    },
+    {
+      "id": "minecraft:gold_ingot",
+      "count": 2
+    }
+  ]
+}

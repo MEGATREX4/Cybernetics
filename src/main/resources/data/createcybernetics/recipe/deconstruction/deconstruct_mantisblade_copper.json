@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_mantisblade_copper"
+    },
+    {
+      "item": "createcybernetics:scavenged_mantisblade_copper"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:titaniumsheet",
+      "count": 3
+    },
+    {
+      "id": "minecraft:copper_ingot",
+      "count": 1
+    }
+  ]
+}

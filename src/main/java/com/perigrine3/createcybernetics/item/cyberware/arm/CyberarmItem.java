@@ -99,7 +99,7 @@ public class CyberarmItem extends Item implements ICyberwareItem {
     }
 
     @Override
-    public Set<TagKey<Item>> incompatibleCyberwareTags(ItemStack installedStack, CyberwareSlot slot) {
+    public Set<TagKey<Item>> sameSlotIncompatibleCyberwareTags(ItemStack installedStack, CyberwareSlot slot) {
         if (slot == CyberwareSlot.LARM) {
             return Set.of(ModTags.Items.LEFTARM_REPLACEMENTS);
         }

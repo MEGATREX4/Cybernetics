@@ -1,32 +1,30 @@
 package com.perigrine3.createcybernetics.block.entity;
 
-import com.perigrine3.createcybernetics.ConfigValues;
+import com.perigrine3.createcybernetics.recipe.EngineeringDeconstructRecipe;
+import com.perigrine3.createcybernetics.recipe.EngineeringDeconstructRecipeInput;
+import com.perigrine3.createcybernetics.recipe.ModRecipes;
 import com.perigrine3.createcybernetics.screen.custom.crafting.EngineeringTableMenu;
 import com.perigrine3.createcybernetics.sound.ModSounds;
-import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 public class EngineeringTableBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -51,10 +49,12 @@ public class EngineeringTableBlockEntity extends BlockEntity implements MenuProv
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+
             if (level != null && !level.isClientSide()) {
-                if (!deconProcessing && level instanceof ServerLevel sl) {
-                    tryInstantDeconstruct(sl);
+                if (!deconProcessing && level instanceof ServerLevel serverLevel) {
+                    tryInstantDeconstruct(serverLevel);
                 }
+
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -69,6 +69,7 @@ public class EngineeringTableBlockEntity extends BlockEntity implements MenuProv
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
@@ -95,27 +96,56 @@ public class EngineeringTableBlockEntity extends BlockEntity implements MenuProv
         for (int i = 0; i < DECONSTRUCT_OUTPUT_SIZE; i++) {
             if (!deconstructOutputs.getStackInSlot(i).isEmpty()) return false;
         }
+
         return true;
     }
 
-    public static boolean isDeconstructable(ItemStack stack) {
+    public boolean hasDeconstructRecipe(ItemStack stack) {
         if (stack == null || stack.isEmpty()) return false;
-        return stack.is(ModTags.Items.SCAVENGED_CYBERWARE) || stack.is(ModTags.Items.CYBERWARE_ITEM);
+        if (level == null) return false;
+
+        EngineeringDeconstructRecipeInput input = new EngineeringDeconstructRecipeInput(stack);
+
+        return level.getRecipeManager().getRecipeFor(ModRecipes.ENGINEERING_DECONSTRUCT_TYPE.get(), input, level).isPresent();
     }
 
     private void tryInstantDeconstruct(ServerLevel level) {
-        ItemStack in = deconstructInput.getStackInSlot(0);
-        if (in.isEmpty()) return;
-        if (!isDeconstructable(in)) return;
+        ItemStack inputStack = deconstructInput.getStackInSlot(0);
+
+        if (inputStack.isEmpty()) return;
         if (!outputsAreEmpty()) return;
 
+        EngineeringDeconstructRecipeInput recipeInput = new EngineeringDeconstructRecipeInput(inputStack);
+
+        Optional<RecipeHolder<EngineeringDeconstructRecipe>> recipeHolder =
+                level.getRecipeManager().getRecipeFor(ModRecipes.ENGINEERING_DECONSTRUCT_TYPE.get(), recipeInput, level);
+
+        if (recipeHolder.isEmpty()) return;
+
+        EngineeringDeconstructRecipe recipe = recipeHolder.get().value();
+
         deconProcessing = true;
+
         try {
             deconstructInput.setStackInSlot(0, ItemStack.EMPTY);
 
             for (int i = 0; i < DECONSTRUCT_OUTPUT_SIZE; i++) {
-                ItemStack rolled = rollFromPool(level.random, in);
-                deconstructOutputs.setStackInSlot(i, rolled);
+                ItemStack output = ItemStack.EMPTY;
+
+                if (i < recipe.outputs().size()) {
+                    ItemStack recipeOutput = recipe.outputs().get(i);
+
+                    if (!recipeOutput.isEmpty()) {
+                        output = recipeOutput.copy();
+
+                        int maxCount = recipeOutput.getCount();
+                        int rolledCount = maxCount <= 1 ? 1 : level.random.nextInt(maxCount) + 1;
+
+                        output.setCount(rolledCount);
+                    }
+                }
+
+                deconstructOutputs.setStackInSlot(i, output);
             }
 
             level.playSound(null, worldPosition, ModSounds.METAL_CRUSHING.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -125,75 +155,6 @@ public class EngineeringTableBlockEntity extends BlockEntity implements MenuProv
         } finally {
             deconProcessing = false;
         }
-    }
-
-    private static final class PoolEntry {
-        final Item item;
-        final int min;
-        final int max;
-        final int weight;
-
-        PoolEntry(Item item, int min, int max, int weight) {
-            this.item = item;
-            this.min = min;
-            this.max = max;
-            this.weight = weight;
-        }
-
-        ItemStack create(RandomSource r) {
-            int count = (min == max) ? min : Mth.nextInt(r, min, max);
-            return count <= 0 ? ItemStack.EMPTY : new ItemStack(item, count);
-        }
-    }
-
-    private ItemStack rollFromPool(RandomSource r, ItemStack originalInput) {
-        boolean scavenged = originalInput.is(ModTags.Items.SCAVENGED_CYBERWARE);
-        List<PoolEntry> pool = buildPool(scavenged);
-
-        if (pool.isEmpty()) return ItemStack.EMPTY;
-
-        int total = 0;
-        for (PoolEntry e : pool) {
-            total += e.weight;
-        }
-
-        if (total <= 0) return ItemStack.EMPTY;
-
-        int roll = r.nextInt(total);
-        for (PoolEntry e : pool) {
-            roll -= e.weight;
-            if (roll < 0) {
-                return e.create(r);
-            }
-        }
-
-        return pool.get(0).create(r);
-    }
-
-    private static List<PoolEntry> buildPool(boolean scavenged) {
-        List<PoolEntry> pool = new ArrayList<>();
-        List<ConfigValues.EngineeringRoll> configRolls = scavenged
-                ? ConfigValues.ENGINEERING_SCAVENGED_DECONSTRUCT_ROLLS
-                : ConfigValues.ENGINEERING_DECONSTRUCT_ROLLS;
-
-        if (configRolls == null || configRolls.isEmpty()) {
-            return pool;
-        }
-
-        for (ConfigValues.EngineeringRoll roll : configRolls) {
-            if (roll == null) continue;
-            if (roll.item() == null) continue;
-            if (roll.weight() <= 0) continue;
-
-            pool.add(new PoolEntry(
-                    roll.item(),
-                    Math.max(0, roll.min()),
-                    Math.max(0, roll.max()),
-                    roll.weight()
-            ));
-        }
-
-        return pool;
     }
 
     public void drops() {

@@ -1,0 +1,33 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_capacitorframe"
+    },
+    {
+      "item": "createcybernetics:scavenged_capacitorframe"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 24
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 4
+    },
+    {
+      "id": "minecraft:gold_ingot",
+      "count": 2
+    }
+  ]
+}

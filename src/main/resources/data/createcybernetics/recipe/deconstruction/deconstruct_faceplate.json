@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_faceplate"
+    },
+    {
+      "item": "createcybernetics:scavenged_faceplate"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 10
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 6
+    }
+  ]
+}

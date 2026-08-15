@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_flywheel"
+    },
+    {
+      "item": "createcybernetics:scavenged_flywheel"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 5
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 6
+    }
+  ]
+}

@@ -161,7 +161,9 @@
       {"name": "createcybernetics:psycho_heartbeat_drone"},
       {"name": "createcybernetics:psycho_paranoia"},
       {"name": "createcybernetics:psycho_heartbeat"},
-      {"name": "createcybernetics:psycho_heartbeat_whine"}
+      {"name": "createcybernetics:psycho_heartbeat_whine"},
+      {"name": "createcybernetics:psycho_heartbeat_glitch"},
+      {"name": "createcybernetics:psycho_drone"}
     ]
   },
   "surgery": {

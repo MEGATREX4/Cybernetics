@@ -1,0 +1,27 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_eyeofdefender"
+    },
+    {
+      "item": "createcybernetics:scavenged_eyeofdefender"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "create:electron_tube",
+      "count": 6
+    }
+  ]
+}

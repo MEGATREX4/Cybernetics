@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:muscleupgrades_reinforcedtendons"
+    },
+    {
+      "item": "createcybernetics:scavenged_reinforcedtendons"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 9
+    },
+    {
+      "id": "createcybernetics:graphene_elastomer",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 1
+    }
+  ]
+}

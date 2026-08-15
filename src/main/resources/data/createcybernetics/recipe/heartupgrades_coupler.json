@@ -24,14 +24,17 @@
     },
     "E": {
       "item": "createcybernetics:component_led"
+    },
+    "A": {
+      "item": "createcybernetics:component_actuator"
     }
   },
 
   "pattern": [
     "     ",
     " NPPE",
-    "  PSP",
-    "  PPP",
+    "  ASP",
+    "  PAP",
     " N  N"
   ],
 

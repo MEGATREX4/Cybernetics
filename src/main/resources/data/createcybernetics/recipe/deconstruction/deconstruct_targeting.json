@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:eyeupgrades_targeting"
+    },
+    {
+      "item": "createcybernetics:scavenged_targeting"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 2
+    }
+  ]
+}

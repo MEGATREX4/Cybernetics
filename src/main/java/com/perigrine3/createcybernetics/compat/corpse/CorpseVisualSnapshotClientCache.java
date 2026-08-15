@@ -2,6 +2,7 @@ package com.perigrine3.createcybernetics.compat.corpse;
 
 import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -107,7 +108,7 @@ public final class CorpseVisualSnapshotClientCache {
 
         pd.remove(PlayerCyberwareData.HOLO_SNAPSHOT_FLAG);
         pd.remove(PlayerCyberwareData.HOLO_SNAPSHOT_CYBERWARE);
-        pd.remove(CybereyeOverlayHandler.NBT_ROOT);
+        pd.remove(CybereyeVisualConfig.NBT_ROOT);
 
         if (corpseEntityUuid == null) {
             CybereyeOverlayHandler.invalidate(visualPlayer);
@@ -116,15 +117,13 @@ public final class CorpseVisualSnapshotClientCache {
 
         CompoundTag snapshot = getSnapshotTag(corpseEntityUuid);
         if (!snapshot.isEmpty()) {
-            // IMPORTANT:
-            // HOLO_SNAPSHOT_FLAG is "cc_holo_snapshot" and must stay a boolean.
             pd.putBoolean(PlayerCyberwareData.HOLO_SNAPSHOT_FLAG, true);
             pd.put(PlayerCyberwareData.HOLO_SNAPSHOT_CYBERWARE, snapshot.copy());
         }
 
         CompoundTag cybereyeRoot = getCybereyeRootTag(corpseEntityUuid);
         if (!cybereyeRoot.isEmpty()) {
-            pd.put(CybereyeOverlayHandler.NBT_ROOT, cybereyeRoot);
+            pd.put(CybereyeVisualConfig.NBT_ROOT, cybereyeRoot.copy());
         }
 
         CybereyeOverlayHandler.invalidate(visualPlayer);
@@ -139,7 +138,7 @@ public final class CorpseVisualSnapshotClientCache {
 
         pd.remove(PlayerCyberwareData.HOLO_SNAPSHOT_FLAG);
         pd.remove(PlayerCyberwareData.HOLO_SNAPSHOT_CYBERWARE);
-        pd.remove(CybereyeOverlayHandler.NBT_ROOT);
+        pd.remove(CybereyeVisualConfig.NBT_ROOT);
 
         CybereyeOverlayHandler.invalidate(visualPlayer);
     }

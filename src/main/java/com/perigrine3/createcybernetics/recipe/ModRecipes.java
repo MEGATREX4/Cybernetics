@@ -24,6 +24,16 @@ public class ModRecipes {
                 }
             });
 
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EngineeringDeconstructRecipe>> ENGINEERING_DECONSTRUCT_SERIALIZER =
+            SERIALIZERS.register("engineering_deconstruct", EngineeringDeconstructRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<EngineeringDeconstructRecipe>> ENGINEERING_DECONSTRUCT_TYPE =
+            TYPES.register("engineering_deconstruct", () -> new RecipeType<>() {
+                @Override
+                public String toString() {
+                    return CreateCybernetics.MODID + ":engineering_deconstruct";
+                }
+            });
+
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<GraftingTableRecipe>> GRAFTING_TABLE_SERIALIZER =
             SERIALIZERS.register("grafting_table", GraftingTableRecipe.Serializer::new);
     public static final DeferredHolder<RecipeType<?>, RecipeType<GraftingTableRecipe>> GRAFTING_TABLE_TYPE =

@@ -1,0 +1,30 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_cyberbrain"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 9
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 32
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 9
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 3
+    }
+  ]
+}

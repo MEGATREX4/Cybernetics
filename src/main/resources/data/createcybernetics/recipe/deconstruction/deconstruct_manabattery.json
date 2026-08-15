@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_manabattery"
+    },
+    {
+      "item": "createcybernetics:scavenged_manabattery"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 4
+    },
+    {
+      "id": "irons_spellbooks:arcane_ingot",
+      "count": 4
+    }
+  ]
+}

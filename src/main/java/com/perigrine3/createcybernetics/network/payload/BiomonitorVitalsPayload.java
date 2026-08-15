@@ -19,87 +19,85 @@ public record BiomonitorVitalsPayload(
         boolean hasHungerData,
         int foodLevel,
         float saturationLevel,
-        List<EffectData> effects
+        List<EffectData> effects,
+        List<ImplantData> implants
 ) implements CustomPacketPayload {
 
-    public static final Type<BiomonitorVitalsPayload> TYPE =
-            new Type<>(ResourceLocation.fromNamespaceAndPath(
-                    CreateCybernetics.MODID,
-                    "biomonitor_vitals"
-            ));
+    public static final Type<BiomonitorVitalsPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "biomonitor_vitals"));
 
-    public static final StreamCodec<ByteBuf, BiomonitorVitalsPayload> STREAM_CODEC =
-            new StreamCodec<>() {
-                @Override
-                public BiomonitorVitalsPayload decode(ByteBuf buffer) {
-                    int targetEntityId = buffer.readInt();
-                    float health = buffer.readFloat();
-                    float maxHealth = buffer.readFloat();
-                    int armor = buffer.readInt();
+    public static final StreamCodec<ByteBuf, BiomonitorVitalsPayload> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public BiomonitorVitalsPayload decode(ByteBuf buffer) {
+            int targetEntityId = buffer.readInt();
+            float health = buffer.readFloat();
+            float maxHealth = buffer.readFloat();
+            int armor = buffer.readInt();
 
-                    boolean hasHungerData = buffer.readBoolean();
-                    int foodLevel = buffer.readInt();
-                    float saturationLevel = buffer.readFloat();
+            boolean hasHungerData = buffer.readBoolean();
+            int foodLevel = buffer.readInt();
+            float saturationLevel = buffer.readFloat();
 
-                    int effectCount = Math.max(0, Math.min(buffer.readInt(), 64));
-                    List<EffectData> effects = new ArrayList<>(effectCount);
+            int effectCount = Math.max(0, Math.min(buffer.readInt(), 64));
+            List<EffectData> effects = new ArrayList<>(effectCount);
 
-                    for (int index = 0; index < effectCount; index++) {
-                        String displayName = ByteBufCodecs.STRING_UTF8.decode(buffer);
-                        int amplifier = buffer.readInt();
-                        int duration = buffer.readInt();
-                        boolean infiniteDuration = buffer.readBoolean();
+            for (int index = 0; index < effectCount; index++) {
+                String translationKey = ByteBufCodecs.STRING_UTF8.decode(buffer);
+                int amplifier = buffer.readInt();
+                int duration = buffer.readInt();
+                boolean infiniteDuration = buffer.readBoolean();
 
-                        effects.add(new EffectData(
-                                displayName,
-                                amplifier,
-                                duration,
-                                infiniteDuration
-                        ));
-                    }
+                effects.add(new EffectData(translationKey, amplifier, duration, infiniteDuration));
+            }
 
-                    return new BiomonitorVitalsPayload(
-                            targetEntityId,
-                            health,
-                            maxHealth,
-                            armor,
-                            hasHungerData,
-                            foodLevel,
-                            saturationLevel,
-                            List.copyOf(effects)
-                    );
-                }
+            int implantCount = Math.max(0, Math.min(buffer.readInt(), 128));
+            List<ImplantData> implants = new ArrayList<>(implantCount);
 
-                @Override
-                public void encode(ByteBuf buffer, BiomonitorVitalsPayload payload) {
-                    buffer.writeInt(payload.targetEntityId());
-                    buffer.writeFloat(payload.health());
-                    buffer.writeFloat(payload.maxHealth());
-                    buffer.writeInt(payload.armor());
+            for (int index = 0; index < implantCount; index++) {
+                String translationKey = ByteBufCodecs.STRING_UTF8.decode(buffer);
+                int count = buffer.readInt();
 
-                    buffer.writeBoolean(payload.hasHungerData());
-                    buffer.writeInt(payload.foodLevel());
-                    buffer.writeFloat(payload.saturationLevel());
+                implants.add(new ImplantData(translationKey, count));
+            }
 
-                    List<EffectData> effects = payload.effects();
+            return new BiomonitorVitalsPayload(targetEntityId, health, maxHealth, armor, hasHungerData, foodLevel, saturationLevel, List.copyOf(effects), List.copyOf(implants));
+        }
 
-                    buffer.writeInt(effects.size());
+        @Override
+        public void encode(ByteBuf buffer, BiomonitorVitalsPayload payload) {
+            buffer.writeInt(payload.targetEntityId());
+            buffer.writeFloat(payload.health());
+            buffer.writeFloat(payload.maxHealth());
+            buffer.writeInt(payload.armor());
 
-                    for (EffectData effect : effects) {
-                        ByteBufCodecs.STRING_UTF8.encode(
-                                buffer,
-                                effect.displayName()
-                        );
+            buffer.writeBoolean(payload.hasHungerData());
+            buffer.writeInt(payload.foodLevel());
+            buffer.writeFloat(payload.saturationLevel());
 
-                        buffer.writeInt(effect.amplifier());
-                        buffer.writeInt(effect.duration());
-                        buffer.writeBoolean(effect.infiniteDuration());
-                    }
-                }
-            };
+            List<EffectData> effects = payload.effects();
+
+            buffer.writeInt(effects.size());
+
+            for (EffectData effect : effects) {
+                ByteBufCodecs.STRING_UTF8.encode(buffer, effect.translationKey());
+                buffer.writeInt(effect.amplifier());
+                buffer.writeInt(effect.duration());
+                buffer.writeBoolean(effect.infiniteDuration());
+            }
+
+            List<ImplantData> implants = payload.implants();
+
+            buffer.writeInt(implants.size());
+
+            for (ImplantData implant : implants) {
+                ByteBufCodecs.STRING_UTF8.encode(buffer, implant.translationKey());
+                buffer.writeInt(implant.count());
+            }
+        }
+    };
 
     public BiomonitorVitalsPayload {
         effects = List.copyOf(effects);
+        implants = List.copyOf(implants);
     }
 
     @Override
@@ -112,10 +110,16 @@ public record BiomonitorVitalsPayload(
     }
 
     public record EffectData(
-            String displayName,
+            String translationKey,
             int amplifier,
             int duration,
             boolean infiniteDuration
+    ) {
+    }
+
+    public record ImplantData(
+            String translationKey,
+            int count
     ) {
     }
 }

@@ -1,0 +1,38 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "create"
+      }
+    }
+  ],
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_armcannon"
+    },
+    {
+      "item": "createcybernetics:scavenged_armcannon"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_led",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 1
+    }
+  ]
+}

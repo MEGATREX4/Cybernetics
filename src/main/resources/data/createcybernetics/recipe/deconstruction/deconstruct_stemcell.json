@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:heartupgrades_stemcell"
+    },
+    {
+      "item": "createcybernetics:scavenged_stemcell"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 12
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 6
+    }
+  ]
+}

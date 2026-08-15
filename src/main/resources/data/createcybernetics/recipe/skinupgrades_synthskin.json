@@ -12,15 +12,12 @@
     },
     "S": {
       "item": "createcybernetics:graphene_elastomer"
-    },
-    "D": {
-      "tag": "minecraft:dyes"
     }
   },
 
   "pattern": [
     "     ",
-    "  D  ",
+    "     ",
     "PSPSP",
     "NPNPN",
     "     "

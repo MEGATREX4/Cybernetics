@@ -7,6 +7,32 @@
     "minecraft:windswept_savanna",
     "minecraft:desert",
     "minecraft:badlands",
-    "minecraft:eroded_badlands"
+    "minecraft:eroded_badlands",
+
+    "biomesoplenty:chaparral",
+    "biomesoplenty:dryland",
+    "biomesoplenty:field",
+    "biomesoplenty:lavender_field",
+    "biomesoplenty:lush_desert",
+    "biomesoplenty:lush_savanna",
+    "biomesoplenty:outback",
+    "biomesoplenty:prairie",
+    "biomesoplenty:shrubland",
+    "biomesoplenty:wasteland",
+
+    "regions_unexplored:arid_mountains",
+    "regions_unexplored:baobab_savanna",
+    "regions_unexplored:barley_fields",
+    "regions_unexplored:clover_plains",
+    "regions_unexplored:dry_bushland",
+    "regions_unexplored:highland_fields",
+    "regions_unexplored:pumice_fields",
+    "regions_unexplored:shrubland",
+    "regions_unexplored:steppe",
+
+    "byg:allium_fields",
+    "byg:amaranth_fields",
+    "byg:prairie",
+    "byg:rose_fields"
   ]
 }

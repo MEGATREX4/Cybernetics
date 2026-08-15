@@ -43,6 +43,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.EYEUPGRADES_ZOOM.get())
                 .add(ModItems.EYEUPGRADES_NIGHTVISION.get())
                 .add(ModItems.ARMUPGRADES_CLAWS.get())
+                .add(ModItems.ARMUPGRADES_CLAWS.get())
                 .add(ModItems.ARMUPGRADES_FIRESTARTER.get())
                 .add(ModItems.SKINUPGRADES_CHROMATOPHORES.get())
                 .add(ModItems.BRAINUPGRADES_IDEM.get())
@@ -54,6 +55,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SKINUPGRADES_SYNTHETICSETULES.get())
                 .add(ModItems.ARMUPGRADES_ARCCANNON.get())
                 .add(ModItems.LUNGSUPGRADES_VAMPYRES.get())
+                .add(ModItems.BRAINUPGRADES_KERENZIKOV.get())
+                .add(ModItems.BRAINUPGRADES_BERSERK.get())
 
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_IRON.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_COPPER.get())
@@ -290,6 +293,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.ARMUPGRADES_REINFORCEDKNUCKLES.get())
                 .add(ModItems.ARMUPGRADES_RIPPERCLAW.get())
                 .add(ModItems.ARMUPGRADES_ARCCANNON.get())
+                .add(ModItems.ARMUPGRADES_HEAVYKNUCKLES.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_TITANIUM.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_IRON.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_GOLD.get())
@@ -320,6 +324,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.BRAINUPGRADES_NEURALPROCESSOR.get())
                 .add(ModItems.BRAINUPGRADES_ICEPROTOCOL.get())
                 .add(ModItems.BRAINUPGRADES_COAXIALPORT.get())
+                .add(ModItems.BRAINUPGRADES_KERENZIKOV.get())
+                .add(ModItems.BRAINUPGRADES_BERSERK.get())
                 .add(ModItems.BRAINUPGRADES_CYBERBRAIN.get())
                 .add(ModItems.HEARTUPGRADES_CYBERHEART.get())
                 .add(ModItems.HEARTUPGRADES_COUPLER.get())
@@ -354,6 +360,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SKINUPGRADES_METALPLATING.get())
                 .add(ModItems.SKINUPGRADES_EMPTHREADING.get())
                 .add(ModItems.MUSCLEUPGRADES_SYNTHMUSCLE.get())
+                .add(ModItems.MUSCLEUPGRADES_REINFORCEDTENDONS.get())
                 .add(ModItems.MUSCLEUPGRADES_WIREDREFLEXES.get())
                 .add(ModItems.MUSCLEUPGRADES_BALLISTICGEL.get())
                 .addOptional(resourceLocation("createcybernetics:boneupgrades_elytra"))
@@ -502,6 +509,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.ARMUPGRADES_REINFORCEDKNUCKLES.get())
                 .add(ModItems.ARMUPGRADES_RIPPERCLAW.get())
                 .add(ModItems.ARMUPGRADES_ARCCANNON.get())
+                .add(ModItems.ARMUPGRADES_HEAVYKNUCKLES.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_IRON.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_COPPER.get())
                 .add(ModItems.ARMUPGRADES_MANTISBLADE_TITANIUM.get())
@@ -601,6 +609,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.BRAINUPGRADES_NEURALPROCESSOR.get())
                 .add(ModItems.BRAINUPGRADES_ICEPROTOCOL.get())
                 .add(ModItems.BRAINUPGRADES_COAXIALPORT.get())
+                .add(ModItems.BRAINUPGRADES_BERSERK.get())
                 .addOptional(resourceLocation("createcybernetics:brainupgrades_consciousnesstransmitter"))
                 .addOptional(resourceLocation("createcybernetics:brainupgrades_corticalstack"))
                 .addOptional(resourceLocation("createcybernetics:brainupgrades_spelljammer"));
@@ -608,6 +617,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 //MUSCLE UPGRADES
         tag(ModTags.Items.MUSCLE_UPGRADES)
                 .add(ModItems.MUSCLEUPGRADES_SYNTHMUSCLE.get())
+                .add(ModItems.MUSCLEUPGRADES_REINFORCEDTENDONS.get())
                 .add(ModItems.MUSCLEUPGRADES_WIREDREFLEXES.get())
                 .add(ModItems.MUSCLEUPGRADES_BALLISTICGEL.get());
 
@@ -670,6 +680,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SCAVENGED_NEURALPROCESSOR.get())
                 .add(ModItems.SCAVENGED_ICEPROTOCOL.get())
                 .add(ModItems.SCAVENGED_COAXIALPORT.get())
+                .add(ModItems.SCAVENGED_KERENZIKOV.get())
+                .add(ModItems.SCAVENGED_BERSERK.get())
                 .add(ModItems.SCAVENGED_IDEM.get())
 
                 .add(ModItems.SCAVENGED_CYBERHEART.get())
@@ -706,6 +718,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SCAVENGED_SYNTHETICSETULES.get())
                 .add(ModItems.SCAVENGED_METALPLATING.get())
                 .add(ModItems.SCAVENGED_SYNTHMUSCLE.get())
+                .add(ModItems.SCAVENGED_REINFORCEDTENDONS.get())
                 .add(ModItems.SCAVENGED_WIREDREFLEXES.get())
                 .add(ModItems.SCAVENGED_BALLISTICGEL.get())
                 .addOptional(resourceLocation("createcybernetics:scavenged_elytra"))
@@ -755,6 +768,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.MUSCLE_ITEMS)
                 .add(ModItems.WETWARE_RAVAGERTENDONS.get())
                 .add(ModItems.MUSCLEUPGRADES_SYNTHMUSCLE.get())
+                .add(ModItems.MUSCLEUPGRADES_REINFORCEDTENDONS.get())
                 .add(ModItems.BODYPART_SCULKMUSCLE.get())
                 .add(ModItems.WETWARE_ELECTROCYTEMUSCLE.get())
                 .add(ModItems.WETWARE_GOOEYMUSCLE.get())
@@ -1106,6 +1120,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SKINUPGRADES_METALPLATING.get())
 
                 .add(ModItems.MUSCLEUPGRADES_SYNTHMUSCLE.get())
+                .add(ModItems.MUSCLEUPGRADES_REINFORCEDTENDONS.get())
                 .add(ModItems.MUSCLEUPGRADES_WIREDREFLEXES.get())
                 .add(ModItems.MUSCLEUPGRADES_BALLISTICGEL.get());
 

@@ -207,27 +207,6 @@ public final class Config {
             .defineInRange("pigstromMax", 8, 1, 100);
 
 
-
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> ENGINEERING_DECONSTRUCT_ROLLS = BUILDER
-            .comment("Engineering Table deconstruction rolls for regular cyberware.")
-            .comment("Format per entry: item_id,min,max,weight")
-            .comment("Example: minecraft:iron_ingot,0,3,3")
-            .defineListAllowEmpty(
-                    List.of("engineeringDeconstructRolls"),
-                    defaultEngineeringDeconstructRolls(),
-                    obj -> obj instanceof String
-            );
-
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> ENGINEERING_SCAVENGED_DECONSTRUCT_ROLLS = BUILDER
-            .comment("Engineering Table deconstruction rolls for scavenged cyberware.")
-            .comment("Format per entry: item_id,min,max,weight")
-            .comment("Example: minecraft:iron_ingot,0,3,3")
-            .defineListAllowEmpty(
-                    List.of("engineeringScavengedDeconstructRolls"),
-                    defaultEngineeringScavengedDeconstructRolls(),
-                    obj -> obj instanceof String
-            );
-
     public static final ModConfigSpec.ConfigValue<List<? extends String>> ENTITY_SLOT_ROLLS = BUILDER
             .comment("Entity cyberware slot roll settings.")
             .comment("Format per entry: tableId,slot,rollChance,minRolls,maxRolls")
@@ -253,103 +232,8 @@ public final class Config {
     public static final ModConfigSpec SPEC = BUILDER.build();
 
     static void bakeRollTables() {
-        ConfigValues.ENGINEERING_DECONSTRUCT_ROLLS = parseEngineeringRolls(ENGINEERING_DECONSTRUCT_ROLLS.get());
-        ConfigValues.ENGINEERING_SCAVENGED_DECONSTRUCT_ROLLS = parseEngineeringRolls(ENGINEERING_SCAVENGED_DECONSTRUCT_ROLLS.get());
         ConfigValues.ENTITY_SLOT_ROLLS = parseEntitySlotRolls(ENTITY_SLOT_ROLLS.get());
         ConfigValues.ENTITY_CYBERWARE_ROLLS = parseEntityCyberwareRolls(ENTITY_CYBERWARE_ROLLS.get());
-    }
-
-    private static List<String> defaultEngineeringDeconstructRolls() {
-        List<String> defaults = new ArrayList<>();
-
-        defaults.add("createcybernetics:component_actuator,0,5,4");
-        defaults.add("createcybernetics:component_fiberoptics,0,5,4");
-        defaults.add("createcybernetics:component_wiring,1,5,5");
-        defaults.add("createcybernetics:component_diodes,0,5,4");
-        defaults.add("createcybernetics:component_plating,0,5,5");
-        defaults.add("createcybernetics:component_graphicscard,0,5,4");
-        defaults.add("createcybernetics:component_ssd,0,5,4");
-        defaults.add("createcybernetics:component_storage,0,5,4");
-        defaults.add("createcybernetics:component_synthnerves,0,5,3");
-        defaults.add("createcybernetics:component_mesh,0,5,2");
-        defaults.add("createcybernetics:component_led,0,5,3");
-        defaults.add("createcybernetics:component_titaniumrod,0,5,2");
-
-        return defaults;
-    }
-
-    private static List<String> defaultEngineeringScavengedDeconstructRolls() {
-        List<String> defaults = new ArrayList<>();
-
-        defaults.add("createcybernetics:component_actuator,0,2,3");
-        defaults.add("createcybernetics:component_fiberoptics,0,2,3");
-        defaults.add("createcybernetics:component_wiring,0,3,5");
-        defaults.add("createcybernetics:component_diodes,0,2,2");
-        defaults.add("createcybernetics:component_plating,0,2,5");
-        defaults.add("createcybernetics:component_graphicscard,0,2,2");
-        defaults.add("createcybernetics:component_ssd,0,2,3");
-        defaults.add("createcybernetics:component_storage,0,2,4");
-        defaults.add("createcybernetics:component_synthnerves,0,2,1");
-        defaults.add("createcybernetics:component_mesh,0,2,2");
-        defaults.add("createcybernetics:component_led,0,2,3");
-        defaults.add("createcybernetics:component_titaniumrod,0,2,2");
-
-        return defaults;
-    }
-
-    private static List<ConfigValues.EngineeringRoll> parseEngineeringRolls(List<? extends String> rawEntries) {
-        List<ConfigValues.EngineeringRoll> parsed = new ArrayList<>();
-        if (rawEntries == null) return parsed;
-
-        for (String raw : rawEntries) {
-            if (raw == null) continue;
-
-            String line = raw.trim();
-            if (line.isEmpty()) continue;
-
-            String[] parts = line.split(",");
-            if (parts.length != 4) {
-                CreateCybernetics.LOGGER.warn("Skipping invalid engineering roll config entry '{}': expected 4 comma-separated values", line);
-                continue;
-            }
-
-            String itemId = parts[0].trim();
-            String minText = parts[1].trim();
-            String maxText = parts[2].trim();
-            String weightText = parts[3].trim();
-
-            try {
-                ResourceLocation id = ResourceLocation.parse(itemId);
-                Item item = BuiltInRegistries.ITEM.get(id);
-                if (item == null || item == BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace("air"))) {
-                    CreateCybernetics.LOGGER.warn("Skipping engineering roll config entry '{}': item '{}' was not found", line, itemId);
-                    continue;
-                }
-
-                int min = Integer.parseInt(minText);
-                int max = Integer.parseInt(maxText);
-                int weight = Integer.parseInt(weightText);
-
-                if (min < 0) {
-                    CreateCybernetics.LOGGER.warn("Skipping engineering roll config entry '{}': min cannot be negative", line);
-                    continue;
-                }
-                if (max < min) {
-                    CreateCybernetics.LOGGER.warn("Skipping engineering roll config entry '{}': max cannot be less than min", line);
-                    continue;
-                }
-                if (weight <= 0) {
-                    CreateCybernetics.LOGGER.warn("Skipping engineering roll config entry '{}': weight must be > 0", line);
-                    continue;
-                }
-
-                parsed.add(new ConfigValues.EngineeringRoll(item, min, max, weight));
-            } catch (Exception ex) {
-                CreateCybernetics.LOGGER.warn("Skipping invalid engineering roll config entry '{}'", line, ex);
-            }
-        }
-
-        return parsed;
     }
 
     private static List<String> defaultEntitySlotRolls() {

@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_matrix"
+    },
+    {
+      "item": "createcybernetics:scavenged_matrix"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 12
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 4
+    }
+  ]
+}

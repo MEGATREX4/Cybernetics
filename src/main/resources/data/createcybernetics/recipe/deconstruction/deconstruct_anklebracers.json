@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:legupgrades_anklebracers"
+    },
+    {
+      "item": "createcybernetics:scavenged_anklebracers"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 6
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 6
+    }
+  ]
+}

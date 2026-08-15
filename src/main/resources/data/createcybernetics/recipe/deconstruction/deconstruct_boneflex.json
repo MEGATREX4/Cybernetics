@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_boneflex"
+    },
+    {
+      "item": "createcybernetics:scavenged_boneflex"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_wiring",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_diodes",
+      "count": 1
+    }
+  ]
+}

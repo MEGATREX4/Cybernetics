@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:brainupgrades_consciousnesstransmitter"
+    },
+    {
+      "item": "createcybernetics:scavenged_consciousnesstransmitter"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 2
+    }
+  ]
+}

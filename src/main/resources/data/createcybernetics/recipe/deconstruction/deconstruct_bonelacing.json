@@ -1,0 +1,17 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_bonelacing"
+    },
+    {
+      "item": "createcybernetics:scavenged_bonelacing"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_mesh",
+      "count": 10
+    }
+  ]
+}

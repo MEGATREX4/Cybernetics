@@ -1,0 +1,31 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "create"
+    }
+  ],
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_sandevistan"
+    },
+    {
+      "item": "createcybernetics:scavenged_sandevistan"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 5
+    },
+    {
+      "id": "create:electron_tube",
+      "count": 2
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:organsupgrades_battery"
+    },
+    {
+      "item": "createcybernetics:scavenged_battery"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 10
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    },
+    {
+      "id": "minecraft:redstone",
+      "count": 1
+    },
+    {
+      "id": "minecraft:blaze_powder",
+      "count": 1
+    }
+  ]
+}

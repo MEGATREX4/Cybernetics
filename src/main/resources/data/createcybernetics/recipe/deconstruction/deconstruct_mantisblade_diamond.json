@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:armupgrades_mantisblade_diamond"
+    },
+    {
+      "item": "createcybernetics:scavenged_mantisblade_diamond"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 4
+    },
+    {
+      "id": "minecraft:diamond",
+      "count": 4
+    }
+  ]
+}

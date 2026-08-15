@@ -84,7 +84,6 @@ public class ModItemModelProvider extends ItemModelProvider {
 
 
         withExistingParent(ModItems.RIPPER_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
-        withExistingParent(ModItems.TATHOG_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
         withExistingParent(ModItems.SMASHER_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
         withExistingParent(ModItems.CYBERZOMBIE_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
         withExistingParent(ModItems.CYBERSKELETON_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
@@ -231,6 +230,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.BRAINUPGRADES_NEURALPROCESSOR.get());
         basicItem(ModItems.BRAINUPGRADES_ICEPROTOCOL.get());
         basicItem(ModItems.BRAINUPGRADES_COAXIALPORT.get());
+        basicItem(ModItems.BRAINUPGRADES_KERENZIKOV.get());
+        basicItem(ModItems.BRAINUPGRADES_BERSERK.get());
     }
 
 //HEART
@@ -283,6 +284,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 //MUSCLE
         {
         basicItem(ModItems.MUSCLEUPGRADES_SYNTHMUSCLE.get());
+        basicItem(ModItems.MUSCLEUPGRADES_REINFORCEDTENDONS.get());
         basicItem(ModItems.MUSCLEUPGRADES_WIREDREFLEXES.get());
         basicItem(ModItems.MUSCLEUPGRADES_BALLISTICGEL.get());
     }
@@ -338,6 +340,7 @@ public class ModItemModelProvider extends ItemModelProvider {
             basicItem(ModItems.SCAVENGED_PNEUMATICWRIST.get());
             basicItem(ModItems.SCAVENGED_REINFORCEDKNUCKLES.get());
             basicItem(ModItems.SCAVENGED_ARCCANNON.get());
+            basicItem(ModItems.ARMUPGRADES_HEAVYKNUCKLES.get());
             basicItem(ModItems.SCAVENGED_MANTISBLADE_TITANIUM.get());
             basicItem(ModItems.SCAVENGED_MANTISBLADE_IRON.get());
             basicItem(ModItems.SCAVENGED_MANTISBLADE_COPPER.get());
@@ -366,6 +369,8 @@ public class ModItemModelProvider extends ItemModelProvider {
             basicItem(ModItems.SCAVENGED_CHIPWARESLOTS.get());
             basicItem(ModItems.SCAVENGED_ICEPROTOCOL.get());
             basicItem(ModItems.SCAVENGED_COAXIALPORT.get());
+            basicItem(ModItems.SCAVENGED_KERENZIKOV.get());
+            basicItem(ModItems.SCAVENGED_BERSERK.get());
             basicItem(ModItems.SCAVENGED_NEURALPROCESSOR.get());
             basicItem(ModItems.SCAVENGED_CYBERHEART.get());
             basicItem(ModItems.SCAVENGED_COUPLER.get());
@@ -398,6 +403,7 @@ public class ModItemModelProvider extends ItemModelProvider {
             basicItem(ModItems.SCAVENGED_SYNTHETICSETULES.get());
             basicItem(ModItems.SCAVENGED_METALPLATING.get());
             basicItem(ModItems.SCAVENGED_SYNTHMUSCLE.get());
+            basicItem(ModItems.SCAVENGED_REINFORCEDTENDONS.get());
             basicItem(ModItems.SCAVENGED_WIREDREFLEXES.get());
             basicItem(ModItems.SCAVENGED_BALLISTICGEL.get());
         }

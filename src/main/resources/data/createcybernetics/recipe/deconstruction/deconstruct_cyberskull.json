@@ -1,0 +1,17 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:boneupgrades_cyberskull"
+    },
+    {
+      "item": "createcybernetics:scavenged_cyberskull"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:titaniumingot",
+      "count": 4
+    }
+  ]
+}

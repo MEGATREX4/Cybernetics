@@ -1,0 +1,38 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:mod_loaded",
+        "modid": "create"
+      }
+    }
+  ],
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:heartupgrades_coupler"
+    },
+    {
+      "item": "createcybernetics:scavenged_coupler"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 5
+    },
+    {
+      "id": "createcybernetics:component_storage",
+      "count": 1
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_led",
+      "count": 1
+    }
+  ]
+}

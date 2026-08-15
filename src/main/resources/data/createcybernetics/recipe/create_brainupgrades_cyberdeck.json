@@ -16,6 +16,9 @@
     "D": {
       "item": "createcybernetics:component_diodes"
     },
+    "S": {
+      "item": "createcybernetics:component_ssd"
+    },
     "E": {
       "item": "create:electron_tube"
     }
@@ -25,8 +28,8 @@
     "R    ",
     "PPPPP",
     "PWDEP",
-    "PPPPP",
-    "     "
+    "PSSSP",
+    "PPPPP"
   ],
 
   "result": {

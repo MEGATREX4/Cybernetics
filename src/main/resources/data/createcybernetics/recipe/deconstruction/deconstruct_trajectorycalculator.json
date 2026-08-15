@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:eyeupgrades_trajectorycalculator"
+    },
+    {
+      "item": "createcybernetics:scavenged_trajectorycalculator"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_fiberoptics",
+      "count": 4
+    },
+    {
+      "id": "createcybernetics:component_graphicscard",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_ssd",
+      "count": 1
+    }
+  ]
+}

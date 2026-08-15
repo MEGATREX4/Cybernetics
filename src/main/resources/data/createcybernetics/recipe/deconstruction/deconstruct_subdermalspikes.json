@@ -1,0 +1,21 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_subdermalspikes"
+    },
+    {
+      "item": "createcybernetics:scavenged_subdermalspikes"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_plating",
+      "count": 12
+    },
+    {
+      "id": "createcybernetics:titaniumnugget",
+      "count": 3
+    }
+  ]
+}

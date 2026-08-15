@@ -1,0 +1,25 @@
+{
+  "type": "createcybernetics:engineering_deconstruct",
+  "inputs": [
+    {
+      "item": "createcybernetics:skinupgrades_chromatophores"
+    },
+    {
+      "item": "createcybernetics:scavenged_chromatophores"
+    }
+  ],
+  "outputs": [
+    {
+      "id": "createcybernetics:component_fiberoptics",
+      "count": 2
+    },
+    {
+      "id": "createcybernetics:component_synthnerves",
+      "count": 3
+    },
+    {
+      "id": "createcybernetics:component_actuator",
+      "count": 1
+    }
+  ]
+}

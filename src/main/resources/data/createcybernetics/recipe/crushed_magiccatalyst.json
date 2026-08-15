@@ -25,8 +25,16 @@
       "id": "createcybernetics:component_wiring"
     },
     {
+      "chance": 0.20,
+      "id": "createcybernetics:component_diodes"
+    },
+    {
       "chance": 0.05,
       "id": "minecraft:nether_star"
+    },
+    {
+      "chance": 0.05,
+      "id": "createcybernetics:netherite_qpu"
     },
     {
       "chance": 0.25,

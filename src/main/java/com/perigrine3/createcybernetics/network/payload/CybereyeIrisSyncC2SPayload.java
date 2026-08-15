@@ -1,7 +1,7 @@
 package com.perigrine3.createcybernetics.network.payload;
 
 import com.perigrine3.createcybernetics.CreateCybernetics;
-import com.perigrine3.createcybernetics.client.skin.CybereyeOverlayHandler;
+import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -10,11 +10,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.UUID;
-
 public record CybereyeIrisSyncC2SPayload(
-        int leftX, int leftY, int leftVariant,
-        int rightX, int rightY, int rightVariant
+        long[] primaryMask,
+        long[] secondaryMask,
+        int monovisionX, int monovisionY,
+        int multioptics1X, int multioptics1Y,
+        int multioptics2X, int multioptics2Y,
+        int multioptics3X, int multioptics3Y,
+        int multioptics4X, int multioptics4Y
 ) implements CustomPacketPayload {
 
     public static final Type<CybereyeIrisSyncC2SPayload> TYPE =
@@ -28,74 +31,102 @@ public record CybereyeIrisSyncC2SPayload(
         return TYPE;
     }
 
-    private static void encode(FriendlyByteBuf buf, CybereyeIrisSyncC2SPayload p) {
-        buf.writeVarInt(p.leftX);
-        buf.writeVarInt(p.leftY);
-        buf.writeVarInt(p.leftVariant);
-        buf.writeVarInt(p.rightX);
-        buf.writeVarInt(p.rightY);
-        buf.writeVarInt(p.rightVariant);
+    public static CybereyeIrisSyncC2SPayload from(CybereyeVisualConfig.Layout layout) {
+        return new CybereyeIrisSyncC2SPayload(
+                layout.primary.copyBits(),
+                layout.secondary.copyBits(),
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MONOVISION).x,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MONOVISION).y,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_1).x,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_1).y,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_2).x,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_2).y,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_3).x,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_3).y,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_4).x,
+                layout.getOffset(CybereyeVisualConfig.OpticsType.MULTIOPTICS_4).y
+        );
+    }
+
+    private static void encode(FriendlyByteBuf buf, CybereyeIrisSyncC2SPayload payload) {
+        writeMask(buf, payload.primaryMask);
+        writeMask(buf, payload.secondaryMask);
+
+        buf.writeInt(payload.monovisionX);
+        buf.writeInt(payload.monovisionY);
+        buf.writeInt(payload.multioptics1X);
+        buf.writeInt(payload.multioptics1Y);
+        buf.writeInt(payload.multioptics2X);
+        buf.writeInt(payload.multioptics2Y);
+        buf.writeInt(payload.multioptics3X);
+        buf.writeInt(payload.multioptics3Y);
+        buf.writeInt(payload.multioptics4X);
+        buf.writeInt(payload.multioptics4Y);
     }
 
     private static CybereyeIrisSyncC2SPayload decode(FriendlyByteBuf buf) {
-        int lx = buf.readVarInt();
-        int ly = buf.readVarInt();
-        int lv = buf.readVarInt();
-        int rx = buf.readVarInt();
-        int ry = buf.readVarInt();
-        int rv = buf.readVarInt();
-        return new CybereyeIrisSyncC2SPayload(lx, ly, lv, rx, ry, rv);
+        return new CybereyeIrisSyncC2SPayload(
+                readMask(buf),
+                readMask(buf),
+                buf.readInt(), buf.readInt(),
+                buf.readInt(), buf.readInt(),
+                buf.readInt(), buf.readInt(),
+                buf.readInt(), buf.readInt(),
+                buf.readInt(), buf.readInt()
+        );
     }
 
     public static void handle(CybereyeIrisSyncC2SPayload payload, ServerPlayer sender) {
         if (sender == null) return;
 
-        UUID id = sender.getUUID();
+        CybereyeVisualConfig.Layout layout = new CybereyeVisualConfig.Layout();
 
-        int lv = clamp(payload.leftVariant, 0, 2);
-        int rv = clamp(payload.rightVariant, 0, 2);
+        copyMask(payload.primaryMask, layout.primary);
+        copyMask(payload.secondaryMask, layout.secondary);
 
-        int lw = variantW(lv);
-        int lh = variantH(lv);
-        int rw = variantW(rv);
-        int rh = variantH(rv);
+        layout.optics.put(CybereyeVisualConfig.OpticsType.MONOVISION,
+                new CybereyeVisualConfig.Offset(payload.monovisionX, payload.monovisionY));
+        layout.optics.put(CybereyeVisualConfig.OpticsType.MULTIOPTICS_1,
+                new CybereyeVisualConfig.Offset(payload.multioptics1X, payload.multioptics1Y));
+        layout.optics.put(CybereyeVisualConfig.OpticsType.MULTIOPTICS_2,
+                new CybereyeVisualConfig.Offset(payload.multioptics2X, payload.multioptics2Y));
+        layout.optics.put(CybereyeVisualConfig.OpticsType.MULTIOPTICS_3,
+                new CybereyeVisualConfig.Offset(payload.multioptics3X, payload.multioptics3Y));
+        layout.optics.put(CybereyeVisualConfig.OpticsType.MULTIOPTICS_4,
+                new CybereyeVisualConfig.Offset(payload.multioptics4X, payload.multioptics4Y));
 
-        int lx = clamp(payload.leftX, 8, 16 - lw);
-        int ly = clamp(payload.leftY, 8, 16 - lh);
-        int rx = clamp(payload.rightX, 8, 16 - rw);
-        int ry = clamp(payload.rightY, 8, 16 - rh);
+        CompoundTag root = CybereyeVisualConfig.writeToNbt(layout);
+        sender.getPersistentData().put(CybereyeVisualConfig.NBT_ROOT, root);
 
-        CompoundTag root = sender.getPersistentData().getCompound(CybereyeOverlayHandler.NBT_ROOT);
+        CybereyeIrisSyncS2CPayload outgoing = CybereyeIrisSyncS2CPayload.from(sender.getUUID(), layout);
 
-        CompoundTag left = new CompoundTag();
-        left.putInt(CybereyeOverlayHandler.NBT_X, lx);
-        left.putInt(CybereyeOverlayHandler.NBT_Y, ly);
-        left.putInt(CybereyeOverlayHandler.NBT_VARIANT, lv);
-        root.put(CybereyeOverlayHandler.NBT_LEFT, left);
-
-        CompoundTag right = new CompoundTag();
-        right.putInt(CybereyeOverlayHandler.NBT_X, rx);
-        right.putInt(CybereyeOverlayHandler.NBT_Y, ry);
-        right.putInt(CybereyeOverlayHandler.NBT_VARIANT, rv);
-        root.put(CybereyeOverlayHandler.NBT_RIGHT, right);
-
-        sender.getPersistentData().put(CybereyeOverlayHandler.NBT_ROOT, root);
-
-        CybereyeIrisSyncS2CPayload out = new CybereyeIrisSyncS2CPayload(id, lx, ly, lv, rx, ry, rv);
-
-        PacketDistributor.sendToPlayer(sender, out);
-        PacketDistributor.sendToPlayersTrackingEntity(sender, out);
+        PacketDistributor.sendToPlayer(sender, outgoing);
+        PacketDistributor.sendToPlayersTrackingEntity(sender, outgoing);
     }
 
-    private static int variantW(int variant) {
-        return (variant == 2) ? 2 : 1;
+    private static void writeMask(FriendlyByteBuf buf, long[] mask) {
+        for (int i = 0; i < CybereyeVisualConfig.MASK_LONG_COUNT; i++) {
+            buf.writeLong(mask != null && i < mask.length ? mask[i] : 0L);
+        }
     }
 
-    private static int variantH(int variant) {
-        return (variant == 0) ? 1 : 2;
+    private static long[] readMask(FriendlyByteBuf buf) {
+        long[] mask = new long[CybereyeVisualConfig.MASK_LONG_COUNT];
+
+        for (int i = 0; i < mask.length; i++) {
+            mask[i] = buf.readLong();
+        }
+
+        return mask;
     }
 
-    private static int clamp(int v, int min, int max) {
-        return Math.max(min, Math.min(max, v));
+    private static void copyMask(long[] source, CybereyeVisualConfig.PixelMask target) {
+        CybereyeVisualConfig.PixelMask sourceMask = new CybereyeVisualConfig.PixelMask(source);
+
+        for (int v = 0; v < CybereyeVisualConfig.HEAD_UV_HEIGHT; v++) {
+            for (int u = 0; u < CybereyeVisualConfig.HEAD_UV_WIDTH; u++) {
+                target.set(u, v, sourceMask.get(u, v));
+            }
+        }
     }
 }

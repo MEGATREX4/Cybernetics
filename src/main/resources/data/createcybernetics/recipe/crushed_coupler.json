@@ -22,6 +22,10 @@
     },
     {
       "chance": 0.25,
+      "id": "createcybernetics:component_actuator"
+    },
+    {
+      "chance": 0.25,
       "id": "create:electron_tube"
     },
     {
