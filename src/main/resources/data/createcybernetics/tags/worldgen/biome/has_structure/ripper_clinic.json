@@ -9,30 +9,99 @@
     "minecraft:badlands",
     "minecraft:eroded_badlands",
 
-    "biomesoplenty:chaparral",
-    "biomesoplenty:dryland",
-    "biomesoplenty:field",
-    "biomesoplenty:lavender_field",
-    "biomesoplenty:lush_desert",
-    "biomesoplenty:lush_savanna",
-    "biomesoplenty:outback",
-    "biomesoplenty:prairie",
-    "biomesoplenty:shrubland",
-    "biomesoplenty:wasteland",
+    {
+      "id": "biomesoplenty:chaparral",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:dryland",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:field",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:lavender_field",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:lush_desert",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:lush_savanna",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:outback",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:prairie",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:shrubland",
+      "required": false
+    },
+    {
+      "id": "biomesoplenty:wasteland",
+      "required": false
+    },
 
-    "regions_unexplored:arid_mountains",
-    "regions_unexplored:baobab_savanna",
-    "regions_unexplored:barley_fields",
-    "regions_unexplored:clover_plains",
-    "regions_unexplored:dry_bushland",
-    "regions_unexplored:highland_fields",
-    "regions_unexplored:pumice_fields",
-    "regions_unexplored:shrubland",
-    "regions_unexplored:steppe",
+    {
+      "id": "regions_unexplored:arid_mountains",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:baobab_savanna",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:barley_fields",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:clover_plains",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:dry_bushland",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:highland_fields",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:pumice_fields",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:shrubland",
+      "required": false
+    },
+    {
+      "id": "regions_unexplored:steppe",
+      "required": false
+    },
 
-    "byg:allium_fields",
-    "byg:amaranth_fields",
-    "byg:prairie",
-    "byg:rose_fields"
+    {
+      "id": "byg:allium_fields",
+      "required": false
+    },
+    {
+      "id": "byg:amaranth_fields",
+      "required": false
+    },
+    {
+      "id": "byg:prairie",
+      "required": false
+    },
+    {
+      "id": "byg:rose_fields",
+      "required": false
+    }
   ]
 }
