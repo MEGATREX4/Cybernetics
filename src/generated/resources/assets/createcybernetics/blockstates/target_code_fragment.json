@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "facing=down,waterlogged=false": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 180
+    },
+    "facing=down,waterlogged=true": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 180
+    },
+    "facing=east,waterlogged=false": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,waterlogged=true": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,waterlogged=false": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90
+    },
+    "facing=north,waterlogged=true": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90
+    },
+    "facing=south,waterlogged=false": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,waterlogged=true": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,waterlogged=false": {
+      "model": "createcybernetics:block/target_code_fragment"
+    },
+    "facing=up,waterlogged=true": {
+      "model": "createcybernetics:block/target_code_fragment"
+    },
+    "facing=west,waterlogged=false": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,waterlogged=true": {
+      "model": "createcybernetics:block/target_code_fragment",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

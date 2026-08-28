@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "createcybernetics:item/materialized_ddos_pulling_2"
+  }
+}

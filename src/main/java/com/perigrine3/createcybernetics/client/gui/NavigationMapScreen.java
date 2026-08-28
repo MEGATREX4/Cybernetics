@@ -1,14 +1,18 @@
 package com.perigrine3.createcybernetics.client.gui;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.math.Axis;
+import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.client.MinimapWaypointClient;
 import com.perigrine3.createcybernetics.client.navigation.SharedNavigationClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
@@ -16,10 +20,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public final class NavigationMapScreen extends Screen {
 
@@ -51,12 +57,11 @@ public final class NavigationMapScreen extends Screen {
     private static final double ZOOM_STEP = 1.20D;
 
     private static final int DATA_INDEX_REFRESH_INTERVAL = 40;
-    private static final int MAX_MIP_LEVEL = 6;
 
     private final Screen parent;
 
     private final Map<TileKey, MinimapWaypointClient.ExploredTile> tileIndex = new HashMap<>();
-    private final Map<MinimapWaypointClient.ExploredTile, TileMipCache> tileMipCaches = new IdentityHashMap<>();
+    private final Map<MinimapWaypointClient.ExploredTile, TileTextureCache> tileTextureCaches = new IdentityHashMap<>();
     private final Map<String, List<MinimapWaypointClient.Waypoint>> waypointsByDimension = new HashMap<>();
 
     private double cameraX;
@@ -142,12 +147,21 @@ public final class NavigationMapScreen extends Screen {
 
     private void rebuildDataIndexes(LocalPlayer player) {
         tileIndex.clear();
-        tileMipCaches.clear();
         waypointsByDimension.clear();
+
+        Set<MinimapWaypointClient.ExploredTile> currentTiles = new HashSet<>();
 
         for (MinimapWaypointClient.ExploredTile tile : MinimapWaypointClient.getExploredTiles(player)) {
             tileIndex.put(new TileKey(tile.dimension(), tile.tileX(), tile.tileZ()), tile);
+            currentTiles.add(tile);
         }
+
+        tileTextureCaches.entrySet().removeIf(entry -> {
+            if (currentTiles.contains(entry.getKey())) return false;
+
+            entry.getValue().close();
+            return true;
+        });
 
         for (MinimapWaypointClient.Waypoint waypoint : MinimapWaypointClient.getWaypoints(player)) {
             waypointsByDimension.computeIfAbsent(waypoint.dimension(), ignored -> new ArrayList<>()).add(waypoint);
@@ -181,62 +195,29 @@ public final class NavigationMapScreen extends Screen {
     }
 
     private void renderExploredTile(GuiGraphics gg, MinimapWaypointClient.ExploredTile tile, double minWorldX, double maxWorldX, double minWorldZ, double maxWorldZ) {
-        TileMipCache mipCache = tileMipCaches.computeIfAbsent(tile, TileMipCache::new);
-        int mipLevel = selectMipLevel();
-        int cellWorldSize = 1 << mipLevel;
-        int mipSize = MinimapWaypointClient.EXPLORATION_TILE_SIZE >> mipLevel;
-        int[] colors = mipCache.colors(mipLevel);
+        TileTextureCache textureCache = tileTextureCaches.computeIfAbsent(tile, TileTextureCache::new);
+        textureCache.ensureCurrent();
 
-        int minLocalWorldX = Mth.clamp(Mth.floor(minWorldX) - tile.minWorldX(), 0, MinimapWaypointClient.EXPLORATION_TILE_SIZE - 1);
-        int maxLocalWorldX = Mth.clamp(Mth.ceil(maxWorldX) - tile.minWorldX(), 0, MinimapWaypointClient.EXPLORATION_TILE_SIZE - 1);
-        int minLocalWorldZ = Mth.clamp(Mth.floor(minWorldZ) - tile.minWorldZ(), 0, MinimapWaypointClient.EXPLORATION_TILE_SIZE - 1);
-        int maxLocalWorldZ = Mth.clamp(Mth.ceil(maxWorldZ) - tile.minWorldZ(), 0, MinimapWaypointClient.EXPLORATION_TILE_SIZE - 1);
+        int screenX0 = worldToScreenX(tile.minWorldX());
+        int screenY0 = worldToScreenY(tile.minWorldZ());
+        int screenX1 = worldToScreenX(tile.minWorldX() + MinimapWaypointClient.EXPLORATION_TILE_SIZE);
+        int screenY1 = worldToScreenY(tile.minWorldZ() + MinimapWaypointClient.EXPLORATION_TILE_SIZE);
 
-        int minCellX = Mth.clamp(Math.floorDiv(minLocalWorldX, cellWorldSize), 0, mipSize - 1);
-        int maxCellX = Mth.clamp(Math.floorDiv(maxLocalWorldX, cellWorldSize), 0, mipSize - 1);
-        int minCellZ = Mth.clamp(Math.floorDiv(minLocalWorldZ, cellWorldSize), 0, mipSize - 1);
-        int maxCellZ = Mth.clamp(Math.floorDiv(maxLocalWorldZ, cellWorldSize), 0, mipSize - 1);
+        int drawX0 = Math.max(MAP_LEFT, Math.min(screenX0, screenX1));
+        int drawY0 = Math.max(MAP_TOP, Math.min(screenY0, screenY1));
+        int drawX1 = Math.min(mapRight(), Math.max(screenX0, screenX1));
+        int drawY1 = Math.min(mapBottom(), Math.max(screenY0, screenY1));
 
-        for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
-            int worldZ = tile.minWorldZ() + cellZ * cellWorldSize;
-            int screenY = worldToScreenY(worldZ);
-            int nextScreenY = worldToScreenY(worldZ + cellWorldSize);
-            int drawHeight = Math.max(1, nextScreenY - screenY);
+        if (drawX1 <= drawX0 || drawY1 <= drawY0) return;
 
-            if (screenY >= mapBottom() || screenY + drawHeight <= MAP_TOP) continue;
+        double tileScreenWidth = Math.max(1.0D, Math.abs(screenX1 - screenX0));
+        double tileScreenHeight = Math.max(1.0D, Math.abs(screenY1 - screenY0));
+        float u = (float) ((drawX0 - Math.min(screenX0, screenX1)) / tileScreenWidth * MinimapWaypointClient.EXPLORATION_TILE_SIZE);
+        float v = (float) ((drawY0 - Math.min(screenY0, screenY1)) / tileScreenHeight * MinimapWaypointClient.EXPLORATION_TILE_SIZE);
+        int sourceWidth = Math.max(1, Mth.ceil((drawX1 - drawX0) / tileScreenWidth * MinimapWaypointClient.EXPLORATION_TILE_SIZE));
+        int sourceHeight = Math.max(1, Mth.ceil((drawY1 - drawY0) / tileScreenHeight * MinimapWaypointClient.EXPLORATION_TILE_SIZE));
 
-            for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
-                int color = colors[cellZ * mipSize + cellX];
-
-                if (color == 0) continue;
-
-                int worldX = tile.minWorldX() + cellX * cellWorldSize;
-                int screenX = worldToScreenX(worldX);
-                int nextScreenX = worldToScreenX(worldX + cellWorldSize);
-                int drawWidth = Math.max(1, nextScreenX - screenX);
-
-                if (screenX >= mapRight() || screenX + drawWidth <= MAP_LEFT) continue;
-
-                int clippedX0 = Math.max(MAP_LEFT, screenX);
-                int clippedY0 = Math.max(MAP_TOP, screenY);
-                int clippedX1 = Math.min(mapRight(), screenX + drawWidth);
-                int clippedY1 = Math.min(mapBottom(), screenY + drawHeight);
-
-                if (clippedX1 <= clippedX0 || clippedY1 <= clippedY0) continue;
-
-                gg.fill(clippedX0, clippedY0, clippedX1, clippedY1, color);
-            }
-        }
-    }
-
-    private int selectMipLevel() {
-        int level = 0;
-
-        while (level < MAX_MIP_LEVEL && (1 << level) * zoom < 1.0D) {
-            level++;
-        }
-
-        return level;
+        gg.blit(textureCache.location(), drawX0, drawY0, drawX1 - drawX0, drawY1 - drawY0, u, v, sourceWidth, sourceHeight, MinimapWaypointClient.EXPLORATION_TILE_SIZE, MinimapWaypointClient.EXPLORATION_TILE_SIZE);
     }
 
     private void renderGrid(GuiGraphics gg) {
@@ -653,7 +634,11 @@ public final class NavigationMapScreen extends Screen {
         }
 
         tileIndex.clear();
-        tileMipCaches.clear();
+        for (TileTextureCache cache : tileTextureCaches.values()) {
+            cache.close();
+        }
+
+        tileTextureCaches.clear();
         waypointsByDimension.clear();
 
         Minecraft.getInstance().setScreen(parent);
@@ -670,70 +655,54 @@ public final class NavigationMapScreen extends Screen {
 
     private record TileKey(String dimension, int tileX, int tileZ) {}
 
-    private static final class TileMipCache {
-        private final int[][] levels = new int[MAX_MIP_LEVEL + 1][];
+    private static final class TileTextureCache {
 
-        private TileMipCache(MinimapWaypointClient.ExploredTile tile) {
-            int baseSize = MinimapWaypointClient.EXPLORATION_TILE_SIZE;
-            int[] base = new int[baseSize * baseSize];
+        private static long nextTextureId;
 
-            for (int localZ = 0; localZ < baseSize; localZ++) {
-                for (int localX = 0; localX < baseSize; localX++) {
-                    if (!tile.isExplored(localX, localZ)) continue;
+        private final MinimapWaypointClient.ExploredTile tile;
+        private final DynamicTexture texture;
+        private final ResourceLocation location;
 
-                    base[localZ * baseSize + localX] = tile.color(localX, localZ);
-                }
-            }
+        private long uploadedRevision = Long.MIN_VALUE;
 
-            levels[0] = base;
-
-            for (int level = 1; level <= MAX_MIP_LEVEL; level++) {
-                int previousSize = baseSize >> level - 1;
-                int currentSize = baseSize >> level;
-                int[] previous = levels[level - 1];
-                int[] current = new int[currentSize * currentSize];
-
-                for (int z = 0; z < currentSize; z++) {
-                    for (int x = 0; x < currentSize; x++) {
-                        current[z * currentSize + x] = averageFour(previous, previousSize, x * 2, z * 2);
-                    }
-                }
-
-                levels[level] = current;
-            }
+        private TileTextureCache(MinimapWaypointClient.ExploredTile tile) {
+            this.tile = tile;
+            this.texture = new DynamicTexture(MinimapWaypointClient.EXPLORATION_TILE_SIZE, MinimapWaypointClient.EXPLORATION_TILE_SIZE, true);
+            this.location = ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "navigation/tile_" + nextTextureId++);
+            Minecraft.getInstance().getTextureManager().register(location, texture);
+            texture.setFilter(false, false);
+            ensureCurrent();
         }
 
-        private int[] colors(int level) {
-            return levels[Mth.clamp(level, 0, MAX_MIP_LEVEL)];
+        private ResourceLocation location() {
+            return location;
         }
 
-        private static int averageFour(int[] colors, int size, int startX, int startZ) {
-            int red = 0;
-            int green = 0;
-            int blue = 0;
-            int samples = 0;
+        private void ensureCurrent() {
+            if (uploadedRevision == tile.revision()) return;
 
-            for (int offsetZ = 0; offsetZ < 2; offsetZ++) {
-                for (int offsetX = 0; offsetX < 2; offsetX++) {
-                    int x = startX + offsetX;
-                    int z = startZ + offsetZ;
+            NativeImage pixels = texture.getPixels();
 
-                    if (x < 0 || x >= size || z < 0 || z >= size) continue;
+            if (pixels == null) return;
 
-                    int color = colors[z * size + x];
-
-                    if (color == 0) continue;
-
-                    red += color >> 16 & 0xFF;
-                    green += color >> 8 & 0xFF;
-                    blue += color & 0xFF;
-                    samples++;
+            for (int localZ = 0; localZ < MinimapWaypointClient.EXPLORATION_TILE_SIZE; localZ++) {
+                for (int localX = 0; localX < MinimapWaypointClient.EXPLORATION_TILE_SIZE; localX++) {
+                    int color = tile.isExplored(localX, localZ) ? tile.color(localX, localZ) : 0;
+                    pixels.setPixelRGBA(localX, localZ, argbToAbgr(color));
                 }
             }
 
-            if (samples == 0) return 0;
+            texture.upload();
+            uploadedRevision = tile.revision();
+        }
 
-            return 0xFF000000 | red / samples << 16 | green / samples << 8 | blue / samples;
+        private void close() {
+            Minecraft.getInstance().getTextureManager().release(location);
+        }
+
+        private static int argbToAbgr(int color) {
+            return color & 0xFF00FF00 | color >> 16 & 0x000000FF | color << 16 & 0x00FF0000;
         }
     }
+
 }

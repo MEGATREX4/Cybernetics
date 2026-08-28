@@ -13,9 +13,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
 
@@ -24,15 +21,12 @@ public final class SharedNavigationClientSync {
 
     private SharedNavigationClientSync() {}
 
-    private static final int REBUILD_INTERVAL = 200;
+    private static final int DIRTY_BATCH_SIZE = 8;
 
     private static final Queue<MinimapWaypointClient.NavigationTileSnapshot> TILE_QUEUE = new ArrayDeque<>();
     private static final Queue<MinimapWaypointClient.NavigationWaypointSnapshot> WAYPOINT_QUEUE = new ArrayDeque<>();
-    private static final Map<String, Integer> SENT_TILE_HASHES = new HashMap<>();
-    private static final Map<String, Integer> SENT_WAYPOINT_HASHES = new HashMap<>();
 
     private static UUID queuedNetworkId;
-    private static int lastRebuildTick = Integer.MIN_VALUE;
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -48,11 +42,18 @@ public final class SharedNavigationClientSync {
         if (!networkId.equals(queuedNetworkId)) {
             clearQueues();
             queuedNetworkId = networkId;
+
+            TILE_QUEUE.addAll(MinimapWaypointClient.createTileSnapshot(player));
+            WAYPOINT_QUEUE.addAll(MinimapWaypointClient.createWaypointSnapshot(player));
+            MinimapWaypointClient.markAllSharedSyncClean(player);
         }
 
-        if (lastRebuildTick == Integer.MIN_VALUE || player.tickCount - lastRebuildTick >= REBUILD_INTERVAL) {
-            rebuildQueues(player);
-            lastRebuildTick = player.tickCount;
+        if (TILE_QUEUE.isEmpty()) {
+            TILE_QUEUE.addAll(MinimapWaypointClient.drainDirtyTileSnapshots(player, DIRTY_BATCH_SIZE));
+        }
+
+        if (WAYPOINT_QUEUE.isEmpty()) {
+            WAYPOINT_QUEUE.addAll(MinimapWaypointClient.drainDirtyWaypointSnapshots(player, DIRTY_BATCH_SIZE));
         }
 
         MinimapWaypointClient.NavigationTileSnapshot tile = TILE_QUEUE.poll();
@@ -69,33 +70,9 @@ public final class SharedNavigationClientSync {
         }
     }
 
-    private static void rebuildQueues(LocalPlayer player) {
-        for (MinimapWaypointClient.NavigationTileSnapshot tile : MinimapWaypointClient.createTileSnapshot(player)) {
-            String key = tile.dimension() + "|" + tile.tileX() + "|" + tile.tileZ();
-            int hash = 31 * Arrays.hashCode(tile.colors()) + Arrays.hashCode(tile.explored());
-            Integer previousHash = SENT_TILE_HASHES.put(key, hash);
-
-            if (previousHash != null && previousHash == hash) continue;
-
-            TILE_QUEUE.add(tile);
-        }
-
-        for (MinimapWaypointClient.NavigationWaypointSnapshot waypoint : MinimapWaypointClient.createWaypointSnapshot(player)) {
-            int hash = waypoint.hashCode();
-            Integer previousHash = SENT_WAYPOINT_HASHES.put(waypoint.id(), hash);
-
-            if (previousHash != null && previousHash == hash) continue;
-
-            WAYPOINT_QUEUE.add(waypoint);
-        }
-    }
-
     public static void clearQueues() {
         TILE_QUEUE.clear();
         WAYPOINT_QUEUE.clear();
-        SENT_TILE_HASHES.clear();
-        SENT_WAYPOINT_HASHES.clear();
         queuedNetworkId = null;
-        lastRebuildTick = Integer.MIN_VALUE;
     }
 }

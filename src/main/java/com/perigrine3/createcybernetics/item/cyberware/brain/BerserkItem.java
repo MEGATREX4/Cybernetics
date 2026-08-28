@@ -7,6 +7,7 @@ import com.perigrine3.createcybernetics.api.InstalledCyberware;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.item.ModItems;
+import com.perigrine3.createcybernetics.util.CyberwareAttributeHelper;
 import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -34,6 +35,8 @@ public class BerserkItem extends Item implements ICyberwareItem {
 
     private static final int ACTIVE_DURATION_TICKS = 20 * 30;
     private static final int COOLDOWN_DURATION_TICKS = 20 * 60 * 4;
+
+    private static final int ACTIVE_ENERGY_COST = 25;
 
     private static final int STRENGTH_AMPLIFIER = 1;
     private static final int SPEED_AMPLIFIER = 1;
@@ -86,17 +89,21 @@ public class BerserkItem extends Item implements ICyberwareItem {
     }
 
     @Override
-    public void onInstalled(Player player) {
-
+    public void onInstalled(LivingEntity entity) {
+        CyberwareAttributeHelper.applyModifier(entity, "berserk_ram");
+        CyberwareAttributeHelper.applyModifier(entity, "berserk_ram_regen");
     }
 
     @Override
-    public void onRemoved(Player player) {
-        if (player.level().isClientSide) {
+    public void onRemoved(LivingEntity entity) {
+        if (entity.level().isClientSide) {
             return;
         }
 
-        CompoundTag pd = player.getPersistentData();
+        CyberwareAttributeHelper.removeModifier(entity, "berserk_ram");
+        CyberwareAttributeHelper.removeModifier(entity, "berserk_ram_regen");
+
+        CompoundTag pd = entity.getPersistentData();
         pd.remove(NBT_ACTIVE_UNTIL);
         pd.remove(NBT_COOLDOWN_UNTIL);
     }
@@ -112,6 +119,8 @@ public class BerserkItem extends Item implements ICyberwareItem {
         }
 
         if (isActive(player)) {
+            PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+            data.extractEnergy(player, ACTIVE_ENERGY_COST);
             return;
         }
 

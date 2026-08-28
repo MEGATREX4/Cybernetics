@@ -29,6 +29,10 @@ public final class ModDataComponents {
             register("secondary_dyed_color", builder -> builder
                     .persistent(Codec.INT));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MicroprogramLibrary>> MICROPROGRAM_LIBRARY =
+            register("microprogram_library", builder -> builder
+                    .persistent(MicroprogramLibrary.CODEC));
+
     private static <T> DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(
             String name,
             UnaryOperator<DataComponentType.Builder<T>> builderOperator

@@ -3,6 +3,7 @@ package com.perigrine3.createcybernetics.common.capabilities;
 import com.perigrine3.createcybernetics.ConfigValues;
 import com.perigrine3.createcybernetics.api.*;
 import com.perigrine3.createcybernetics.client.TrimColorPresets;
+import com.perigrine3.createcybernetics.common.attributes.ModAttributes;
 import com.perigrine3.createcybernetics.common.durability.CyberwareDurabilityManager;
 import com.perigrine3.createcybernetics.common.humanity.HumanityAttributeModifiers;
 import com.perigrine3.createcybernetics.common.surgery.DefaultOrgans;
@@ -50,6 +51,9 @@ public class PlayerCyberwareData implements ICyberwareData {
     private static final String NBT_HUMANITY_BONUS = "HumanityBonus";
     private static final String NBT_HUMANITY_PENALTIES = "HumanityPenalties";
     private static final String NBT_ENERGY = "Energy";
+    private static final String NBT_CYBERDECK_RAM = "CyberdeckRam";
+    private static final String NBT_CYBERDECK_RAM_REGEN_TICKS = "CyberdeckRamRegenTicks";
+    private static final String NBT_CYBERDECK_MAX_RAM = "CyberdeckMaxRam";
     private static final String NBT_DATA_INTEGRITY = "DataIntegrity";
     private static final String NBT_TICKS_SINCE_INTEGRITY_BOOT_DOWN = "TicksSinceIntegrityBootDown";
     private static final String NBT_INTEGRITY_BED_TICKS = "IntegrityBedTicks";
@@ -76,9 +80,15 @@ public class PlayerCyberwareData implements ICyberwareData {
 
     public static final int CHIPWARE_SLOT_COUNT = 2;
     private static final String NBT_CHIPWARE_INV = "ChipwareInv";
+    private static final String NBT_CHIPWARE_QUICKHACK_FIRED = "ChipwareQuickhackFired";
     private final ItemStack[] chipwareInv = new ItemStack[CHIPWARE_SLOT_COUNT];
+    private int chipwareQuickhackFiredMask = 0;
 
-    public static final int CYBERDECK_SLOT_COUNT = 4;
+    public static final int CYBERDECK_QUICKHACK_SLOT_COUNT = 4;
+    public static final int CYBERDECK_MICROPROGRAM_CHIP_SLOT = 4;
+    public static final int CYBERDECK_MACROPROGRAM_SLOT_START = 5;
+    public static final int CYBERDECK_MACROPROGRAM_SLOT_COUNT = 10;
+    public static final int CYBERDECK_SLOT_COUNT = CYBERDECK_MACROPROGRAM_SLOT_START + CYBERDECK_MACROPROGRAM_SLOT_COUNT;
     private static final String NBT_CYBERDECK_INV = "CyberdeckInv";
     private final ItemStack[] cyberdeckInv = new ItemStack[CYBERDECK_SLOT_COUNT];
 
@@ -126,6 +136,9 @@ public class PlayerCyberwareData implements ICyberwareData {
     private int integrityBedTicks = 0;
 
     private int energyStored = 0;
+    private int cyberdeckRam = -1;
+    private int cyberdeckRamRegenTicks = 0;
+    private int cyberdeckMaxRam = -1;
 
     public PlayerCyberwareData() {
         for (CyberwareSlot slot : CyberwareSlot.values()) {
@@ -147,6 +160,7 @@ public class PlayerCyberwareData implements ICyberwareData {
         for (int i = 0; i < chipwareInv.length; i++) {
             chipwareInv[i] = ItemStack.EMPTY;
         }
+        chipwareQuickhackFiredMask = 0;
         for (int i = 0; i < cyberdeckInv.length; i++) {
             cyberdeckInv[i] = ItemStack.EMPTY;
         }
@@ -515,14 +529,18 @@ public class PlayerCyberwareData implements ICyberwareData {
     public void setChipwareStack(int slot, ItemStack stack) {
         if (slot < 0 || slot >= chipwareInv.length) return;
 
+        ItemStack current = getChipwareStack(slot);
+
         if (stack == null || stack.isEmpty()) {
             chipwareInv[slot] = ItemStack.EMPTY;
+            setChipwareQuickhackFired(slot, false);
             dirty = true;
             return;
         }
 
         if (!stack.is(ModTags.Items.DATA_SHARDS)) {
             chipwareInv[slot] = ItemStack.EMPTY;
+            setChipwareQuickhackFired(slot, false);
             dirty = true;
             return;
         }
@@ -530,14 +548,40 @@ public class PlayerCyberwareData implements ICyberwareData {
         ItemStack copy = stack.copy();
         copy.setCount(1);
 
+        boolean sameStack = !current.isEmpty() && ItemStack.isSameItemSameComponents(current, copy);
+
         chipwareInv[slot] = copy;
+
+        if (!sameStack) {
+            setChipwareQuickhackFired(slot, false);
+        }
+
         dirty = true;
+    }
+
+    public boolean hasChipwareQuickhackFired(int slot) {
+        if (slot < 0 || slot >= chipwareInv.length) return false;
+        return (chipwareQuickhackFiredMask & (1 << slot)) != 0;
+    }
+
+    public void setChipwareQuickhackFired(int slot, boolean fired) {
+        if (slot < 0 || slot >= chipwareInv.length) return;
+
+        int mask = 1 << slot;
+        int next = fired ? chipwareQuickhackFiredMask | mask : chipwareQuickhackFiredMask & ~mask;
+
+        if (next != chipwareQuickhackFiredMask) {
+            chipwareQuickhackFiredMask = next;
+            dirty = true;
+        }
     }
 
     public void clearChipwareInventory() {
         for (int i = 0; i < chipwareInv.length; i++) {
             chipwareInv[i] = ItemStack.EMPTY;
         }
+
+        chipwareQuickhackFiredMask = 0;
         dirty = true;
     }
 
@@ -579,9 +623,25 @@ public class PlayerCyberwareData implements ICyberwareData {
             return;
         }
 
-        if (!stack.is(ModTags.Items.QUICKHACK_SHARDS)) {
-            cyberdeckInv[slot] = ItemStack.EMPTY;
-            dirty = true;
+        if (slot < CYBERDECK_QUICKHACK_SLOT_COUNT) {
+            if (!stack.is(ModTags.Items.QUICKHACK_SHARDS)) {
+                cyberdeckInv[slot] = ItemStack.EMPTY;
+                dirty = true;
+                return;
+            }
+        } else if (slot == CYBERDECK_MICROPROGRAM_CHIP_SLOT) {
+            if (!stack.is(ModTags.Items.MICROPROGRAM_SHARDS)) {
+                cyberdeckInv[slot] = ItemStack.EMPTY;
+                dirty = true;
+                return;
+            }
+        } else if (slot >= CYBERDECK_MACROPROGRAM_SLOT_START && slot < CYBERDECK_SLOT_COUNT) {
+            if (!stack.is(ModTags.Items.MACROPROGRAMS)) {
+                cyberdeckInv[slot] = ItemStack.EMPTY;
+                dirty = true;
+                return;
+            }
+        } else {
             return;
         }
 
@@ -1341,6 +1401,8 @@ public class PlayerCyberwareData implements ICyberwareData {
         integrityBedTicks = 0;
 
         energyStored = 0;
+        cyberdeckRam = -1;
+        cyberdeckRamRegenTicks = 0;
         neuropozyneApplyCount = 0;
 
         dirty = true;
@@ -1619,6 +1681,7 @@ public class PlayerCyberwareData implements ICyberwareData {
             chipwareInv[slot] = ItemStack.EMPTY;
         }
 
+        chipwareQuickhackFiredMask = 0;
         dirty = true;
     }
 
@@ -1718,6 +1781,201 @@ public class PlayerCyberwareData implements ICyberwareData {
 
         refreshLegacyHumanitySnapshot();
         dirty = true;
+    }
+
+    /* ---------------- CYBERDECK RAM ---------------- */
+
+    public int getCyberdeckRam() {
+        return Math.max(0, cyberdeckRam);
+    }
+
+    public boolean hasInitializedCyberdeckRam() {
+        return cyberdeckRam >= 0;
+    }
+
+    public int getMaxCyberdeckRam(Player player) {
+        if (player == null) return 0;
+        return Math.max(0, Mth.floor(player.getAttributeValue(ModAttributes.RAM)));
+    }
+
+    public int getCyberdeckRamRegen(Player player) {
+        if (player == null) return 0;
+        return Math.max(0, Mth.floor(player.getAttributeValue(ModAttributes.RAM_REGEN)));
+    }
+
+    public void initializeCyberdeckRam(Player player) {
+        int maxRam = getMaxCyberdeckRam(player);
+        int nextRam = maxRam > 0 ? maxRam : -1;
+
+        if (cyberdeckRam != nextRam || cyberdeckMaxRam != maxRam || cyberdeckRamRegenTicks != 0) {
+            cyberdeckRam = nextRam;
+            cyberdeckMaxRam = maxRam;
+            cyberdeckRamRegenTicks = 0;
+            dirty = true;
+        }
+    }
+
+    public void setCyberdeckRam(Player player, int value) {
+        int maxRam = getMaxCyberdeckRam(player);
+
+        cyberdeckMaxRam = maxRam;
+
+        if (maxRam <= 0) {
+            if (cyberdeckRam != -1 || cyberdeckRamRegenTicks != 0) {
+                cyberdeckRam = -1;
+                cyberdeckRamRegenTicks = 0;
+                dirty = true;
+            }
+
+            return;
+        }
+
+        int clamped = Mth.clamp(value, 0, maxRam);
+
+        if (cyberdeckRam != clamped) {
+            cyberdeckRam = clamped;
+            dirty = true;
+        }
+    }
+
+    public boolean tryConsumeCyberdeckRam(Player player, int amount) {
+        if (amount <= 0) return true;
+
+        int maxRam = getMaxCyberdeckRam(player);
+        if (maxRam <= 0) return false;
+
+        cyberdeckMaxRam = maxRam;
+
+        if (!hasInitializedCyberdeckRam()) {
+            cyberdeckRam = maxRam;
+            cyberdeckRamRegenTicks = 0;
+            dirty = true;
+        } else if (cyberdeckRam > maxRam) {
+            cyberdeckRam = maxRam;
+            dirty = true;
+        }
+
+        if (cyberdeckRam < amount) return false;
+
+        cyberdeckRam -= amount;
+        cyberdeckRamRegenTicks = 0;
+        dirty = true;
+
+        return true;
+    }
+
+    public int receiveCyberdeckRam(Player player, int amount) {
+        if (amount <= 0) return 0;
+
+        int maxRam = getMaxCyberdeckRam(player);
+        if (maxRam <= 0) return 0;
+
+        cyberdeckMaxRam = maxRam;
+
+        if (!hasInitializedCyberdeckRam()) {
+            cyberdeckRam = maxRam;
+            cyberdeckRamRegenTicks = 0;
+            dirty = true;
+            return 0;
+        }
+
+        int accepted = Math.min(amount, Math.max(0, maxRam - cyberdeckRam));
+        if (accepted <= 0) return 0;
+
+        cyberdeckRam += accepted;
+        dirty = true;
+
+        return accepted;
+    }
+
+    public boolean tickCyberdeckRam(Player player) {
+        if (player == null || player.level().isClientSide) return false;
+
+        int maxRam = getMaxCyberdeckRam(player);
+
+        if (maxRam <= 0) {
+            boolean changed = cyberdeckRam != -1 || cyberdeckMaxRam != 0;
+
+            cyberdeckRam = -1;
+            cyberdeckMaxRam = 0;
+            cyberdeckRamRegenTicks = 0;
+
+            if (changed) {
+                dirty = true;
+            }
+
+            return changed;
+        }
+
+        if (!hasInitializedCyberdeckRam()) {
+            cyberdeckRam = maxRam;
+            cyberdeckMaxRam = maxRam;
+            cyberdeckRamRegenTicks = 0;
+            dirty = true;
+            return true;
+        }
+
+        if (cyberdeckMaxRam < 0) {
+            cyberdeckMaxRam = maxRam;
+            dirty = true;
+            return true;
+        }
+
+        if (maxRam != cyberdeckMaxRam) {
+            int oldMaxRam = cyberdeckMaxRam;
+
+            cyberdeckMaxRam = maxRam;
+            cyberdeckRamRegenTicks = 0;
+
+            if (maxRam < oldMaxRam) {
+                cyberdeckRam = Math.min(cyberdeckRam, maxRam);
+            } else if (maxRam > oldMaxRam && cyberdeckRam >= oldMaxRam) {
+                cyberdeckRam = maxRam;
+            }
+
+            dirty = true;
+            return true;
+        }
+
+        if (cyberdeckRam > maxRam) {
+            cyberdeckRam = maxRam;
+            cyberdeckRamRegenTicks = 0;
+            dirty = true;
+            return true;
+        }
+
+        if (cyberdeckRam >= maxRam) {
+            cyberdeckRamRegenTicks = 0;
+            return false;
+        }
+
+        cyberdeckRamRegenTicks++;
+
+        if (cyberdeckRamRegenTicks < 100) {
+            return false;
+        }
+
+        cyberdeckRamRegenTicks = 0;
+
+        int regenAmount = getCyberdeckRamRegen(player);
+        if (regenAmount <= 0) return false;
+
+        int oldRam = cyberdeckRam;
+        cyberdeckRam = Math.min(maxRam, cyberdeckRam + regenAmount);
+
+        if (cyberdeckRam == oldRam) return false;
+
+        dirty = true;
+        return true;
+    }
+
+    public void resetCyberdeckRam() {
+        if (cyberdeckRam != -1 || cyberdeckMaxRam != -1 || cyberdeckRamRegenTicks != 0) {
+            cyberdeckRam = -1;
+            cyberdeckMaxRam = -1;
+            cyberdeckRamRegenTicks = 0;
+            dirty = true;
+        }
     }
 
     /* ---------------- ENERGY HELPERS ---------------- */
@@ -1886,6 +2144,9 @@ public class PlayerCyberwareData implements ICyberwareData {
         tag.putInt(NBT_HUMANITY, legacyHumanity);
         tag.putInt(NBT_HUMANITY_BONUS, legacyHumanityBonus);
         tag.putInt(NBT_ENERGY, energyStored);
+        tag.putInt(NBT_CYBERDECK_RAM, cyberdeckRam);
+        tag.putInt(NBT_CYBERDECK_MAX_RAM, cyberdeckMaxRam);
+        tag.putInt(NBT_CYBERDECK_RAM_REGEN_TICKS, cyberdeckRamRegenTicks);
         tag.putDouble(NBT_DATA_INTEGRITY, dataIntegrity);
         tag.putInt(NBT_TICKS_SINCE_INTEGRITY_BOOT_DOWN, ticksSinceIntegrityBootDown);
         tag.putInt(NBT_INTEGRITY_BED_TICKS, integrityBedTicks);
@@ -1948,7 +2209,14 @@ public class PlayerCyberwareData implements ICyberwareData {
         for (int i = 0; i < cyberdeckInv.length; i++) {
             ItemStack st = cyberdeckInv[i];
 
-            if (st != null && !st.isEmpty() && st.is(ModTags.Items.QUICKHACK_SHARDS)) {
+            boolean valid = st != null && !st.isEmpty()
+                    && (i < CYBERDECK_QUICKHACK_SLOT_COUNT
+                    ? st.is(ModTags.Items.QUICKHACK_SHARDS)
+                    : i == CYBERDECK_MICROPROGRAM_CHIP_SLOT
+                    ? st.is(ModTags.Items.MICROPROGRAM_SHARDS)
+                    : i >= CYBERDECK_MACROPROGRAM_SLOT_START && i < CYBERDECK_SLOT_COUNT && st.is(ModTags.Items.MACROPROGRAMS));
+
+            if (valid) {
                 ItemStack copy = st.copy();
                 copy.setCount(1);
 
@@ -2002,6 +2270,7 @@ public class PlayerCyberwareData implements ICyberwareData {
         tag.putInt(NBT_HEAT_ENGINE_COOK_TOTAL, heatEngineCookTimeTotal);
 
         tag.put(NBT_CHIPWARE_INV, chip);
+        tag.putInt(NBT_CHIPWARE_QUICKHACK_FIRED, chipwareQuickhackFiredMask);
         tag.put(NBT_CYBERDECK_INV, cyberdeck);
 
         tag.put(NBT_VAMPYRES_INV, vampyres);
@@ -2048,6 +2317,9 @@ public class PlayerCyberwareData implements ICyberwareData {
         refreshLegacyHumanitySnapshot();
 
         energyStored = tag.contains(NBT_ENERGY, Tag.TAG_INT) ? tag.getInt(NBT_ENERGY) : 0;
+        cyberdeckRam = tag.contains(NBT_CYBERDECK_RAM, Tag.TAG_INT) ? tag.getInt(NBT_CYBERDECK_RAM) : -1;
+        cyberdeckMaxRam = tag.contains(NBT_CYBERDECK_MAX_RAM, Tag.TAG_INT) ? tag.getInt(NBT_CYBERDECK_MAX_RAM) : -1;
+        cyberdeckRamRegenTicks = tag.contains(NBT_CYBERDECK_RAM_REGEN_TICKS, Tag.TAG_INT) ? Mth.clamp(tag.getInt(NBT_CYBERDECK_RAM_REGEN_TICKS), 0, 99) : 0;
 
         dataIntegrity = tag.contains(NBT_DATA_INTEGRITY, Tag.TAG_DOUBLE)
                 ? Mth.clamp(tag.getDouble(NBT_DATA_INTEGRITY), 0.0D, HumanityAttributeModifiers.getConfiguredBaseHumanity())
@@ -2141,6 +2413,19 @@ public class PlayerCyberwareData implements ICyberwareData {
             }
         }
 
+        chipwareQuickhackFiredMask = tag.contains(NBT_CHIPWARE_QUICKHACK_FIRED, Tag.TAG_INT)
+                ? tag.getInt(NBT_CHIPWARE_QUICKHACK_FIRED)
+                : 0;
+
+        int validChipwareMask = (1 << CHIPWARE_SLOT_COUNT) - 1;
+        chipwareQuickhackFiredMask &= validChipwareMask;
+
+        for (int i = 0; i < chipwareInv.length; i++) {
+            if (chipwareInv[i].isEmpty()) {
+                chipwareQuickhackFiredMask &= ~(1 << i);
+            }
+        }
+
         for (int i = 0; i < cyberdeckInv.length; i++) {
             cyberdeckInv[i] = ItemStack.EMPTY;
         }
@@ -2151,7 +2436,14 @@ public class PlayerCyberwareData implements ICyberwareData {
                 CompoundTag c = cyberdeck.getCompound(i);
                 ItemStack st = ItemStack.parseOptional(provider, c);
 
-                if (st.isEmpty() || !st.is(ModTags.Items.QUICKHACK_SHARDS)) {
+                boolean valid = !st.isEmpty()
+                        && (i < CYBERDECK_QUICKHACK_SLOT_COUNT
+                        ? st.is(ModTags.Items.QUICKHACK_SHARDS)
+                        : i == CYBERDECK_MICROPROGRAM_CHIP_SLOT
+                        ? st.is(ModTags.Items.MICROPROGRAM_SHARDS)
+                        : i >= CYBERDECK_MACROPROGRAM_SLOT_START && i < CYBERDECK_SLOT_COUNT && st.is(ModTags.Items.MACROPROGRAMS));
+
+                if (!valid) {
                     cyberdeckInv[i] = ItemStack.EMPTY;
                     continue;
                 }

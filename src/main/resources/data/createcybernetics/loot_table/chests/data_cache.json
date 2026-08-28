@@ -1,0 +1,244 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1.0,
+        "max": 6.0
+      },
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.75
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_system_all"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_processor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_cyberoptics"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_auditory"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_motor_control"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_arms"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_legs"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_internal_organs"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_skeleton"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_dermal"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_power_system"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_cyberdeck"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_neural_system"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_active_cyberware"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_highest_draw"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_random_implant"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_reboot"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_overclock"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_drain"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_spike"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_burnout"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_toggle_off"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_toggle_on"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_malfunction"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_loop"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_ping"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_trace"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_corrupt"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_purge"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_desync"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_duration_plus"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_duration_plus_plus"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_intensity_plus"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_efficiency"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_delay"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_repeat"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_cascade"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_silent"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_persistent"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_randomize"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_contagion"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_data_miner"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_secure_shell"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_bit_crusher"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_stack_overflow"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_icebreaker"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_ping"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_ddos"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_banhammer"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_firewall"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_basic_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_intermediate_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_advanced_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_administrator_access_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_packet_sniffer"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:macroprogram_vpn_shroud"
+        }
+      ]
+    }
+  ]
+}

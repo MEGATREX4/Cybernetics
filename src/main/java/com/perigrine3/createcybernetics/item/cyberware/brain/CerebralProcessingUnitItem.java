@@ -53,7 +53,7 @@ import java.util.Set;
 public class CerebralProcessingUnitItem extends Item implements ICyberwareItem {
     private final int humanityCost;
 
-    private static final int ENERGY_PER_TICK = 5;
+    private static final int ENERGY_PER_TICK = 15;
 
     private static volatile boolean CLIENT_SHUTDOWN_ACTIVE = false;
 
@@ -159,6 +159,8 @@ public class CerebralProcessingUnitItem extends Item implements ICyberwareItem {
     public void onInstalled(LivingEntity entity) {
         CyberwareAttributeHelper.applyModifier(entity, "cyberbrain_learn");
         CyberwareAttributeHelper.applyModifier(entity, "cyberbrain_insomnia");
+        CyberwareAttributeHelper.applyModifier(entity, "cpu_ram");
+        CyberwareAttributeHelper.applyModifier(entity, "cpu_ram_regen");
 
         if (entity instanceof Player player && !player.level().isClientSide) {
             DataIntegrityHandler.restoreIntegrity(player);
@@ -169,6 +171,8 @@ public class CerebralProcessingUnitItem extends Item implements ICyberwareItem {
     public void onRemoved(LivingEntity entity) {
         CyberwareAttributeHelper.removeModifier(entity, "cyberbrain_learn");
         CyberwareAttributeHelper.removeModifier(entity, "cyberbrain_insomnia");
+        CyberwareAttributeHelper.removeModifier(entity, "cpu_ram");
+        CyberwareAttributeHelper.removeModifier(entity, "cpu_ram_regen");
     }
 
     @Override

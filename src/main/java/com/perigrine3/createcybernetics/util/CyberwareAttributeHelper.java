@@ -50,6 +50,9 @@ public class CyberwareAttributeHelper {
         Holder<Attribute> swimSpeedAttribute = NeoForgeMod.SWIM_SPEED;
 
         // Modded attributes
+        Holder<Attribute> maxRamAttribute = ModAttributes.RAM;
+        Holder<Attribute> ramRegenAttribute = ModAttributes.RAM_REGEN;
+
         Holder<Attribute> xpMultiplierAttribute = ModAttributes.XP_GAIN_MULTIPLIER;
         Holder<Attribute> oreMultiplierAttribute = ModAttributes.ORE_DROP_MULTIPLIER;
         Holder<Attribute> hagglingAttribute = ModAttributes.HAGGLING;
@@ -587,6 +590,86 @@ public class CyberwareAttributeHelper {
         registerModifier("sculked_size3", new AttributeModifierData(scaleAttribute,
                 ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "sculked_size3"),
                 0.1, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("cyberdeck_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cyberdeck_ram"),
+                15, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("ice_defense_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ice_defense_ram"),
+                -5, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("ice_defense_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ice_defense_ram_regen"),
+                2, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("neural_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "neural_ram"),
+                10, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("neural_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "neural_ram_regen"),
+                3, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("cpu_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cpu_ram"),
+                20, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("cpu_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "cpu_ram_regen"),
+                5, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("eyeofdedender_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "eyeofdedender_ram"),
+                -3, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("enderjammer_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "enderjammer_ram"),
+                -3, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("enderjammer_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "enderjammer_ram_regen"),
+                -2, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("chipware_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "chipware_ram"),
+                4, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("chipware_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "chipware_ram_regen"),
+                2, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("coaxial_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "coaxial_ram"),
+                5, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("kerenzikov_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "kerenzikov_ram"),
+                -4, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("kerenzikov_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "kerenzikov_ram_regen"),
+                5, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("berserk_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "berserk_ram"),
+                -5, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("berserk_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "berserk_ram_regen"),
+                1, AttributeModifier.Operation.ADD_VALUE));
+
+        registerModifier("ramdeck1_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ramdeck1_ram"),
+                4, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("ramdeck2_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ramdeck2_ram"),
+                4, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("ramdeck3_ram", new AttributeModifierData(maxRamAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ramdeck3_ram"),
+                4, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("ramdeck1_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ramdeck1_ram_regen"),
+                1, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("ramdeck2_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ramdeck2_ram_regen"),
+                1, AttributeModifier.Operation.ADD_VALUE));
+        registerModifier("ramdeck3_ram_regen", new AttributeModifierData(ramRegenAttribute,
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "ramdeck3_ram_regen"),
+                1, AttributeModifier.Operation.ADD_VALUE));
 
 
 

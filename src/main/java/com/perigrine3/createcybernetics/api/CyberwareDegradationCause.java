@@ -12,6 +12,7 @@ public enum CyberwareDegradationCause {
     MAGIC,
     POISON,
     WITHER,
+    BRAIN_DAMAGE,
     EMP,
     ENERGY_RECEIVED,
     ENERGY_EXTRACTED,

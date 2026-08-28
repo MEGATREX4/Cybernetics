@@ -4,6 +4,7 @@ import com.perigrine3.createcybernetics.client.MinimapWaypointClient;
 
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +22,9 @@ public final class SharedNavigationClientState {
     private static final Map<String, MinimapWaypointClient.ExploredTile> TILES = new LinkedHashMap<>();
     private static final Map<String, MinimapWaypointClient.Waypoint> WAYPOINTS = new LinkedHashMap<>();
 
+    private static final Collection<MinimapWaypointClient.ExploredTile> TILE_VALUES = Collections.unmodifiableCollection(TILES.values());
+    private static final Collection<MinimapWaypointClient.Waypoint> WAYPOINT_VALUES = Collections.unmodifiableCollection(WAYPOINTS.values());
+
     public static UUID getNetworkId() {
         return networkId;
     }
@@ -35,6 +39,18 @@ public final class SharedNavigationClientState {
 
     public static List<MinimapWaypointClient.Waypoint> getWaypoints() {
         return Collections.unmodifiableList(new ArrayList<>(WAYPOINTS.values()));
+    }
+
+    public static Collection<MinimapWaypointClient.ExploredTile> getTileValues() {
+        return TILE_VALUES;
+    }
+
+    public static Collection<MinimapWaypointClient.Waypoint> getWaypointValues() {
+        return WAYPOINT_VALUES;
+    }
+
+    public static MinimapWaypointClient.Waypoint getWaypoint(String waypointId) {
+        return waypointId == null ? null : WAYPOINTS.get(waypointId);
     }
 
     public static boolean isSharedWaypoint(String waypointId) {

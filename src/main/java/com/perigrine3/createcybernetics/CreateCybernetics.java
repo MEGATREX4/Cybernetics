@@ -24,19 +24,12 @@ import com.perigrine3.createcybernetics.effect.ModEffects;
 import com.perigrine3.createcybernetics.effect.PneumaticCalvesEffect;
 import com.perigrine3.createcybernetics.enchantment.ModEnchantmentEffects;
 import com.perigrine3.createcybernetics.entity.ModEntities;
-import com.perigrine3.createcybernetics.entity.client.renderers.ArcLightningBoltRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.CyberskeletonRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.CyberzombieRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.GuardianBeamRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.HogBoyRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.NuggetProjectileRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.PigstromRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.PunklinRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.RipperRenderer;
-import com.perigrine3.createcybernetics.entity.client.renderers.SmasherRenderer;
+import com.perigrine3.createcybernetics.entity.client.renderers.*;
 import com.perigrine3.createcybernetics.item.ModCreativeModeTabs;
 import com.perigrine3.createcybernetics.item.ModItems;
+import com.perigrine3.createcybernetics.item.macroprogram.ModMacroprogramArmorMaterials;
 import com.perigrine3.createcybernetics.loot.ModLootModifiers;
+import com.perigrine3.createcybernetics.particle.ModParticles;
 import com.perigrine3.createcybernetics.potion.ModPotions;
 import com.perigrine3.createcybernetics.recipe.ModRecipeSerializers;
 import com.perigrine3.createcybernetics.recipe.ModRecipes;
@@ -59,6 +52,7 @@ import com.perigrine3.createcybernetics.screen.custom.surgery.surgery_table.Surg
 import com.perigrine3.createcybernetics.screen.custom.tattoo_system.TattooArtistScreen;
 import com.perigrine3.createcybernetics.screen.custom.vampyres.VampyresScreen;
 import com.perigrine3.createcybernetics.sound.ModSounds;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import com.perigrine3.createcybernetics.worldgen.ModBiomeModifierSerializers;
 import com.perigrine3.createcybernetics.worldgen.ModStructureTypes;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
@@ -118,6 +112,7 @@ public class CreateCybernetics {
         ModMenuTypes.register(eventBus);
         ModEnchantmentEffects.register(eventBus);
         ModPotions.register(eventBus);
+        ModMacroprogramArmorMaterials.register(eventBus);
 
         ModLootModifiers.register(eventBus);
         ModCriteria.register(eventBus);
@@ -129,9 +124,12 @@ public class CreateCybernetics {
         ModStructureTypes.register(eventBus);
         ModBiomeModifierSerializers.register(eventBus);
 
+        ModDimensions.register(eventBus);
+
         ModAttachments.register(eventBus);
         ModMobAttachments.register(eventBus);
         ModAttributes.register(eventBus);
+        ModParticles.register(eventBus);
 
         eventBus.addListener(ModBlockCapabilities::register);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -433,7 +431,7 @@ public class CreateCybernetics {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("HELLO from server starting");
+        LOGGER.info("HELLO from CYBERNETICS on Server Start :P");
     }
 
     @EventBusSubscriber(modid = CreateCybernetics.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -447,6 +445,7 @@ public class CreateCybernetics {
             EntityRenderers.register(ModEntities.EMP_GRENADE_PROJECTILE.get(), ThrownItemRenderer::new);
             EntityRenderers.register(ModEntities.GUARDIAN_BEAM.get(), GuardianBeamRenderer::new);
             EntityRenderers.register(ModEntities.ARC_LIGHTNING_BOLT.get(), ArcLightningBoltRenderer::new);
+            EntityRenderers.register(ModEntities.JACKED_IN_PLAYER_BODY.get(), JackedInPlayerBodyRenderer::new);
 
             EntityRenderers.register(ModEntities.RIPPER.get(), RipperRenderer::new);
 

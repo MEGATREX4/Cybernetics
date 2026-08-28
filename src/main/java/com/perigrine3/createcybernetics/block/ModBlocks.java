@@ -92,7 +92,6 @@ public class ModBlocks {
             () -> new SurgeryTableBlock(BlockBehaviour.Properties.of().strength(2.5F, 3)
                     .noOcclusion().sound(SoundType.METAL)), true);
 
-
     public static final DeferredBlock<Block> COMPUTER = registerBlock("computer",
             () -> new ComputerBlock(BlockBehaviour.Properties.of().strength(3, 4)
                     .noOcclusion().sound(SoundType.METAL)
@@ -100,6 +99,45 @@ public class ModBlocks {
     public static final DeferredBlock<Block> COMPUTER_TOWER = registerBlock("computer_tower",
             () -> new ComputerTowerBlock(BlockBehaviour.Properties.of().strength(3, 4)
                     .noOcclusion().sound(SoundType.METAL)), true);
+
+    public static final DeferredBlock<Block> MACHINE_CASING = registerBlock("machine_casing",
+            () -> new MachineCasingBlock(BlockBehaviour.Properties.of().strength(6, 8)
+                    .requiresCorrectToolForDrops().sound(SoundType.METAL)), true);
+
+    public static final DeferredBlock<Block> SERVER_TOWER = registerBlock("server_tower",
+            () -> new ServerTowerBlock(BlockBehaviour.Properties.of().strength(6, 8)
+                    .noOcclusion().sound(SoundType.METAL)), false);
+    public static final DeferredBlock<Block> SERVER_TOWER_PART = registerBlock("server_tower_part",
+            () -> new ServerTowerPartBlock(BlockBehaviour.Properties.of().strength(6, 8)
+                    .noLootTable().noOcclusion().sound(SoundType.METAL)), false);
+//CYBERSPACE BLOCKS
+    public static final DeferredBlock<Block> DIGITAL_ARCHITECTURE = registerBlock("digital_architecture",
+            () -> new DigitalArchitectureBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.0F).sound(SoundType.METAL)), true);
+    public static final DeferredBlock<Block> DAEMON_ANCHOR = registerBlock("daemon_anchor",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.0F).sound(SoundType.METAL)), true);
+    public static final DeferredBlock<DataCacheBlock> DATA_CACHE = registerBlock("data_cache",
+            () -> new DataCacheBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.0F).sound(SoundType.METAL)), true);
+    public static final DeferredBlock<Block> ACCESS_NODE = registerBlock("access_node",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.0F).sound(SoundType.METAL)), true);
+    public static final DeferredBlock<DigitalGateBlock> DIGITAL_GATE = registerBlock("digital_gate",
+            () -> new DigitalGateBlock(BlockBehaviour.Properties.of()
+                    .strength(-1.0F, 3600000.0F)
+                    .pushReaction(net.minecraft.world.level.material.PushReaction.BLOCK)
+                    .sound(SoundType.METAL)), true);
+
+    public static final DeferredBlock<AmethystClusterBlock> TARGET_CODE_FRAGMENT = registerBlock("target_code_fragment",
+            () -> new AmethystClusterBlock(7.0F, 3.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.AMETHYST_CLUSTER)), true);
+    public static final DeferredBlock<AmethystClusterBlock> FUNCTION_CODE_FRAGMENT = registerBlock("function_code_fragment",
+            () -> new AmethystClusterBlock(7.0F, 3.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.AMETHYST_CLUSTER)), true);
+    public static final DeferredBlock<AmethystClusterBlock> MODIFIER_CODE_FRAGMENT = registerBlock("modifier_code_fragment",
+            () -> new AmethystClusterBlock(7.0F, 3.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.AMETHYST_CLUSTER)), true);
+    public static final DeferredBlock<AmethystClusterBlock> RAW_DATA_FRAGMENT = registerBlock("raw_data_fragment",
+            () -> new AmethystClusterBlock(7.0F, 3.0F, BlockBehaviour.Properties.ofFullCopy(Blocks.AMETHYST_CLUSTER)), true);
+
 //PLANT BLOCKS
     public static final DeferredBlock<Block> DATURA_BUSH = BLOCKS.register("datura_bush",
             () -> new DaturaBushBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH)));

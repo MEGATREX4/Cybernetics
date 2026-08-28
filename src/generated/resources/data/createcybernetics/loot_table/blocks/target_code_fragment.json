@@ -1,0 +1,99 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "createcybernetics:materialized_data_miner"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_processor",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_cyberoptics",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_auditory",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_motor_control",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_arms",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_legs",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_internal_organs",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_skeleton",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_dermal",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_power_system",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_cyberdeck",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_neural_system",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_active_cyberware",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_random_implant",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_highest_draw",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_system_all"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "createcybernetics:blocks/target_code_fragment"
+}

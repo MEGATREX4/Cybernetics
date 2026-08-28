@@ -8,7 +8,7 @@ public final class HiddenEffectRules {
     }
 
     /*
-     * This is the only list of effects hidden by Create: Cybernetics.
+     * This is the only list of effects hidden by Cybernetics.
      *
      * Both the client inventory extension and the server-side biomonitor
      * scanner use this exact array. Do not duplicate this list elsewhere.

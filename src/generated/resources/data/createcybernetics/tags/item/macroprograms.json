@@ -1,0 +1,20 @@
+{
+  "values": [
+    "createcybernetics:macroprogram_data_miner",
+    "createcybernetics:macroprogram_secure_shell",
+    "createcybernetics:macroprogram_bit_crusher",
+    "createcybernetics:macroprogram_stack_overflow",
+    "createcybernetics:macroprogram_icebreaker",
+    "createcybernetics:macroprogram_ping",
+    "createcybernetics:macroprogram_ddos",
+    "createcybernetics:macroprogram_banhammer",
+    "createcybernetics:macroprogram_firewall",
+    "createcybernetics:macroprogram_recovery",
+    "createcybernetics:macroprogram_basic_armor",
+    "createcybernetics:macroprogram_intermediate_armor",
+    "createcybernetics:macroprogram_advanced_armor",
+    "createcybernetics:macroprogram_administrator_access_armor",
+    "createcybernetics:macroprogram_packet_sniffer",
+    "createcybernetics:macroprogram_vpn_shroud"
+  ]
+}

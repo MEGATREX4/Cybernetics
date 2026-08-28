@@ -1,5 +1,6 @@
 package com.perigrine3.createcybernetics.client.gui;
 
+import com.perigrine3.createcybernetics.client.CyberdeckRamHud;
 import com.perigrine3.createcybernetics.client.HudConfigClient;
 import com.perigrine3.createcybernetics.screen.custom.hud.CyberwareHudLayer;
 import net.minecraft.client.Minecraft;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -22,7 +24,7 @@ public final class HudLayoutScreen extends Screen {
     private static final int PANEL_W = BUTTON_W + PANEL_PAD * 2;
     private static final int PANEL_BG = 0xAA050505;
     private static final int PANEL_BORDER = 0xFF2A2A2A;
-    private static final int PANEL_FOOTER_H = 50;
+    private static final int PANEL_FOOTER_H = 61;
     private static final int PANEL_SCROLL_STEP = BUTTON_H + BUTTON_GAP;
 
     private static final int TAB_W = 14;
@@ -34,6 +36,9 @@ public final class HudLayoutScreen extends Screen {
     private static final int HOVER_BORDER = 0xAAFFFFFF;
     private static final int NORMAL_BORDER = 0x66FFFFFF;
 
+    private static final int RAM_RESIZE_HANDLE_SIZE = 7;
+    private static final int RAM_RESIZE_HANDLE_COLOR = 0xFFFFFFFF;
+
     private static final float SCALE_SCROLL_STEP = 0.026666667f;
 
     private final Screen parent;
@@ -44,8 +49,15 @@ public final class HudLayoutScreen extends Screen {
     private @Nullable HudConfigClient.HudComponent dragging;
     private @Nullable HudConfigClient.HudComponent selected;
 
+    private boolean ramSelected;
+    private boolean ramDragging;
+    private boolean ramResizing;
+
     private int dragOffsetPxX;
     private int dragOffsetPxY;
+
+    private int ramDragOffsetX;
+    private int ramDragOffsetY;
 
     private boolean panelOpen = true;
     private int panelScrollOffset;
@@ -86,6 +98,7 @@ public final class HudLayoutScreen extends Screen {
 
         fitWorkingToScreen();
         clampWorkingToScreenBounds();
+        clampRamToScreen();
         clampPanelScroll();
         rebuildWidgets();
     }
@@ -95,6 +108,7 @@ public final class HudLayoutScreen extends Screen {
         super.resize(mc, width, height);
         fitWorkingToScreen();
         clampWorkingToScreenBounds();
+        clampRamToScreen();
         clampPanelScroll();
         rebuildWidgets();
     }
@@ -194,6 +208,7 @@ public final class HudLayoutScreen extends Screen {
 
         fitWorkingToScreen();
         clampWorkingToScreenBounds();
+        clampRamToScreen();
         working.sanitize();
         HudConfigClient.save(playerId, working.copy());
 
@@ -205,9 +220,13 @@ public final class HudLayoutScreen extends Screen {
         working = HudConfigClient.defaultConfig();
         selected = null;
         dragging = null;
+        ramSelected = false;
+        ramDragging = false;
+        ramResizing = false;
         panelScrollOffset = 0;
         fitWorkingToScreen();
         clampWorkingToScreenBounds();
+        clampRamToScreen();
         refreshButtonLabels();
     }
 
@@ -326,24 +345,28 @@ public final class HudLayoutScreen extends Screen {
     public void render(GuiGraphics gg, int mouseX, int mouseY, float partialTick) {
         fitWorkingToScreen();
         clampWorkingToScreenBounds();
+        clampRamToScreen();
 
         CyberwareHudLayer.renderHudLayerPreview(gg, partialTick, working);
         CyberwareHudLayer.renderHudPreview(gg, partialTick, working);
+        CyberdeckRamHud.renderPreview(gg, working);
 
         renderComponentOutlines(gg, mouseX, mouseY);
+        renderRamOutline(gg, mouseX, mouseY);
         renderPanel(gg);
 
         super.render(gg, mouseX, mouseY, partialTick);
 
         if (panelOpen) {
             int titleX = this.width - PANEL_W + PANEL_W / 2;
-            int titleY = this.height - 38;
+            int titleY = this.height - 49;
 
             gg.drawCenteredString(this.font, Component.literal("Drag HUD blocks"), titleX, titleY, 0xFFFFFF);
             gg.drawCenteredString(this.font, Component.literal("Wheel = resize"), titleX, titleY + 11, 0xAAAAAA);
+            gg.drawCenteredString(this.font, Component.literal("RAM corner = reshape"), titleX, titleY + 22, 0xAAAAAA);
 
             if (savedPulse) {
-                gg.drawCenteredString(this.font, Component.literal("Saved"), titleX, titleY + 22, 0x55FF55);
+                gg.drawCenteredString(this.font, Component.literal("Saved"), titleX, titleY + 33, 0x55FF55);
             }
         }
     }
@@ -435,7 +458,8 @@ public final class HudLayoutScreen extends Screen {
             if (rect == null) continue;
 
             int color;
-            if (component == selected) {
+
+            if (component == selected && !ramSelected) {
                 color = SELECTED_BORDER;
             } else if (rect.containsGui(mouseX, mouseY, Minecraft.getInstance())) {
                 color = HOVER_BORDER;
@@ -462,6 +486,44 @@ public final class HudLayoutScreen extends Screen {
         gg.fill(x + w - 1, y, x + w, y + h, color);
     }
 
+    private void renderRamOutline(GuiGraphics gg, int mouseX, int mouseY) {
+        RamRect rect = getRamRect();
+
+        int color;
+
+        if (ramSelected) {
+            color = SELECTED_BORDER;
+        } else if (rect.contains(mouseX, mouseY)) {
+            color = HOVER_BORDER;
+        } else {
+            color = NORMAL_BORDER;
+        }
+
+        gg.fill(rect.x, rect.y, rect.x + rect.width, rect.y + 1, color);
+        gg.fill(rect.x, rect.y + rect.height - 1, rect.x + rect.width, rect.y + rect.height, color);
+        gg.fill(rect.x, rect.y, rect.x + 1, rect.y + rect.height, color);
+        gg.fill(rect.x + rect.width - 1, rect.y, rect.x + rect.width, rect.y + rect.height, color);
+
+        RamRect handle = getRamResizeHandle(rect);
+
+        gg.fill(handle.x, handle.y, handle.x + handle.width, handle.y + handle.height, RAM_RESIZE_HANDLE_COLOR);
+    }
+
+    private RamRect getRamRect() {
+        return new RamRect(
+                working.ram.pixelX(this.width),
+                working.ram.pixelY(this.height),
+                working.ram.pixelWidth(this.width),
+                working.ram.pixelHeight(this.height)
+        );
+    }
+
+    private static RamRect getRamResizeHandle(RamRect rect) {
+        int size = Math.min(RAM_RESIZE_HANDLE_SIZE, Math.min(rect.width, rect.height));
+
+        return new RamRect(rect.x + rect.width - size, rect.y + rect.height - size, size, size);
+    }
+
     private boolean mouseIsOverSlidePanelArea(double mouseX, double mouseY) {
         if (panelOpen) {
             int panelX = this.width - PANEL_W;
@@ -472,10 +534,7 @@ public final class HudLayoutScreen extends Screen {
         int tabX = this.width - TAB_W;
         int tabY = (this.height / 2) - (TAB_H / 2);
 
-        return mouseX >= tabX
-                && mouseX < tabX + TAB_W
-                && mouseY >= tabY
-                && mouseY < tabY + TAB_H;
+        return mouseX >= tabX && mouseX < tabX + TAB_W && mouseY >= tabY && mouseY < tabY + TAB_H;
     }
 
     @Override
@@ -489,9 +548,38 @@ public final class HudLayoutScreen extends Screen {
         }
 
         if (button == 0) {
+            RamRect ramRect = getRamRect();
+            RamRect resizeHandle = getRamResizeHandle(ramRect);
+
+            if (resizeHandle.contains(mouseX, mouseY)) {
+                ramSelected = true;
+                ramResizing = true;
+                ramDragging = false;
+                selected = null;
+                dragging = null;
+                return true;
+            }
+
+            if (ramRect.contains(mouseX, mouseY)) {
+                ramSelected = true;
+                ramDragging = true;
+                ramResizing = false;
+                selected = null;
+                dragging = null;
+
+                ramDragOffsetX = (int) Math.round(mouseX) - ramRect.x;
+                ramDragOffsetY = (int) Math.round(mouseY) - ramRect.y;
+
+                return true;
+            }
+
             HudConfigClient.HudComponent hit = findHitComponent(mouseX, mouseY);
 
             if (hit != null) {
+                ramSelected = false;
+                ramDragging = false;
+                ramResizing = false;
+
                 selected = hit;
                 dragging = hit;
 
@@ -518,6 +606,9 @@ public final class HudLayoutScreen extends Screen {
 
                 return true;
             }
+
+            ramSelected = false;
+            selected = null;
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
@@ -525,6 +616,24 @@ public final class HudLayoutScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (button == 0 && ramResizing) {
+            resizeRam((int) Math.round(mouseX), (int) Math.round(mouseY));
+            return true;
+        }
+
+        if (button == 0 && ramDragging) {
+            RamRect rect = getRamRect();
+
+            int newX = (int) Math.round(mouseX) - ramDragOffsetX;
+            int newY = (int) Math.round(mouseY) - ramDragOffsetY;
+
+            newX = clampInt(newX, 0, Math.max(0, this.width - rect.width));
+            newY = clampInt(newY, 0, Math.max(0, this.height - rect.height));
+
+            working.ram.setPositionFromPixel(newX, newY, this.width, this.height);
+            return true;
+        }
+
         if (button == 0 && dragging != null) {
             Minecraft mc = Minecraft.getInstance();
             double guiScale = mc.getWindow().getGuiScale();
@@ -553,8 +662,58 @@ public final class HudLayoutScreen extends Screen {
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
+    private void resizeRam(int mouseX, int mouseY) {
+        RamRect current = getRamRect();
+
+        int maxWidth = Math.max(1, this.width - current.x);
+        int maxHeight = Math.max(1, this.height - current.y);
+
+        int requestedWidth = clampInt(mouseX - current.x, CyberdeckRamHud.ICON_SIZE, maxWidth);
+
+        int minimumBaseHeight = CyberdeckRamHud.minimumHeightForRows(Minecraft.getInstance(), 1);
+        int requestedHeight = clampInt(mouseY - current.y, minimumBaseHeight, maxHeight);
+
+        int maxRam = Math.max(1, CyberdeckRamHud.getPreviewMaxRam());
+
+        int maxRowsForRequestedHeight = Math.max(1, (requestedHeight - this.font.lineHeight - CyberdeckRamHud.TITLE_ICON_GAP + CyberdeckRamHud.ICON_SPACING) / CyberdeckRamHud.ICON_STEP);
+
+        int requiredColumns = Mth.ceil(maxRam / (float) maxRowsForRequestedHeight);
+        int requiredWidth = CyberdeckRamHud.minimumWidthForColumns(requiredColumns);
+
+        int finalWidth = Math.max(requestedWidth, requiredWidth);
+
+        if (finalWidth > maxWidth) {
+            finalWidth = maxWidth;
+        }
+
+        int columns = Math.max(1, (finalWidth + CyberdeckRamHud.ICON_SPACING) / CyberdeckRamHud.ICON_STEP);
+        int requiredRows = Mth.ceil(maxRam / (float) columns);
+        int requiredHeight = CyberdeckRamHud.minimumHeightForRows(Minecraft.getInstance(), requiredRows);
+
+        int finalHeight = Math.max(requestedHeight, requiredHeight);
+
+        if (finalHeight > maxHeight) {
+            finalHeight = maxHeight;
+
+            int rowsThatFit = Math.max(1, (finalHeight - this.font.lineHeight - CyberdeckRamHud.TITLE_ICON_GAP + CyberdeckRamHud.ICON_SPACING) / CyberdeckRamHud.ICON_STEP);
+            int columnsNeeded = Mth.ceil(maxRam / (float) rowsThatFit);
+            finalWidth = Math.max(finalWidth, CyberdeckRamHud.minimumWidthForColumns(columnsNeeded));
+            finalWidth = Math.min(finalWidth, maxWidth);
+        }
+
+        working.ram.setSizeFromPixel(finalWidth, finalHeight, this.width, this.height);
+        clampRamToScreen();
+    }
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && (ramDragging || ramResizing)) {
+            ramDragging = false;
+            ramResizing = false;
+            clampRamToScreen();
+            return true;
+        }
+
         if (button == 0 && dragging != null) {
             dragging = null;
             clampWorkingToScreenBounds();
@@ -579,17 +738,28 @@ public final class HudLayoutScreen extends Screen {
             return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
 
+        RamRect ramRect = getRamRect();
+
+        if (ramRect.contains(mouseX, mouseY)) {
+            ramSelected = true;
+            selected = null;
+            return true;
+        }
+
         HudConfigClient.HudComponent hovered = findHitComponent(mouseX, mouseY);
 
         if (hovered == HudConfigClient.HudComponent.TOGGLE_LIST && scrollY != 0.0D) {
             CyberwareHudLayer.scrollToggleSidebar(scrollY);
             selected = hovered;
+            ramSelected = false;
             return true;
         }
 
-        HudConfigClient.HudComponent target = selected != null ? selected : hovered;
+        HudConfigClient.HudComponent target = selected != null && !ramSelected ? selected : hovered;
 
         if (target != null) {
+            ramSelected = false;
+
             if (target == HudConfigClient.HudComponent.HUD_LEFT || target == HudConfigClient.HudComponent.HUD_RIGHT) {
                 working.hudLayer.adjustScale((float) scrollY * SCALE_SCROLL_STEP);
             } else {
@@ -734,10 +904,28 @@ public final class HudLayoutScreen extends Screen {
         }
 
         CyberwareHudLayer.HudRect ySource = left != null ? left : right;
+
         if (ySource != null) {
             int clampedY = clampInt(ySource.y(), 0, Math.max(0, screenPxH - ySource.h()));
             working.hudLayer.setYFromPixel(clampedY, screenPxH);
         }
+    }
+
+    private void clampRamToScreen() {
+        working.ram.sanitize();
+
+        int x = working.ram.pixelX(this.width);
+        int y = working.ram.pixelY(this.height);
+        int w = working.ram.pixelWidth(this.width);
+        int h = working.ram.pixelHeight(this.height);
+
+        w = Math.min(w, this.width);
+        h = Math.min(h, this.height);
+
+        x = clampInt(x, 0, Math.max(0, this.width - w));
+        y = clampInt(y, 0, Math.max(0, this.height - h));
+
+        working.ram.setBoundsFromPixel(x, y, w, h, this.width, this.height);
     }
 
     private static int clampInt(int value, int min, int max) {
@@ -752,5 +940,23 @@ public final class HudLayoutScreen extends Screen {
     @Override
     public boolean shouldCloseOnEsc() {
         return true;
+    }
+
+    private static final class RamRect {
+        private final int x;
+        private final int y;
+        private final int width;
+        private final int height;
+
+        private RamRect(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = Math.max(1, width);
+            this.height = Math.max(1, height);
+        }
+
+        private boolean contains(double mouseX, double mouseY) {
+            return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+        }
     }
 }

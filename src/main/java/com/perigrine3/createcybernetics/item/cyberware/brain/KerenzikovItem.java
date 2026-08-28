@@ -4,6 +4,7 @@ import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.item.ModItems;
+import com.perigrine3.createcybernetics.util.CyberwareAttributeHelper;
 import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -82,17 +83,26 @@ public class KerenzikovItem extends Item implements ICyberwareItem {
     }
 
     @Override
-    public void onInstalled(Player player) {
-
+    public int getEnergyUsedPerTick(LivingEntity entity, ItemStack installedStack, CyberwareSlot slot) {
+        return 10;
     }
 
     @Override
-    public void onRemoved(Player player) {
-        if (player.level().isClientSide) {
+    public void onInstalled(LivingEntity entity) {
+        CyberwareAttributeHelper.applyModifier(entity, "kerenzikov_ram");
+        CyberwareAttributeHelper.applyModifier(entity, "kerenzikov_ram_regen");
+    }
+
+    @Override
+    public void onRemoved(LivingEntity entity) {
+        if (entity.level().isClientSide) {
             return;
         }
 
-        CompoundTag pd = player.getPersistentData();
+        CyberwareAttributeHelper.removeModifier(entity, "kerenzikov_ram");
+        CyberwareAttributeHelper.removeModifier(entity, "kerenzikov_ram_regen");
+
+        CompoundTag pd = entity.getPersistentData();
         pd.remove(NBT_ACTIVE_TICK);
         pd.remove(NBT_LAST_DODGE_TICK);
     }

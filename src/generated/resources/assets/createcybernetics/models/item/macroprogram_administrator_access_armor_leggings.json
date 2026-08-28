@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "createcybernetics:item/macroprogram_administrator_access_armor_leggings"
+  }
+}

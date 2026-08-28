@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "createcybernetics:item/materialized_secure_shell"
+  }
+}

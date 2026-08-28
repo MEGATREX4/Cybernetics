@@ -13,6 +13,7 @@ import com.perigrine3.createcybernetics.common.cybereyes.CybereyeVisualConfig;
 import com.perigrine3.createcybernetics.common.surgery.DefaultOrgans;
 import com.perigrine3.createcybernetics.common.surgery.RobosurgeonSlotMap;
 import com.perigrine3.createcybernetics.compat.corpse.CorpseCompat;
+import com.perigrine3.createcybernetics.cyberspace.CyberspaceTravelManager;
 import com.perigrine3.createcybernetics.entity.ModEntities;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.item.cyberware.arm.ArmCannonItem;
@@ -20,6 +21,7 @@ import com.perigrine3.createcybernetics.item.cyberware.bone.SpinalInjectorItem;
 import com.perigrine3.createcybernetics.item.generic.XPCapsuleItem;
 import com.perigrine3.createcybernetics.network.payload.CybereyeIrisSyncS2CPayload;
 import com.perigrine3.createcybernetics.util.ModTags;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -117,6 +119,16 @@ public final class CyberwareDeathReset {
         if (living.level().isClientSide) return;
 
         if (living instanceof ServerPlayer player) {
+            if (player.level().dimension().equals(ModDimensions.CYBERSPACE_LEVEL) && CyberspaceTravelManager.hasReturnPoint(player)) {
+                event.setCanceled(true);
+
+                if (CyberspaceTravelManager.handleCyberspaceDeath(player)) {
+                    return;
+                }
+
+                event.setCanceled(false);
+            }
+
             handlePlayerDeath(player);
             return;
         }

@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackProgramData;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.network.payload.CastCyberdeckQuickhackPayload;
 import net.minecraft.client.DeltaTracker;
@@ -48,10 +49,13 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
     private static final double MAX_TARGET_RANGE = 25.0D;
     private static final int CAST_COOLDOWN_TICKS = 200;
 
+    private static final int RAM_AFFORDABLE_COLOR = 0xFF7FDBFF;
+    private static final int RAM_UNAFFORDABLE_COLOR = 0xFFFF5555;
+
     private static boolean OPEN = false;
     private static int SELECTED_INDEX = 0;
 
-    private record Entry(ItemStack icon, int cyberdeckSlot) {}
+    private record Entry(ItemStack icon, int cyberdeckSlot, int ramCost) {}
     private static final List<Entry> ENTRIES = new ArrayList<>();
 
     public CyberdeckQuickhackWheelScreen() {
@@ -106,9 +110,13 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
     }
 
     private static String quickhackDisplayName(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) {
-            return "";
+        if (stack == null || stack.isEmpty()) return "";
+
+        if (QuickhackProgramData.hasProgram(stack)) {
+            String programName = QuickhackProgramData.getName(stack);
+            return programName.isBlank() ? "Quickhack.exe" : programName + ".exe";
         }
+
         return Component.translatable(stack.getDescriptionId() + ".desc").getString();
     }
 
@@ -254,7 +262,14 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
             return;
         }
 
-        rebuildEntries(mc);
+        PlayerCyberwareData data = rebuildEntries(mc);
+
+        if (data == null) {
+            close();
+            return;
+        }
+
+        int currentRam = data.getCyberdeckRam();
 
         var window = mc.getWindow();
         int w = window.getGuiScaledWidth();
@@ -310,6 +325,8 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
 
             String rawName = quickhackDisplayName(e.icon());
             String name = (rawName.length() > 22) ? (rawName.substring(0, 21) + "…") : rawName;
+            String ramText = e.ramCost() + " RAM";
+            int ramColor = currentRam >= e.ramCost() ? RAM_AFFORDABLE_COLOR : RAM_UNAFFORDABLE_COLOR;
 
             var poseStack = graphics.pose();
             poseStack.pushPose();
@@ -325,11 +342,25 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
             graphics.drawString(mc.font, name, scaledNameX, scaledNameY, 0xFFFFFFFF, true);
 
             poseStack.popPose();
+
+            poseStack.pushPose();
+
+            final float ramScale = 0.50f;
+            poseStack.scale(ramScale, ramScale, 1.0f);
+
+            int ramWidth = mc.font.width(ramText);
+            int scaledRamCenterX = (int) (centerX / ramScale);
+            int scaledRamX = scaledRamCenterX - ramWidth / 2;
+            int scaledRamY = (int) ((iy + 18) / ramScale);
+
+            graphics.drawString(mc.font, ramText, scaledRamX, scaledRamY, ramColor, true);
+
+            poseStack.popPose();
         }
 
         drawCooldownAboveWheel(graphics, mc, cx, cy);
         drawTargetInfoAboveCrosshair(graphics, mc, cx, cy);
-        drawSelectedQuickhackInfo(graphics, mc, cx, cy);
+        drawSelectedQuickhackInfo(graphics, mc, currentRam, cx, cy);
     }
 
     private static void drawCooldownAboveWheel(GuiGraphics graphics, Minecraft mc, int cx, int cy) {
@@ -359,7 +390,7 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
         graphics.drawString(mc.font, targetText, textX, textY, 0xFFFFFFFF, true);
     }
 
-    private static void drawSelectedQuickhackInfo(GuiGraphics graphics, Minecraft mc, int cx, int cy) {
+    private static void drawSelectedQuickhackInfo(GuiGraphics graphics, Minecraft mc, int currentRam, int cx, int cy) {
         if (ENTRIES.isEmpty()) {
             String empty = "No quickhacks loaded";
             int w = mc.font.width(empty);
@@ -368,9 +399,17 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
         }
 
         Entry selected = ENTRIES.get(Mth.clamp(SELECTED_INDEX, 0, ENTRIES.size() - 1));
+
         String name = quickhackDisplayName(selected.icon());
-        int w = mc.font.width(name);
-        graphics.drawString(mc.font, name, cx - (w / 2), cy + 12, 0xFF00FFFF, true);
+        int nameWidth = mc.font.width(name);
+
+        graphics.drawString(mc.font, name, cx - (nameWidth / 2), cy + 7, 0xFF00FFFF, true);
+
+        String ramText = "RAM: " + selected.ramCost();
+        int ramWidth = mc.font.width(ramText);
+        int ramColor = currentRam >= selected.ramCost() ? RAM_AFFORDABLE_COLOR : RAM_UNAFFORDABLE_COLOR;
+
+        graphics.drawString(mc.font, ramText, cx - (ramWidth / 2), cy + 19, ramColor, true);
     }
 
     private static PlayerCyberwareData rebuildEntries(Minecraft mc) {
@@ -382,11 +421,13 @@ public class CyberdeckQuickhackWheelScreen extends Screen {
         PlayerCyberwareData data = mc.player.getData(ModAttachments.CYBERWARE);
         if (data == null) return null;
 
-        for (int i = 0; i < PlayerCyberwareData.CYBERDECK_SLOT_COUNT; i++) {
+        for (int i = 0; i < PlayerCyberwareData.CYBERDECK_QUICKHACK_SLOT_COUNT; i++) {
             ItemStack stack = data.getCyberdeckStack(i);
             if (stack == null || stack.isEmpty()) continue;
 
-            ENTRIES.add(new Entry(stack.copy(), i));
+            int ramCost = QuickhackProgramData.getRamCost(stack);
+
+            ENTRIES.add(new Entry(stack.copy(), i, ramCost));
         }
 
         if (SELECTED_INDEX >= ENTRIES.size()) {

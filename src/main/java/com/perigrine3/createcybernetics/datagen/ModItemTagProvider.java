@@ -127,6 +127,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
                 .add(ModItems.DATA_SHARD_BIOCHIP.get())
                 .add(ModItems.DATA_SHARD_SHARED_NAVIGATION.get())
+                .add(ModItems.QUICKHACK_SHARD.get())
                 .add(ModItems.DATA_SHARD_INFOLOG.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_GETTING_STARTED.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_ROBOSURGEON_MANUAL.get())
@@ -150,6 +151,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.DATA_SHARD_INFOLOG_CYBERDECK_SECURITY_BRIEF.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_LUNCH_BREAK.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_DATURA.get())
+                .add(ModItems.DATA_SHARD_INFOLOG_QUICKHACK_TUTORIAL.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_WAIT_YOUR_TURN.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_THE_BREACH.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_AI_CHAT.get())
@@ -158,6 +160,10 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
                 .add(ModItems.DATA_SHARD_GAME_MINESWEEPER.get())
                 .add(ModItems.DATA_SHARD_GAME_CHESS.get())
+
+                .add(ModItems.DATA_SHARD_MICROPROGRAMS.get())
+                .add(ModItems.DATA_SHARD_MICROPROGRAMS_CREATIVE.get())
+                .add(ModItems.QUICKHACK_SHARD.get())
 
                 .addOptional(resourceLocation("createcybernetics:data_shard_infolog_cyberchems"));
 
@@ -184,6 +190,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.DATA_SHARD_INFOLOG_CYBERBESTIARY.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_CYBERDECK.get())
                 .add(ModItems.DATA_SHARD_INFOLOG_HARVESTER_ENCHANTMENT.get())
+                .add(ModItems.DATA_SHARD_INFOLOG_QUICKHACK_TUTORIAL.get())
 
                 .addOptional(resourceLocation("createcybernetics:data_shard_infolog_cyberchems"));
 
@@ -214,16 +221,32 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.DATA_SHARD_GAME_MINESWEEPER.get())
                 .add(ModItems.DATA_SHARD_GAME_CHESS.get());
 
-
 //QUICKHACK SHARDS
         tag(ModTags.Items.QUICKHACK_SHARDS)
-                .add(ModItems.QUICKHACK_DRAIN.get())
-                .add(ModItems.QUICKHACK_BEHINDYOU.get())
-                .add(ModItems.QUICKHACK_CYBERPSYCHOSIS.get())
-                .add(ModItems.QUICKHACK_OPTICMALFUNCTION.get())
-                .add(ModItems.QUICKHACK_SCRAMBLE.get())
-                .add(ModItems.QUICKHACK_REBOOT.get())
-                .add(ModItems.QUICKHACK_OVERHEAT.get());
+                .add(ModItems.QUICKHACK_SHARD.get());
+
+//MICROPROGRAM SHARDS
+        tag(ModTags.Items.MICROPROGRAM_SHARDS)
+                .add(ModItems.DATA_SHARD_MICROPROGRAMS.get());
+
+//MACROPROGRAMS
+        tag(ModTags.Items.MACROPROGRAMS)
+                .add(ModItems.MACROPROGRAM_DATA_MINER.get())
+                .add(ModItems.MACROPROGRAM_SECURE_SHELL.get())
+                .add(ModItems.MACROPROGRAM_BIT_CRUSHER.get())
+                .add(ModItems.MACROPROGRAM_STACK_OVERFLOW.get())
+                .add(ModItems.MACROPROGRAM_ICEBREAKER.get())
+                .add(ModItems.MACROPROGRAM_PING.get())
+                .add(ModItems.MACROPROGRAM_DDOS.get())
+                .add(ModItems.MACROPROGRAM_BANHAMMER.get())
+                .add(ModItems.MACROPROGRAM_FIREWALL.get())
+                .add(ModItems.MACROPROGRAM_RECOVERY.get())
+                .add(ModItems.MACROPROGRAM_BASIC_ARMOR.get())
+                .add(ModItems.MACROPROGRAM_INTERMEDIATE_ARMOR.get())
+                .add(ModItems.MACROPROGRAM_ADVANCED_ARMOR.get())
+                .add(ModItems.MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR.get())
+                .add(ModItems.MACROPROGRAM_PACKET_SNIFFER.get())
+                .add(ModItems.MACROPROGRAM_VPN_SHROUD.get());
 
 //GRAPHENE
         tag(ModTags.Items.GRAPHENE)
@@ -326,6 +349,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.BRAINUPGRADES_COAXIALPORT.get())
                 .add(ModItems.BRAINUPGRADES_KERENZIKOV.get())
                 .add(ModItems.BRAINUPGRADES_BERSERK.get())
+                .add(ModItems.BRAINUPGRADES_RAMDECK.get())
                 .add(ModItems.BRAINUPGRADES_CYBERBRAIN.get())
                 .add(ModItems.HEARTUPGRADES_CYBERHEART.get())
                 .add(ModItems.HEARTUPGRADES_COUPLER.get())
@@ -345,6 +369,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.ORGANSUPGRADES_MAGICCATALYST.get())
                 .add(ModItems.ORGANSUPGRADES_METABOLIC.get())
                 .add(ModItems.ORGANSUPGRADES_DENSEBATTERY.get())
+                .add(ModItems.ORGANSUPGRADES_CREATIVEBATTERY.get())
                 .add(ModItems.ORGANSUPGRADES_HEATENGINE.get())
                 .add(ModItems.ORGANSUPGRADES_OREGRINDER.get())
                 .add(ModItems.SKINUPGRADES_ARTERIALTURBINE.get())
@@ -560,6 +585,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.ORGANSUPGRADES_MAGICCATALYST.get())
                 .add(ModItems.ORGANSUPGRADES_METABOLIC.get())
                 .add(ModItems.ORGANSUPGRADES_DENSEBATTERY.get())
+                .add(ModItems.ORGANSUPGRADES_CREATIVEBATTERY.get())
                 .add(ModItems.ORGANSUPGRADES_HEATENGINE.get())
                 .add(ModItems.ORGANSUPGRADES_OREGRINDER.get())
                 .addOptional(resourceLocation("createcybernetics:organsupgrades_manabattery"));
@@ -610,6 +636,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.BRAINUPGRADES_ICEPROTOCOL.get())
                 .add(ModItems.BRAINUPGRADES_COAXIALPORT.get())
                 .add(ModItems.BRAINUPGRADES_BERSERK.get())
+                .add(ModItems.BRAINUPGRADES_RAMDECK.get())
                 .addOptional(resourceLocation("createcybernetics:brainupgrades_consciousnesstransmitter"))
                 .addOptional(resourceLocation("createcybernetics:brainupgrades_corticalstack"))
                 .addOptional(resourceLocation("createcybernetics:brainupgrades_spelljammer"));
@@ -682,6 +709,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SCAVENGED_COAXIALPORT.get())
                 .add(ModItems.SCAVENGED_KERENZIKOV.get())
                 .add(ModItems.SCAVENGED_BERSERK.get())
+                .add(ModItems.SCAVENGED_RAMDECK.get())
                 .add(ModItems.SCAVENGED_IDEM.get())
 
                 .add(ModItems.SCAVENGED_CYBERHEART.get())
@@ -1104,6 +1132,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.ORGANSUPGRADES_MAGICCATALYST.get())
                 .add(ModItems.ORGANSUPGRADES_METABOLIC.get())
                 .add(ModItems.ORGANSUPGRADES_DENSEBATTERY.get())
+                .add(ModItems.ORGANSUPGRADES_CREATIVEBATTERY.get())
                 .add(ModItems.ORGANSUPGRADES_HEATENGINE.get())
                 .add(ModItems.ORGANSUPGRADES_OREGRINDER.get())
 

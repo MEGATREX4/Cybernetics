@@ -4,12 +4,17 @@ import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackExecutionContext;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackExecutionResult;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackExecutor;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackProgramData;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.util.CyberwareAttributeHelper;
 import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -34,6 +39,8 @@ public class ChipwareSlotsItem extends Item implements ICyberwareItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
             tooltip.add(Component.translatable("tooltip.createcybernetics.humanity", humanityCost).withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("tooltip.createcybernetics.brainupgrades_chipwareslots.energy").withStyle(ChatFormatting.RED));
+
         }
     }
 
@@ -71,11 +78,21 @@ public class ChipwareSlotsItem extends Item implements ICyberwareItem {
     }
 
     @Override
+    public int getEnergyUsedPerTick(LivingEntity entity, ItemStack installedStack, CyberwareSlot slot) {
+        return 2;
+    }
+
+    @Override
     public void onInstalled(LivingEntity entity) {
+        CyberwareAttributeHelper.applyModifier(entity, "chipware_ram");
+        CyberwareAttributeHelper.applyModifier(entity, "chipware_ram_regen");
     }
 
     @Override
     public void onRemoved(LivingEntity entity) {
+        CyberwareAttributeHelper.removeModifier(entity, "chipware_ram");
+        CyberwareAttributeHelper.removeModifier(entity, "chipware_ram_regen");
+
         CyberwareAttributeHelper.removeModifier(entity, "redshard_strength");
         CyberwareAttributeHelper.removeModifier(entity, "redshard_speed");
         CyberwareAttributeHelper.removeModifier(entity, "redshard_knockback");
@@ -126,10 +143,11 @@ public class ChipwareSlotsItem extends Item implements ICyberwareItem {
 
     @Override
     public void onTick(LivingEntity entity) {
-        if (!(entity instanceof Player player)) return;
-        if (player.level().isClientSide) return;
+        if (!(entity instanceof ServerPlayer player)) return;
 
         PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+
+        tickSlottedQuickhacks(player, data);
 
         if (data.hasChipwareShardExact(ModItems.DATA_SHARD_RED.get())) {
             CyberwareAttributeHelper.applyModifier(player, "redshard_strength");
@@ -222,6 +240,34 @@ public class ChipwareSlotsItem extends Item implements ICyberwareItem {
 
         } else {
 
+        }
+    }
+
+    private static void tickSlottedQuickhacks(ServerPlayer player, PlayerCyberwareData data) {
+        for (int slot = 0; slot < PlayerCyberwareData.CHIPWARE_SLOT_COUNT; slot++) {
+            ItemStack quickhack = data.getChipwareStack(slot);
+
+            if (quickhack.isEmpty()) continue;
+            if (!QuickhackProgramData.hasProgram(quickhack)) continue;
+            if (data.hasChipwareQuickhackFired(slot)) continue;
+
+            data.setChipwareQuickhackFired(slot, true);
+
+            QuickhackExecutionContext context = QuickhackExecutionContext.create(player, player, quickhack);
+            if (context == null) continue;
+
+            QuickhackExecutionResult result = QuickhackExecutor.execute(context);
+
+            if (!result.success()) {
+                if (result.failureMessage() != null) {
+                    player.displayClientMessage(result.failureMessage(), false);
+                }
+                continue;
+            }
+
+            for (Component output : result.casterOutput()) {
+                player.displayClientMessage(output, false);
+            }
         }
     }
 }

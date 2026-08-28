@@ -38,8 +38,10 @@ import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -89,6 +91,7 @@ public final class MinimapWaypointClient {
         private final int tileZ;
         private final int[] colors;
         private final BitSet explored;
+        private long revision;
 
         private ExploredTile(String dimension, int tileX, int tileZ) {
             this.dimension = dimension;
@@ -96,6 +99,7 @@ public final class MinimapWaypointClient {
             this.tileZ = tileZ;
             this.colors = new int[EXPLORATION_TILE_SIZE * EXPLORATION_TILE_SIZE];
             this.explored = new BitSet(EXPLORATION_TILE_SIZE * EXPLORATION_TILE_SIZE);
+            this.revision = 0L;
         }
 
         ExploredTile(String dimension, int tileX, int tileZ, int[] colors, BitSet explored) {
@@ -104,6 +108,7 @@ public final class MinimapWaypointClient {
             this.tileZ = tileZ;
             this.colors = colors;
             this.explored = explored;
+            this.revision = 0L;
         }
 
         public String dimension() {
@@ -126,6 +131,10 @@ public final class MinimapWaypointClient {
             return tileZ * EXPLORATION_TILE_SIZE;
         }
 
+        public long revision() {
+            return revision;
+        }
+
         public boolean isExplored(int localX, int localZ) {
             if (localX < 0 || localX >= EXPLORATION_TILE_SIZE || localZ < 0 || localZ >= EXPLORATION_TILE_SIZE) return false;
             return explored.get(localZ * EXPLORATION_TILE_SIZE + localX);
@@ -146,24 +155,34 @@ public final class MinimapWaypointClient {
             }
 
             boolean changed = !explored.get(index) || colors[index] != color;
+
+            if (!changed) {
+                return false;
+            }
+
             colors[index] = color;
             explored.set(index);
-            return changed;
+            revision++;
+            return true;
         }
     }
 
     private record NavigationStorageKey(UUID playerId, String worldId) {}
 
     private static final class NavigationData {
-        private final List<Waypoint> waypoints = new ArrayList<>();
+        private final Map<String, Waypoint> waypoints = new LinkedHashMap<>();
         private final List<ImportedMap> maps = new ArrayList<>();
         private final Map<String, ExploredTile> exploredTiles = new HashMap<>();
+        private final Set<String> dirtyTileKeys = new LinkedHashSet<>();
+        private final Set<String> dirtyWaypointIds = new LinkedHashSet<>();
         private String activeWaypointId;
         private boolean dirty;
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Map<NavigationStorageKey, NavigationData> CACHE = new ConcurrentHashMap<>();
+
+    private static String cachedWorldId;
 
     public static ExploredTile createEmptySharedTile(String dimension, int tileX, int tileZ) {
         return new ExploredTile(dimension, tileX, tileZ, new int[EXPLORATION_TILE_SIZE * EXPLORATION_TILE_SIZE], new BitSet(EXPLORATION_TILE_SIZE * EXPLORATION_TILE_SIZE));
@@ -179,11 +198,11 @@ public final class MinimapWaypointClient {
 
         Map<String, Waypoint> combined = new LinkedHashMap<>();
 
-        for (Waypoint waypoint : data(player.getUUID()).waypoints) {
+        for (Waypoint waypoint : data(player.getUUID()).waypoints.values()) {
             combined.put(waypoint.id(), waypoint);
         }
 
-        for (Waypoint waypoint : SharedNavigationClientState.getWaypoints()) {
+        for (Waypoint waypoint : SharedNavigationClientState.getWaypointValues()) {
             combined.putIfAbsent(waypoint.id(), waypoint);
         }
 
@@ -199,7 +218,7 @@ public final class MinimapWaypointClient {
         if (player == null) return Collections.emptyList();
 
         List<ExploredTile> combined = new ArrayList<>(data(player.getUUID()).exploredTiles.values());
-        combined.addAll(SharedNavigationClientState.getTiles());
+        combined.addAll(SharedNavigationClientState.getTileValues());
         return Collections.unmodifiableList(combined);
     }
 
@@ -220,11 +239,71 @@ public final class MinimapWaypointClient {
 
         List<NavigationWaypointSnapshot> snapshots = new ArrayList<>();
 
-        for (Waypoint waypoint : data(player.getUUID()).waypoints) {
+        for (Waypoint waypoint : data(player.getUUID()).waypoints.values()) {
             snapshots.add(new NavigationWaypointSnapshot(waypoint.id(), waypoint.dimension(), waypoint.x(), waypoint.y(), waypoint.z(), waypoint.name(), waypoint.color(), waypoint.type().name()));
         }
 
         return snapshots;
+    }
+
+    public static List<NavigationTileSnapshot> drainDirtyTileSnapshots(LocalPlayer player, int maxCount) {
+        if (player == null || maxCount <= 0) return Collections.emptyList();
+
+        NavigationData data = data(player.getUUID());
+
+        if (data.dirtyTileKeys.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<NavigationTileSnapshot> snapshots = new ArrayList<>(Math.min(maxCount, data.dirtyTileKeys.size()));
+        Iterator<String> iterator = data.dirtyTileKeys.iterator();
+
+        while (iterator.hasNext() && snapshots.size() < maxCount) {
+            String key = iterator.next();
+            iterator.remove();
+
+            ExploredTile tile = data.exploredTiles.get(key);
+
+            if (tile == null) continue;
+
+            snapshots.add(new NavigationTileSnapshot(tile.dimension, tile.tileX, tile.tileZ, tile.colors.clone(), tile.explored.toLongArray()));
+        }
+
+        return snapshots;
+    }
+
+    public static List<NavigationWaypointSnapshot> drainDirtyWaypointSnapshots(LocalPlayer player, int maxCount) {
+        if (player == null || maxCount <= 0) return Collections.emptyList();
+
+        NavigationData data = data(player.getUUID());
+
+        if (data.dirtyWaypointIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<NavigationWaypointSnapshot> snapshots = new ArrayList<>(Math.min(maxCount, data.dirtyWaypointIds.size()));
+        Iterator<String> iterator = data.dirtyWaypointIds.iterator();
+
+        while (iterator.hasNext() && snapshots.size() < maxCount) {
+            String id = iterator.next();
+            iterator.remove();
+
+            Waypoint waypoint = data.waypoints.get(id);
+
+            if (waypoint == null) continue;
+
+            snapshots.add(new NavigationWaypointSnapshot(waypoint.id(), waypoint.dimension(), waypoint.x(), waypoint.y(), waypoint.z(), waypoint.name(), waypoint.color(), waypoint.type().name()));
+        }
+
+        return snapshots;
+    }
+
+    public static void markAllSharedSyncClean(LocalPlayer player) {
+        if (player == null) return;
+
+        NavigationData data = data(player.getUUID());
+        data.dirtyTileKeys.clear();
+        data.dirtyWaypointIds.clear();
     }
 
     public static Waypoint getActiveWaypoint(LocalPlayer player) {
@@ -237,10 +316,14 @@ public final class MinimapWaypointClient {
             return null;
         }
 
-        for (Waypoint waypoint : getWaypoints(player)) {
-            if (waypoint.id().equals(data.activeWaypointId)) {
-                return waypoint;
-            }
+        Waypoint waypoint = data.waypoints.get(data.activeWaypointId);
+
+        if (waypoint == null) {
+            waypoint = SharedNavigationClientState.getWaypoint(data.activeWaypointId);
+        }
+
+        if (waypoint != null) {
+            return waypoint;
         }
 
         data.activeWaypointId = null;
@@ -307,7 +390,8 @@ public final class MinimapWaypointClient {
             return false;
         }
 
-        data.waypoints.add(new Waypoint(id, dimension, pos.getX(), pos.getY(), pos.getZ(), sanitizeName(name), color, WaypointType.BANNER, false));
+        data.waypoints.put(id, new Waypoint(id, dimension, pos.getX(), pos.getY(), pos.getZ(), sanitizeName(name), color, WaypointType.BANNER, false));
+        data.dirtyWaypointIds.add(id);
         data.dirty = true;
         saveIfDirty(key);
         return true;
@@ -323,7 +407,8 @@ public final class MinimapWaypointClient {
             return false;
         }
 
-        data.waypoints.add(new Waypoint(id, dimension, pos.getX(), pos.getY(), pos.getZ(), sanitizeName(name), color, WaypointType.MAP_BANNER, false));
+        data.waypoints.put(id, new Waypoint(id, dimension, pos.getX(), pos.getY(), pos.getZ(), sanitizeName(name), color, WaypointType.MAP_BANNER, false));
+        data.dirtyWaypointIds.add(id);
         data.dirty = true;
         return true;
     }
@@ -338,7 +423,8 @@ public final class MinimapWaypointClient {
             return false;
         }
 
-        data.waypoints.add(new Waypoint(id, dimension, x, 0, z, typeId, color, WaypointType.EXPLORER, false));
+        data.waypoints.put(id, new Waypoint(id, dimension, x, 0, z, typeId, color, WaypointType.EXPLORER, false));
+        data.dirtyWaypointIds.add(id);
         data.dirty = true;
         return true;
     }
@@ -433,6 +519,7 @@ public final class MinimapWaypointClient {
                 int color = sampleTerrainColor(level, worldX, worldZ);
 
                 if (tile.setColor(localX, localZ, color, false)) {
+                    data.dirtyTileKeys.add(tileKey(dimension, tile.tileX(), tile.tileZ()));
                     changed = true;
                 }
             }
@@ -468,6 +555,7 @@ public final class MinimapWaypointClient {
                 int color = sampleTerrainColor(level, worldX, worldZ);
 
                 if (tile.setColor(localX, localZ, color, true)) {
+                    data.dirtyTileKeys.add(tileKey(dimension, tile.tileX(), tile.tileZ()));
                     changed = true;
                 }
             }
@@ -531,17 +619,14 @@ public final class MinimapWaypointClient {
     }
 
     private static Waypoint findWaypoint(NavigationData data, String id) {
-        for (Waypoint waypoint : data.waypoints) {
-            if (waypoint.id().equals(id)) {
-                return waypoint;
-            }
-        }
-
-        return null;
+        return id == null ? null : data.waypoints.get(id);
     }
 
     private static boolean removeWaypointInternal(NavigationData data, Waypoint waypoint) {
-        boolean removed = data.waypoints.removeIf(existing -> existing.id().equals(waypoint.id()));
+        if (waypoint == null) return false;
+
+        boolean removed = data.waypoints.remove(waypoint.id()) != null;
+        data.dirtyWaypointIds.remove(waypoint.id());
 
         if (removed && waypoint.id().equals(data.activeWaypointId)) {
             data.activeWaypointId = null;
@@ -579,7 +664,9 @@ public final class MinimapWaypointClient {
                         ExploredTile tile = getOrCreateTile(data, dimension, worldX, worldZ);
                         int localX = Math.floorMod(worldX, EXPLORATION_TILE_SIZE);
                         int localZ = Math.floorMod(worldZ, EXPLORATION_TILE_SIZE);
-                        tile.setColor(localX, localZ, color, false);
+                        if (tile.setColor(localX, localZ, color, false)) {
+                            data.dirtyTileKeys.add(tileKey(dimension, tile.tileX(), tile.tileZ()));
+                        }
                     }
                 }
             }
@@ -632,14 +719,22 @@ public final class MinimapWaypointClient {
         return new NavigationStorageKey(playerId, resolveWorldId());
     }
 
+    public static void clearWorldIdentityCache() {
+        cachedWorldId = null;
+    }
+
     private static String resolveWorldId() {
+        if (cachedWorldId != null) {
+            return cachedWorldId;
+        }
+
         Minecraft mc = Minecraft.getInstance();
         MinecraftServer singleplayerServer = mc.getSingleplayerServer();
 
         if (singleplayerServer != null) {
             try {
                 Path worldPath = singleplayerServer.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize();
-                return hashWorldIdentity("singleplayer|" + worldPath);
+                return cachedWorldId = hashWorldIdentity("singleplayer|" + worldPath);
             } catch (Throwable ignored) {
             }
         }
@@ -647,7 +742,7 @@ public final class MinimapWaypointClient {
         ServerData serverData = mc.getCurrentServer();
 
         if (serverData != null && serverData.ip != null && !serverData.ip.isBlank()) {
-            return hashWorldIdentity("multiplayer|" + serverData.ip.trim().toLowerCase());
+            return cachedWorldId = hashWorldIdentity("multiplayer|" + serverData.ip.trim().toLowerCase());
         }
 
         if (mc.getConnection() != null) {
@@ -655,13 +750,13 @@ public final class MinimapWaypointClient {
                 SocketAddress remoteAddress = mc.getConnection().getConnection().getRemoteAddress();
 
                 if (remoteAddress != null) {
-                    return hashWorldIdentity("connection|" + remoteAddress);
+                    return cachedWorldId = hashWorldIdentity("connection|" + remoteAddress);
                 }
             } catch (Throwable ignored) {
             }
         }
 
-        return hashWorldIdentity("unknown_world");
+        return cachedWorldId = hashWorldIdentity("unknown_world");
     }
 
     private static String hashWorldIdentity(String identity) {
@@ -776,7 +871,7 @@ public final class MinimapWaypointClient {
                             name = "minecraft:red_x";
                         }
 
-                        data.waypoints.add(new Waypoint(id, dimension, x, y, z, sanitizeName(name), color, type, autoClear));
+                        data.waypoints.put(id, new Waypoint(id, dimension, x, y, z, sanitizeName(name), color, type, autoClear));
                     } catch (Throwable ignored) {
                     }
                 }
@@ -852,7 +947,7 @@ public final class MinimapWaypointClient {
 
             JsonArray waypoints = new JsonArray();
 
-            for (Waypoint waypoint : data.waypoints) {
+            for (Waypoint waypoint : data.waypoints.values()) {
                 JsonObject object = new JsonObject();
 
                 object.addProperty("id", waypoint.id());

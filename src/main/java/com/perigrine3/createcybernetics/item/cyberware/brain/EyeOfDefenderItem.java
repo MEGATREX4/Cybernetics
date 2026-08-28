@@ -10,6 +10,7 @@ import com.perigrine3.createcybernetics.common.capabilities.ModMobAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.effect.ModEffects;
 import com.perigrine3.createcybernetics.item.ModItems;
+import com.perigrine3.createcybernetics.util.CyberwareAttributeHelper;
 import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -93,12 +94,16 @@ public class EyeOfDefenderItem extends Item implements ICyberwareItem {
     }
 
     @Override
-    public void onInstalled(LivingEntity entity) { }
+    public void onInstalled(LivingEntity entity) {
+        CyberwareAttributeHelper.applyModifier(entity, "eyeofdedender_ram");
+    }
 
     @Override
     public void onRemoved(LivingEntity entity) {
         if (entity == null || entity.level().isClientSide) return;
         entity.removeEffect(ModEffects.PROJECTILE_DODGE_EFFECT);
+
+        CyberwareAttributeHelper.removeModifier(entity, "eyeofdedender_ram");
     }
 
     private static boolean isActive(Player player) {

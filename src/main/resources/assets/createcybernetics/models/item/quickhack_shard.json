@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "createcybernetics:item/quickhack_shard",
+    "layer1": "createcybernetics:item/quickhack_shard_mask"
+  }
+}

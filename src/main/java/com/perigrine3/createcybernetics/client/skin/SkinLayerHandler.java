@@ -1,6 +1,7 @@
 package com.perigrine3.createcybernetics.client.skin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.perigrine3.createcybernetics.client.CyberspaceColorConfigClient;
 import com.perigrine3.createcybernetics.client.render.CyberwareLimbHider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -63,14 +64,26 @@ public final class SkinLayerHandler extends RenderLayer<AbstractClientPlayer, Pl
                 && SkinVanillaWearVisibility.isModelPartShownNow(player, PlayerModelPart.RIGHT_PANTS_LEG);
     }
 
+    private static void renderCyberspaceBaseSkin(AbstractClientPlayer player, PlayerModel<AbstractClientPlayer> model, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int cyberspaceColor) {
+        ResourceLocation texture = player.getSkin().texture();
+        var vc = buffer.getBuffer(SkinRenderTypes.cyberspacePlayer(texture));
+
+        model.renderToBuffer(poseStack, vc, packedLight, OverlayTexture.NO_OVERLAY, cyberspaceColor);
+    }
+
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player,
                        float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks,
                        float netHeadYaw, float headPitch) {
         if (!shouldRenderOverlaysFor(player)) return;
 
+        boolean cyberspaceAvatar = SkinModifierManager.isCyberspaceAvatar(player);
+
         SkinModifierState state = SkinModifierManager.getPlayerSkinState(player);
-        if (state == null || !state.hasModifiers()) return;
+
+        if (!cyberspaceAvatar && (state == null || !state.hasModifiers())) return;
+
+        int cyberspaceColor = CyberspaceColorConfigClient.getColor(player.getUUID());
 
         PlayerModel<AbstractClientPlayer> model = this.getParentModel();
 
@@ -88,8 +101,15 @@ public final class SkinLayerHandler extends RenderLayer<AbstractClientPlayer, Pl
         boolean prevRightPants = model.rightPants.visible;
 
         SkinVanillaWearVisibility.pushSuppress();
+
         try {
             applyOverlayVisibility(player, model);
+
+            if (cyberspaceAvatar) {
+                renderCyberspaceBaseSkin(player, model, poseStack, buffer, packedLight, cyberspaceColor);
+            }
+
+            if (state == null || !state.hasModifiers()) return;
 
             PlayerSkin.Model modelType = player.getSkin().model();
 
@@ -97,11 +117,20 @@ public final class SkinLayerHandler extends RenderLayer<AbstractClientPlayer, Pl
                 if (modifier == null) continue;
 
                 poseStack.pushPose();
+
                 try {
                     ResourceLocation texture = modifier.getTexture(modelType);
-                    int color = modifier.getColor();
 
-                    var baseVc = buffer.getBuffer(RenderType.entityTranslucent(texture));
+                    RenderType renderType = cyberspaceAvatar
+                            ? SkinRenderTypes.cyberspacePlayer(texture)
+                            : RenderType.entityTranslucent(texture);
+
+                    int color = cyberspaceAvatar
+                            ? cyberspaceColor
+                            : modifier.getColor();
+
+                    var baseVc = buffer.getBuffer(renderType);
+
                     SkinOverlayModelRenderer.renderModifier(
                             model,
                             modifier,
@@ -114,6 +143,7 @@ public final class SkinLayerHandler extends RenderLayer<AbstractClientPlayer, Pl
 
                     if (modifier.hasGlint()) {
                         var glintVc = buffer.getBuffer(SkinRenderTypes.translucentGlintOverlay(texture));
+
                         SkinOverlayModelRenderer.renderModifier(
                                 model,
                                 modifier,

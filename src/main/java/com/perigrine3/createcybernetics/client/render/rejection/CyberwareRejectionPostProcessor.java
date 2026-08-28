@@ -3,6 +3,7 @@ package com.perigrine3.createcybernetics.client.render.rejection;
 import com.mojang.logging.LogUtils;
 import com.perigrine3.createcybernetics.ConfigValues;
 import com.perigrine3.createcybernetics.CreateCybernetics;
+import com.perigrine3.createcybernetics.client.quickhack.QuickhackClientState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.PostChain;
@@ -24,6 +25,10 @@ public final class CyberwareRejectionPostProcessor {
 
     private static final ResourceLocation SCREEN_CHAIN_PATH =
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "shaders/post/cyberware_rejection_screen.json");
+
+    private static final float MALFUNCTION_INTENSITY = 0.85F;
+    private static final float MALFUNCTION_BURST_MIN = 0.35F;
+    private static final float MALFUNCTION_BURST_MAX = 0.90F;
 
     private static PostChain screenChain;
     private static boolean screenLoadAttempted = false;
@@ -68,12 +73,26 @@ public final class CyberwareRejectionPostProcessor {
         float pulse = CyberwareRejectionPostState.getForcedPulse(partialTick);
         float burst = CyberwareRejectionPostState.getBurstStrength(partialTick);
 
+        if (QuickhackClientState.opticsMalfunction()) {
+            intensity = Math.max(intensity, MALFUNCTION_INTENSITY);
+            burst = Math.max(burst, getMalfunctionBurst(time));
+        }
+
         if (intensity <= 0.0F && fugue <= 0.0F && pulse <= 0.0F && burst <= 0.0F) {
             return;
         }
 
         ensureSize(mc);
         renderScreenEffect(mc, time, partialTick, intensity, fugue, pulse, burst);
+    }
+
+    private static float getMalfunctionBurst(float time) {
+        float slow = 0.5F + 0.5F * Mth.sin(time * 0.31F);
+        float fast = 0.5F + 0.5F * Mth.sin(time * 1.73F + 1.8F);
+        float spike = Mth.sin(time * 0.83F + 0.45F) > 0.72F ? 1.0F : 0.0F;
+
+        float mixed = slow * 0.35F + fast * 0.45F + spike * 0.55F;
+        return Mth.clamp(Mth.lerp(mixed, MALFUNCTION_BURST_MIN, MALFUNCTION_BURST_MAX), MALFUNCTION_BURST_MIN, MALFUNCTION_BURST_MAX);
     }
 
     private static void renderScreenEffect(Minecraft mc, float time, float partialTick, float intensity, float fugue, float pulse, float burst) {

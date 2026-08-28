@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "corrupted=false": {
+      "model": "createcybernetics:block/digital_architecture"
+    },
+    "corrupted=true": {
+      "model": "createcybernetics:block/digital_architecture_corrupted"
+    }
+  }
+}

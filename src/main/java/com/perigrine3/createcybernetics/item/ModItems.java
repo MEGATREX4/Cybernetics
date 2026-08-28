@@ -4,9 +4,15 @@ import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.block.ModBlocks;
 import com.perigrine3.createcybernetics.client.ModKeyMappings;
+import com.perigrine3.createcybernetics.common.macroprogram.MacroprogramDefinition;
+import com.perigrine3.createcybernetics.common.macroprogram.MacroprogramRegistry;
+import com.perigrine3.createcybernetics.common.quickhack.MicroprogramDefinition;
+import com.perigrine3.createcybernetics.common.quickhack.MicroprogramRegistry;
 import com.perigrine3.createcybernetics.compat.ModCompats;
 import com.perigrine3.createcybernetics.compat.ironsspells.IronsSpellbooksCompat;
 import com.perigrine3.createcybernetics.compat.ironsspells.IronsSpellbooksStaffItems;
+import com.perigrine3.createcybernetics.component.MicroprogramLibrary;
+import com.perigrine3.createcybernetics.component.ModDataComponents;
 import com.perigrine3.createcybernetics.entity.ModEntities;
 import com.perigrine3.createcybernetics.item.cyberware.arm.*;
 import com.perigrine3.createcybernetics.item.cyberware.bone.*;
@@ -27,6 +33,7 @@ import com.perigrine3.createcybernetics.item.cyberware.skin.*;
 import com.perigrine3.createcybernetics.item.cyberware.wetware.*;
 import com.perigrine3.createcybernetics.item.food.BrainStewItem;
 import com.perigrine3.createcybernetics.item.generic.*;
+import com.perigrine3.createcybernetics.item.macroprogram.*;
 import com.perigrine3.createcybernetics.item.organs.*;
 import com.perigrine3.createcybernetics.item.sculked.*;
 import com.perigrine3.createcybernetics.sound.ModSounds;
@@ -36,6 +43,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.neoforged.bus.api.IEventBus;
@@ -141,70 +149,6 @@ public class ModItems {
 
     public static final DeferredItem<Item> BONE_SAW = ITEMS.register("bone_saw",
             () -> new SwordItem(Tiers.IRON, new Item.Properties().stacksTo(1).durability(128)));
-
-    public static final DeferredItem<Item> QUICKHACK_OVERHEAT = ITEMS.register("quickhack_overheat",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_overheat.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_overheat.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_overheat.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
-    public static final DeferredItem<Item> QUICKHACK_REBOOT = ITEMS.register("quickhack_reboot",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_reboot.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_reboot.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_reboot.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
-    public static final DeferredItem<Item> QUICKHACK_SCRAMBLE = ITEMS.register("quickhack_scramble",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_scramble.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_scramble.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_scramble.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
-    public static final DeferredItem<Item> QUICKHACK_OPTICMALFUNCTION = ITEMS.register("quickhack_opticmalfunction",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_opticmalfunction.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_opticmalfunction.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_opticmalfunction.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
-    public static final DeferredItem<Item> QUICKHACK_CYBERPSYCHOSIS = ITEMS.register("quickhack_cyberpsychosis",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_cyberpsychosis.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_cyberpsychosis.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_cyberpsychosis.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
-    public static final DeferredItem<Item> QUICKHACK_BEHINDYOU = ITEMS.register("quickhack_behindyou",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_behindyou.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_behindyou.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_behindyou.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
-    public static final DeferredItem<Item> QUICKHACK_DRAIN = ITEMS.register("quickhack_drain",
-            () -> new Item(new Item.Properties()) {
-                @Override
-                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_drain.desc").withStyle(ChatFormatting.GRAY));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_drain.desc2").withStyle(ChatFormatting.LIGHT_PURPLE));
-                    tooltipComponents.add(Component.translatable("item.createcybernetics.quickhack_drain.desc3").withStyle(ChatFormatting.AQUA));
-                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-                }});
 
     public static final DeferredItem<Item> NEUROPOZYNE_AUTOINJECTOR = ITEMS.register("neuropozyne_autoinjector",
             () -> new NeuropozyneAutoinjector(new Item.Properties().stacksTo(16)));
@@ -382,7 +326,16 @@ public class ModItems {
 
                     super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
                 }});
-
+    public static final DeferredItem<Item> DATA_SHARD_MICROPROGRAMS = ITEMS.register("data_shard_microprograms",
+            () -> new MicroprogramDataShardItem(new Item.Properties()
+                    .stacksTo(1)
+                    .component(ModDataComponents.MICROPROGRAM_LIBRARY.get(), MicroprogramLibrary.EMPTY)));
+    public static final DeferredItem<Item> DATA_SHARD_MICROPROGRAMS_CREATIVE = ITEMS.register("data_shard_microprograms_creative",
+            () -> new MicroprogramCreativeShardItem(new Item.Properties()
+                    .stacksTo(1)
+                    .component(ModDataComponents.MICROPROGRAM_LIBRARY.get(), MicroprogramCreativeShardItem.createFullLibrary())));
+    public static final DeferredItem<Item> QUICKHACK_SHARD = ITEMS.register("quickhack_shard",
+            () -> new QuickhackShardItem(new Item.Properties().stacksTo(1)));
 
 //TUTORIAL SHARDS
     public static final DeferredItem<Item> DATA_SHARD_INFOLOG_GETTING_STARTED = ITEMS.register("data_shard_infolog_getting_started",
@@ -894,6 +847,27 @@ public class ModItems {
             }
     );
 
+    public static final DeferredItem<Item> DATA_SHARD_INFOLOG_QUICKHACK_TUTORIAL = ITEMS.register("data_shard_infolog_quickhack_tutorial",
+            () -> new InfologDataShardItem(new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR,
+                    new DyedItemColor(0x94fc03f, false)),
+
+                    "item.createcybernetics.data_shard_infolog_quickhack_tutorial.title",
+                    "item.createcybernetics.data_shard_infolog_quickhack_tutorial.text",
+
+                    true
+            ) {
+                @Override
+                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+                    tooltipComponents.add(Component.translatable("item.createcybernetics.data_shard_infolog.desc"));
+
+                    Component key = com.perigrine3.createcybernetics.client.ModKeyMappings.INFOLOG.get().getTranslatedKeyMessage();
+                    tooltipComponents.add(Component.translatable("item.createcybernetics.data_shard_infolog.desc2", key));
+
+                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+                }
+            }
+    );
+
     public static final DeferredItem<Item> DATA_SHARD_INFOLOG_WAIT_YOUR_TURN = ITEMS.register("data_shard_infolog_wait_your_turn",
             () -> new InfologDataShardItem(new Item.Properties().stacksTo(1).component(DataComponents.DYED_COLOR,
                     new DyedItemColor(0x303030, false)),
@@ -1030,6 +1004,127 @@ public class ModItems {
                     super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
                 }
             });
+
+
+
+
+//MICROPROGRAMS
+    public static final DeferredItem<Item> MICROPROGRAM_SYSTEM_ALL = registerMicroprogram("microprogram_system_all", MicroprogramRegistry.SYSTEM_ALL);
+    public static final DeferredItem<Item> MICROPROGRAM_PROCESSOR = registerMicroprogram("microprogram_processor", MicroprogramRegistry.PROCESSOR);
+    public static final DeferredItem<Item> MICROPROGRAM_CYBEROPTICS = registerMicroprogram("microprogram_cyberoptics", MicroprogramRegistry.CYBEROPTICS);
+    public static final DeferredItem<Item> MICROPROGRAM_AUDITORY = registerMicroprogram("microprogram_auditory", MicroprogramRegistry.AUDITORY);
+    public static final DeferredItem<Item> MICROPROGRAM_MOTOR_CONTROL = registerMicroprogram("microprogram_motor_control", MicroprogramRegistry.MOTOR_CONTROL);
+    public static final DeferredItem<Item> MICROPROGRAM_ARMS = registerMicroprogram("microprogram_arms", MicroprogramRegistry.ARMS);
+    public static final DeferredItem<Item> MICROPROGRAM_LEGS = registerMicroprogram("microprogram_legs", MicroprogramRegistry.LEGS);
+    public static final DeferredItem<Item> MICROPROGRAM_INTERNAL_ORGANS = registerMicroprogram("microprogram_internal_organs", MicroprogramRegistry.INTERNAL_ORGANS);
+    public static final DeferredItem<Item> MICROPROGRAM_SKELETON = registerMicroprogram("microprogram_skeleton", MicroprogramRegistry.SKELETON);
+    public static final DeferredItem<Item> MICROPROGRAM_DERMAL = registerMicroprogram("microprogram_dermal", MicroprogramRegistry.DERMAL);
+    public static final DeferredItem<Item> MICROPROGRAM_POWER_SYSTEM = registerMicroprogram("microprogram_power_system", MicroprogramRegistry.POWER_SYSTEM);
+    public static final DeferredItem<Item> MICROPROGRAM_CYBERDECK = registerMicroprogram("microprogram_cyberdeck", MicroprogramRegistry.CYBERDECK);
+    public static final DeferredItem<Item> MICROPROGRAM_NEURAL_SYSTEM = registerMicroprogram("microprogram_neural_system", MicroprogramRegistry.NEURAL_SYSTEM);
+    public static final DeferredItem<Item> MICROPROGRAM_ACTIVE_CYBERWARE = registerMicroprogram("microprogram_active_cyberware", MicroprogramRegistry.ACTIVE_CYBERWARE);
+    public static final DeferredItem<Item> MICROPROGRAM_HIGHEST_DRAW = registerMicroprogram("microprogram_highest_draw", MicroprogramRegistry.HIGHEST_DRAW);
+    public static final DeferredItem<Item> MICROPROGRAM_RANDOM_IMPLANT = registerMicroprogram("microprogram_random_implant", MicroprogramRegistry.RANDOM_IMPLANT);
+
+    public static final DeferredItem<Item> MICROPROGRAM_REBOOT = registerMicroprogram("microprogram_reboot", MicroprogramRegistry.REBOOT);
+    public static final DeferredItem<Item> MICROPROGRAM_OVERCLOCK = registerMicroprogram("microprogram_overclock", MicroprogramRegistry.OVERCLOCK);
+    public static final DeferredItem<Item> MICROPROGRAM_DRAIN = registerMicroprogram("microprogram_drain", MicroprogramRegistry.DRAIN);
+    public static final DeferredItem<Item> MICROPROGRAM_SPIKE = registerMicroprogram("microprogram_spike", MicroprogramRegistry.SPIKE);
+    public static final DeferredItem<Item> MICROPROGRAM_BURNOUT = registerMicroprogram("microprogram_burnout", MicroprogramRegistry.BURNOUT);
+    public static final DeferredItem<Item> MICROPROGRAM_TOGGLE_OFF = registerMicroprogram("microprogram_toggle_off", MicroprogramRegistry.TOGGLE_OFF);
+    public static final DeferredItem<Item> MICROPROGRAM_TOGGLE_ON = registerMicroprogram("microprogram_toggle_on", MicroprogramRegistry.TOGGLE_ON);
+    public static final DeferredItem<Item> MICROPROGRAM_MALFUNCTION = registerMicroprogram("microprogram_malfunction", MicroprogramRegistry.MALFUNCTION);
+    public static final DeferredItem<Item> MICROPROGRAM_LOOP = registerMicroprogram("microprogram_loop", MicroprogramRegistry.LOOP);
+    public static final DeferredItem<Item> MICROPROGRAM_PING = registerMicroprogram("microprogram_ping", MicroprogramRegistry.PING);
+    public static final DeferredItem<Item> MICROPROGRAM_TRACE = registerMicroprogram("microprogram_trace", MicroprogramRegistry.TRACE);
+    public static final DeferredItem<Item> MICROPROGRAM_CORRUPT = registerMicroprogram("microprogram_corrupt", MicroprogramRegistry.CORRUPT);
+    public static final DeferredItem<Item> MICROPROGRAM_PURGE = registerMicroprogram("microprogram_purge", MicroprogramRegistry.PURGE);
+    public static final DeferredItem<Item> MICROPROGRAM_DESYNC = registerMicroprogram("microprogram_desync", MicroprogramRegistry.DESYNC);
+
+    public static final DeferredItem<Item> MICROPROGRAM_DURATION_PLUS = registerMicroprogram("microprogram_duration_plus", MicroprogramRegistry.DURATION_PLUS);
+    public static final DeferredItem<Item> MICROPROGRAM_DURATION_PLUS_PLUS = registerMicroprogram("microprogram_duration_plus_plus", MicroprogramRegistry.DURATION_PLUS_PLUS);
+    public static final DeferredItem<Item> MICROPROGRAM_INTENSITY_PLUS = registerMicroprogram("microprogram_intensity_plus", MicroprogramRegistry.INTENSITY_PLUS);
+    public static final DeferredItem<Item> MICROPROGRAM_EFFICIENCY = registerMicroprogram("microprogram_efficiency", MicroprogramRegistry.EFFICIENCY);
+    public static final DeferredItem<Item> MICROPROGRAM_DELAY = registerMicroprogram("microprogram_delay", MicroprogramRegistry.DELAY);
+    public static final DeferredItem<Item> MICROPROGRAM_REPEAT = registerMicroprogram("microprogram_repeat", MicroprogramRegistry.REPEAT);
+    public static final DeferredItem<Item> MICROPROGRAM_CASCADE = registerMicroprogram("microprogram_cascade", MicroprogramRegistry.CASCADE);
+    public static final DeferredItem<Item> MICROPROGRAM_SILENT = registerMicroprogram("microprogram_silent", MicroprogramRegistry.SILENT);
+    public static final DeferredItem<Item> MICROPROGRAM_PERSISTENT = registerMicroprogram("microprogram_persistent", MicroprogramRegistry.PERSISTENT);
+    public static final DeferredItem<Item> MICROPROGRAM_RANDOMIZE = registerMicroprogram("microprogram_randomize", MicroprogramRegistry.RANDOMIZE);
+    public static final DeferredItem<Item> MICROPROGRAM_CONTAGION = registerMicroprogram("microprogram_contagion", MicroprogramRegistry.CONTAGION);
+
+
+    //MACROPROGRAMS
+    public static final DeferredItem<Item> MACROPROGRAM_DATA_MINER = registerMacroprogram("macroprogram_data_miner", MacroprogramRegistry.DATA_MINER);
+    public static final DeferredItem<Item> MACROPROGRAM_SECURE_SHELL = registerMacroprogram("macroprogram_secure_shell", MacroprogramRegistry.SECURE_SHELL);
+    public static final DeferredItem<Item> MACROPROGRAM_BIT_CRUSHER = registerMacroprogram("macroprogram_bit_crusher", MacroprogramRegistry.BIT_CRUSHER);
+    public static final DeferredItem<Item> MACROPROGRAM_STACK_OVERFLOW = registerMacroprogram("macroprogram_stack_overflow", MacroprogramRegistry.STACK_OVERFLOW);
+    public static final DeferredItem<Item> MACROPROGRAM_ICEBREAKER = registerMacroprogram("macroprogram_icebreaker", MacroprogramRegistry.ICEBREAKER);
+    public static final DeferredItem<Item> MACROPROGRAM_PING = registerMacroprogram("macroprogram_ping", MacroprogramRegistry.PING);
+    public static final DeferredItem<Item> MACROPROGRAM_DDOS = registerMacroprogram("macroprogram_ddos", MacroprogramRegistry.DDOS);
+    public static final DeferredItem<Item> MACROPROGRAM_BANHAMMER = registerMacroprogram("macroprogram_banhammer", MacroprogramRegistry.BANHAMMER);
+    public static final DeferredItem<Item> MACROPROGRAM_FIREWALL = registerMacroprogram("macroprogram_firewall", MacroprogramRegistry.FIREWALL);
+    public static final DeferredItem<Item> MACROPROGRAM_BASIC_ARMOR = registerMacroprogram("macroprogram_basic_armor", MacroprogramRegistry.BASIC_ARMOR);
+    public static final DeferredItem<Item> MACROPROGRAM_INTERMEDIATE_ARMOR = registerMacroprogram("macroprogram_intermediate_armor", MacroprogramRegistry.INTERMEDIATE_ARMOR);
+    public static final DeferredItem<Item> MACROPROGRAM_ADVANCED_ARMOR = registerMacroprogram("macroprogram_advanced_armor", MacroprogramRegistry.ADVANCED_ARMOR);
+    public static final DeferredItem<Item> MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR = registerMacroprogram("macroprogram_administrator_access_armor", MacroprogramRegistry.ADMINISTRATOR_ACCESS_ARMOR);
+
+    public static final DeferredItem<Item> MACROPROGRAM_PACKET_SNIFFER = registerMacroprogram("macroprogram_packet_sniffer", MacroprogramRegistry.PACKET_SNIFFER);
+    public static final DeferredItem<Item> MACROPROGRAM_VPN_SHROUD = registerMacroprogram("macroprogram_vpn_shroud", MacroprogramRegistry.VPN_SHROUD);
+
+    //MATERIALIZED MACROPROGRAMS
+    public static final DeferredItem<Item> MATERIALIZED_DATA_MINER = ITEMS.register("materialized_data_miner",
+            () -> new MaterializedDataMinerItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_SECURE_SHELL = ITEMS.register("materialized_secure_shell",
+            () -> new MaterializedSecureShellItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_BIT_CRUSHER = ITEMS.register("materialized_bit_crusher",
+            () -> new MaterializedBitCrusherItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_STACK_OVERFLOW = ITEMS.register("materialized_stack_overflow",
+            () -> new MaterializedStackOverflowItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_ICEBREAKER = ITEMS.register("materialized_icebreaker",
+            () -> new MaterializedICEBreakerItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_PING = ITEMS.register("materialized_ping",
+            () -> new MaterializedPingItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_DDOS = ITEMS.register("materialized_ddos",
+            () -> new MaterializedDDoSItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_BANHAMMER = ITEMS.register("materialized_banhammer",
+            () -> new MaterializedBanHammerItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MATERIALIZED_FIREWALL = ITEMS.register("materialized_firewall",
+            () -> new MaterializedFirewallItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_RECOVERY = ITEMS.register("macroprogram_recovery",
+            () -> new MacroprogramItem(new Item.Properties().stacksTo(1), MacroprogramRegistry.RECOVERY));
+    public static final DeferredItem<Item> MACROPROGRAM_BASIC_ARMOR_HELMET = ITEMS.register("macroprogram_basic_armor_helmet",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.BASIC, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_BASIC_ARMOR_CHESTPLATE = ITEMS.register("macroprogram_basic_armor_chestplate",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.BASIC, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_BASIC_ARMOR_LEGGINGS = ITEMS.register("macroprogram_basic_armor_leggings",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.BASIC, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_BASIC_ARMOR_BOOTS = ITEMS.register("macroprogram_basic_armor_boots",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.BASIC, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_INTERMEDIATE_ARMOR_HELMET = ITEMS.register("macroprogram_intermediate_armor_helmet",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.INTERMEDIATE, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_INTERMEDIATE_ARMOR_CHESTPLATE = ITEMS.register("macroprogram_intermediate_armor_chestplate",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.INTERMEDIATE, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_INTERMEDIATE_ARMOR_LEGGINGS = ITEMS.register("macroprogram_intermediate_armor_leggings",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.INTERMEDIATE, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_INTERMEDIATE_ARMOR_BOOTS = ITEMS.register("macroprogram_intermediate_armor_boots",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.INTERMEDIATE, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADVANCED_ARMOR_HELMET = ITEMS.register("macroprogram_advanced_armor_helmet",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADVANCED, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADVANCED_ARMOR_CHESTPLATE = ITEMS.register("macroprogram_advanced_armor_chestplate",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADVANCED, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADVANCED_ARMOR_LEGGINGS = ITEMS.register("macroprogram_advanced_armor_leggings",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADVANCED, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADVANCED_ARMOR_BOOTS = ITEMS.register("macroprogram_advanced_armor_boots",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADVANCED, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR_HELMET = ITEMS.register("macroprogram_administrator_access_armor_helmet",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADMINISTRATOR_ACCESS, ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR_CHESTPLATE = ITEMS.register("macroprogram_administrator_access_armor_chestplate",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADMINISTRATOR_ACCESS, ArmorItem.Type.CHESTPLATE, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR_LEGGINGS = ITEMS.register("macroprogram_administrator_access_armor_leggings",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADMINISTRATOR_ACCESS, ArmorItem.Type.LEGGINGS, new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR_BOOTS = ITEMS.register("macroprogram_administrator_access_armor_boots",
+            () -> new MaterializedMacroprogramArmorItem(ModMacroprogramArmorMaterials.ADMINISTRATOR_ACCESS, ArmorItem.Type.BOOTS, new Item.Properties().stacksTo(1)));
 
 
 
@@ -2297,6 +2392,8 @@ public class ModItems {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberbrain.tooltip1"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brain_replacement"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberbrain.ram"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberbrain.ramregen"));
                 } else {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2312,6 +2409,7 @@ public class ModItems {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_eyeofdefender.tooltip1"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_eyeofdefender.tooltip2"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_eyeofdefender.ram"));
                 } else {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2356,6 +2454,8 @@ public class ModItems {
                 if (Screen.hasShiftDown()) {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_enderjammer.tooltip1"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_enderjammer.ram"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_enderjammer.ramregen"));
                 } else {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2401,6 +2501,8 @@ public class ModItems {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberdeck.tooltip1"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberdeck.tooltip2"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberdeck.ram"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_cyberdeck.ramregen"));
 
                     Component invKey = ModKeyMappings.CYBERDECK.get().getTranslatedKeyMessage();
                     Component wheelKey = ModKeyMappings.CYBERDECK_WHEEL.get().getTranslatedKeyMessage();
@@ -2436,6 +2538,8 @@ public class ModItems {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_chipwareslots.tooltip1"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_chipwareslots.tooltip2"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_chipwareslots.ram"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_chipwareslots.ramregen"));
                 } else {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2466,6 +2570,8 @@ public class ModItems {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_neuralprocessor.tooltip1"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_neuralprocessor.tooltip2"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_neuralprocessor.ram"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_neuralprocessor.ramregen"));
                     } else {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2480,6 +2586,8 @@ public class ModItems {
                     if (Screen.hasShiftDown()) {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_iceprotocol.tooltip1"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_iceprotocol.ram"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_iceprotocol.ramregen"));
                     } else {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2494,6 +2602,7 @@ public class ModItems {
                     if (Screen.hasShiftDown()) {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_coaxialport.tooltip1"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_coaxialport.ram"));
                     } else {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2509,6 +2618,8 @@ public class ModItems {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_kerenzikov.tooltip1"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_kerenzikov.tooltip2"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_kerenzikov.ram"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_kerenzikov.ramregen"));
                     } else {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2525,6 +2636,26 @@ public class ModItems {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_berserk.tooltip1"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_berserk.tooltip2"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_berserk.tooltip3"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_berserk.ram"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_berserk.ramregen"));
+                    } else {
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
+                    }
+                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+                }
+            });
+    public static final DeferredItem<Item> BRAINUPGRADES_RAMDECK = ITEMS.register("brainupgrades_ramdeck",
+        () -> new RamdeckItem(new Item.Properties().stacksTo(16), 16) {
+                @Override
+                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+                    if (Screen.hasShiftDown()) {
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_ramdeck.tooltip1"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_ramdeck.tooltip2"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_ramdeck.tooltip3"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_ramdeck.ram"));
+                        tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrades_ramdeck.ramregen"));
                     } else {
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.brainupgrade_tooltip"));
                         tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -2813,6 +2944,20 @@ public class ModItems {
                 if (Screen.hasShiftDown()) {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.organsupgrades_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.organsupgrade_densebattery.tooltip1"));
+                } else {
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.organsupgrades_tooltip"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
+                }
+                super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+            }
+        });
+    public static final DeferredItem<Item> ORGANSUPGRADES_CREATIVEBATTERY = ITEMS.register("organsupgrade_creativebattery",
+        () -> new CreativeBatteryItem(new Item.Properties().stacksTo(16), 0) {
+            @Override
+            public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+                if (Screen.hasShiftDown()) {
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.organsupgrades_tooltip"));
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.organsupgrade_creativebattery.tooltip1"));
                 } else {
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.organsupgrades_tooltip"));
                     tooltipComponents.add(Component.translatable("tooltip.createcybernetics.hold_shift_down"));
@@ -3911,6 +4056,14 @@ public class ModItems {
                     super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
                 }
             });
+    public static final DeferredItem<Item> SCAVENGED_RAMDECK = ITEMS.register("scavenged_ramdeck",
+            () -> new Item(new Item.Properties().stacksTo(64)) {
+                @Override
+                public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+                    tooltipComponents.add(Component.translatable("tooltip.createcybernetics.scavenged_tooltip"));
+                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+                }
+            });
     public static final DeferredItem<Item> SCAVENGED_SPELLJAMMER = registerIfLoaded("irons_spellbooks", "scavenged_spelljammer",
             () -> new Item(new Item.Properties().stacksTo(64)) {
                 @Override
@@ -4247,6 +4400,14 @@ public class ModItems {
             return ModItems.ITEMS.register(name, supplier);
         }
         return null;
+    }
+
+    private static DeferredItem<Item> registerMicroprogram(String name, MicroprogramDefinition definition) {
+        return ITEMS.register(name, () -> new MicroprogramItem(new Item.Properties().stacksTo(1), definition));
+    }
+
+    private static DeferredItem<Item> registerMacroprogram(String name, MacroprogramDefinition definition) {
+        return ITEMS.register(name, () -> new MacroprogramItem(new Item.Properties().stacksTo(1), definition));
     }
 
     private static Supplier<Item> registerIronsSpellbooksItem(String name, Supplier<Item> supplier) {

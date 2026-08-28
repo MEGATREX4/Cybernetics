@@ -211,8 +211,8 @@ public class JEICyberneticsPlugin implements IModPlugin {
 
         registration.addRecipeClickArea(
                 EngineeringTableScreen.class,
-                17, 58,
-                38, 92,
+                15, 79,
+                35, 17,
                 EngineeringDeconstructRecipeCategory.ENGINEERING_DECONSTRUCT_RECIPE_TYPE
         );
 

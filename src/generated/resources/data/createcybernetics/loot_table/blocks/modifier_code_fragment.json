@@ -1,0 +1,74 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "createcybernetics:materialized_data_miner"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_delay",
+          "weight": 36
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_efficiency",
+          "weight": 32
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_silent",
+          "weight": 28
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_randomize",
+          "weight": 24
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_repeat",
+          "weight": 16
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_duration_plus",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_intensity_plus",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_cascade",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_contagion",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_duration_plus_plus",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_persistent"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "createcybernetics:blocks/modifier_code_fragment"
+}

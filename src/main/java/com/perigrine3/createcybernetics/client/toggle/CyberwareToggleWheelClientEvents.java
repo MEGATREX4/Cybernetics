@@ -3,7 +3,9 @@ package com.perigrine3.createcybernetics.client.toggle;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.client.ModKeyMappings;
+import com.perigrine3.createcybernetics.screen.custom.cyberdeck.MacroprogramWheelScreen;
 import com.perigrine3.createcybernetics.screen.custom.toggle_wheel.CyberwareToggleWheelScreen;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -21,15 +23,35 @@ public final class CyberwareToggleWheelClientEvents {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        if (ModKeyMappings.CYBERWARE_WHEEL.get().consumeClick()) {
+        boolean inCyberspace = mc.player.level().dimension().equals(ModDimensions.CYBERSPACE_LEVEL);
+
+        if (inCyberspace) {
             if (CyberwareToggleWheelScreen.isWheelOpen()) {
                 CyberwareToggleWheelScreen.closeWheel();
-            } else {
-                mc.setScreen(new CyberwareToggleWheelScreen());
+            }
+
+            if (ModKeyMappings.CYBERWARE_WHEEL.get().consumeClick()) {
+                if (MacroprogramWheelScreen.isWheelOpen()) {
+                    MacroprogramWheelScreen.closeWheel();
+                } else {
+                    mc.setScreen(new MacroprogramWheelScreen());
+                }
+            }
+        } else {
+            if (MacroprogramWheelScreen.isWheelOpen()) {
+                MacroprogramWheelScreen.closeWheel();
+            }
+
+            if (ModKeyMappings.CYBERWARE_WHEEL.get().consumeClick()) {
+                if (CyberwareToggleWheelScreen.isWheelOpen()) {
+                    CyberwareToggleWheelScreen.closeWheel();
+                } else {
+                    mc.setScreen(new CyberwareToggleWheelScreen());
+                }
             }
         }
 
-        if (CyberwareToggleWheelScreen.isWheelOpen()) {
+        if (CyberwareToggleWheelScreen.isWheelOpen() || MacroprogramWheelScreen.isWheelOpen()) {
             passthroughMovement(mc);
         }
     }

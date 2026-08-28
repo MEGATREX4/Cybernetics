@@ -5,6 +5,7 @@ import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.api.*;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.damage.ModDamageTypes;
 import com.perigrine3.createcybernetics.item.ModItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
@@ -38,8 +39,14 @@ public final class CyberwareDurabilityEvents {
         if (healthDamage <= 0.0F) return;
 
         PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
-        CyberwareDegradationCause cause = resolveCause(event);
         int baseDamage = Math.max(1, Mth.ceil(healthDamage * ConfigValues.DURABILITY_DAMAGE_SCALE));
+
+        if (event.getSource().is(ModDamageTypes.BRAIN_DAMAGE)) {
+            damageBrainCyberware(player, data, baseDamage);
+            return;
+        }
+
+        CyberwareDegradationCause cause = resolveCause(event);
 
         applyIncomingDamage(player, data, cause, baseDamage);
     }
@@ -87,6 +94,24 @@ public final class CyberwareDurabilityEvents {
         if (event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) return CyberwareDegradationCause.MAGIC;
 
         return event.getSource().getEntity() != null ? CyberwareDegradationCause.MELEE_DAMAGE : CyberwareDegradationCause.GENERAL_DAMAGE;
+    }
+
+    private static void damageBrainCyberware(ServerPlayer player, PlayerCyberwareData data, int amount) {
+        if (data == null) return;
+        if (amount <= 0) return;
+
+        InstalledCyberware[] brain = data.getAll().get(CyberwareSlot.BRAIN);
+        if (brain == null) return;
+
+        for (InstalledCyberware installed : brain) {
+            if (installed == null) continue;
+
+            ItemStack stack = installed.getItem();
+            if (stack == null || stack.isEmpty()) continue;
+            if (!CyberwareDurabilityManager.usesDurability(installed)) continue;
+
+            CyberwareDurabilityManager.damage(player, data, installed, CyberwareDegradationCause.BRAIN_DAMAGE, amount);
+        }
     }
 
     private static void applyIncomingDamage(ServerPlayer player, PlayerCyberwareData data, CyberwareDegradationCause cause, int baseDamage) {

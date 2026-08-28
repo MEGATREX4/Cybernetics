@@ -50,7 +50,10 @@ public record SharedNavigationWaypointUploadPayload(UUID networkId, String id, S
             if (!payload.waypointType().equals("BANNER") && !payload.waypointType().equals("MAP_BANNER") && !payload.waypointType().equals("EXPLORER")) return;
 
             SharedNavigationMapData data = SharedNavigationMapData.get(player.getServer());
-            data.mergeWaypoint(payload.networkId(), new SharedNavigationMapData.SharedWaypoint(payload.id(), payload.dimension(), payload.x(), payload.y(), payload.z(), payload.name(), payload.color(), payload.waypointType()));
+
+            if (data.mergeWaypoint(payload.networkId(), new SharedNavigationMapData.SharedWaypoint(payload.id(), payload.dimension(), payload.x(), payload.y(), payload.z(), payload.name(), payload.color(), payload.waypointType()))) {
+                SharedNavigationServerManager.broadcastWaypointUpdate(player.getServer(), payload.networkId(), payload.id());
+            }
         });
     }
 }

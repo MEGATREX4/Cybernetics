@@ -31,6 +31,9 @@ public class ModEntities {
             ENTITY_TYPES.register("emp_grenade_projectile", () -> EntityType.Builder.<EmpGrenadeProjectile>of(EmpGrenadeProjectile::new, MobCategory.MISC)
                     .sized(0.25f, 0.25f).clientTrackingRange(8).updateInterval(10).build("emp_grenade_projectile"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<JackedInPlayerBodyEntity>> JACKED_IN_PLAYER_BODY =
+            ENTITY_TYPES.register("jacked_in_player_body", () -> EntityType.Builder.of(JackedInPlayerBodyEntity::new, MobCategory.CREATURE).sized(0.6F, 1.8F).clientTrackingRange(10).updateInterval(2).build("jacked_in_player_body"));
+
     public static final DeferredHolder<EntityType<?>, EntityType<RipperEntity>> RIPPER =
             ENTITY_TYPES.register("ripper", () -> EntityType.Builder.of(RipperEntity::new, MobCategory.CREATURE)
                     .sized(0.6F, 1.95F).clientTrackingRange(8).build("ripper"));

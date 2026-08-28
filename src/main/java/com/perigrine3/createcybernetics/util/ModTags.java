@@ -43,12 +43,16 @@ public class ModTags {
         public static final TagKey<Item> ENERGY_GENERATING_CYBERWARE = createTag("energy_generating_cyberware");
         public static final TagKey<Item> ARM_CANNON_AMMO = createTag("arm_cannon_ammo");
         public static final TagKey<Item> MANTIS_BLADES = createTag("mantis_blades");
+
         public static final TagKey<Item> DATA_SHARDS = createTag("data_shards");
         public static final TagKey<Item> SKILL_SHARDS = createTag("skill_shards");
         public static final TagKey<Item> TUTORIAL_SHARDS = createTag("tutorial_shards");
         public static final TagKey<Item> LORE_SHARDS = createTag("lore_shards");
         public static final TagKey<Item> GAME_SHARDS = createTag("game_shards");
         public static final TagKey<Item> QUICKHACK_SHARDS = createTag("quickhack_shards");
+        public static final TagKey<Item> MICROPROGRAM_SHARDS = createTag("microprogram_shards");
+        public static final TagKey<Item> MACROPROGRAMS = createTag("macroprograms");
+
         public static final TagKey<Item> GRAPHENE = createTag("graphene");
 
         public static final TagKey<Item> COMPONENT_ITEM = createTag("component_item");

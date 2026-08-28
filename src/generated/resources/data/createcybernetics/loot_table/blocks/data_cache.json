@@ -1,0 +1,4 @@
+{
+  "type": "minecraft:block",
+  "random_sequence": "createcybernetics:blocks/data_cache"
+}

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "createcybernetics:block/data_cache"
+    }
+  }
+}

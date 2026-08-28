@@ -2,10 +2,17 @@ package com.perigrine3.createcybernetics.network;
 
 import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
+import com.perigrine3.createcybernetics.client.BreachProtocolClientHandler;
+import com.perigrine3.createcybernetics.client.IceDetectionClientState;
+import com.perigrine3.createcybernetics.client.MacroprogramClientRuntimeState;
 import com.perigrine3.createcybernetics.client.render.CyberentitySandevistanMirageTrail;
 import com.perigrine3.createcybernetics.client.render.SandevistanMirageTrail;
+import com.perigrine3.createcybernetics.common.breach.BreachProtocolManager;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.macroprogram.MacroprogramExecutionManager;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackRuntimeManager;
+import com.perigrine3.createcybernetics.cyberspace.CyberspaceTravelManager;
 import com.perigrine3.createcybernetics.effect.*;
 import com.perigrine3.createcybernetics.event.custom.SandevistanSnapshotRelay;
 import com.perigrine3.createcybernetics.network.handler.*;
@@ -204,10 +211,20 @@ public final class ModPayloads {
                 CastCyberdeckQuickhackHandler::handle
         );
 
+        r.playToServer(
+                ExecuteMacroprogramPayload.TYPE,
+                ExecuteMacroprogramPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> {
+                    if (ctx.player() instanceof ServerPlayer player) {
+                        MacroprogramExecutionManager.execute(player, payload.slot());
+                    }
+                })
+        );
+
         r.playToClient(
-                BehindYouSoundPayload.TYPE,
-                BehindYouSoundPayload.STREAM_CODEC,
-                (payload, ctx) -> ctx.enqueueWork(() -> BehindYouSoundPayload.handle(payload))
+                MacroprogramRuntimeSyncPayload.TYPE,
+                MacroprogramRuntimeSyncPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> MacroprogramClientRuntimeState.handle(payload))
         );
 
         r.playToServer(
@@ -324,6 +341,68 @@ public final class ModPayloads {
                 CybereyeIrisSyncS2CPayload.TYPE,
                 CybereyeIrisSyncS2CPayload.STREAM_CODEC,
                 (payload, ctx) -> ctx.enqueueWork(() -> CybereyeIrisSyncS2CPayload.handle(payload))
+        );
+
+        // ---------------- CYBERSPACE COLOR SYNC ----------------
+
+        r.playToServer(
+                CyberspaceColorSyncC2SPayload.TYPE,
+                CyberspaceColorSyncC2SPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> {
+                    if (ctx.player() instanceof ServerPlayer sp) {
+                        CyberspaceColorSyncC2SPayload.handle(payload, sp);
+                    }
+                })
+        );
+
+        r.playToClient(
+                CyberspaceColorSyncS2CPayload.TYPE,
+                CyberspaceColorSyncS2CPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> CyberspaceColorSyncS2CPayload.handle(payload))
+        );
+
+        r.playToClient(
+                IceDetectionSyncPayload.TYPE,
+                IceDetectionSyncPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> IceDetectionClientState.handle(payload))
+        );
+
+        r.playToClient(
+                BreachProtocolPayloads.OpenPayload.TYPE,
+                BreachProtocolPayloads.OpenPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> BreachProtocolClientHandler.open(payload))
+        );
+
+        r.playToClient(
+                BreachProtocolPayloads.StatePayload.TYPE,
+                BreachProtocolPayloads.StatePayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> BreachProtocolClientHandler.update(payload))
+        );
+
+        r.playToClient(
+                BreachProtocolPayloads.ClosePayload.TYPE,
+                BreachProtocolPayloads.ClosePayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> BreachProtocolClientHandler.close(payload))
+        );
+
+        r.playToServer(
+                BreachProtocolPayloads.SelectPayload.TYPE,
+                BreachProtocolPayloads.SelectPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> {
+                    if (ctx.player() instanceof ServerPlayer player) {
+                        BreachProtocolManager.handleSelect(player, payload);
+                    }
+                })
+        );
+
+        r.playToServer(
+                BreachProtocolPayloads.CancelPayload.TYPE,
+                BreachProtocolPayloads.CancelPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> {
+                    if (ctx.player() instanceof ServerPlayer player) {
+                        BreachProtocolManager.handleCancel(player, payload);
+                    }
+                })
         );
 
         r.playToServer(
@@ -472,8 +551,8 @@ public final class ModPayloads {
                     if (stack == null || stack.isEmpty()) return;
                     if (!stack.is(ModTags.Items.TOGGLEABLE_CYBERWARE)) return;
 
-                    boolean nowEnabled = data.toggleEnabled(slot, index);
-                    PacketDistributor.sendToPlayer(sp, new CyberwareEnabledStatePayload(slot.name(), index, nowEnabled));
+                    boolean nextEnabled = !data.isEnabled(slot, index);
+                    QuickhackRuntimeManager.requestPlayerToggle(sp, data, slot, index, nextEnabled);
                 })
         );
 
@@ -481,6 +560,54 @@ public final class ModPayloads {
                 CyberwareEnabledStatePayload.TYPE,
                 CyberwareEnabledStatePayload.STREAM_CODEC,
                 (payload, ctx) -> ctx.enqueueWork(() -> CyberwareEnabledStatePayload.handle(payload, ctx))
+        );
+
+        r.playToServer(
+                CyberspaceJackOutHoldPayload.TYPE,
+                CyberspaceJackOutHoldPayload.STREAM_CODEC,
+                CyberspaceJackOutHoldPayload::handle
+        );
+
+        r.playToServer(
+                CyberspaceUnsafeJackOutHoldPayload.TYPE,
+                CyberspaceUnsafeJackOutHoldPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> {
+                    if (ctx.player() instanceof ServerPlayer sp) {
+                        CyberspaceTravelManager.handleUnsafeJackOutHold(sp, payload.held());
+                    }
+                })
+        );
+
+        r.playToServer(
+                ServerTowerJackInHoldPayload.TYPE,
+                ServerTowerJackInHoldPayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> {
+                    if (ctx.player() instanceof ServerPlayer sp) {
+                        CyberspaceTravelManager.handleJackInHold(sp, payload.held());
+                    }
+                })
+        );
+
+        r.playToClient(
+                CyberspaceProgressPayload.TYPE,
+                CyberspaceProgressPayload.STREAM_CODEC,
+                CyberspaceProgressPayload::handle
+        );
+
+        r.playToClient(
+                QuickhackClientStatePayload.TYPE,
+                QuickhackClientStatePayload.STREAM_CODEC,
+                (payload, ctx) -> ctx.enqueueWork(() -> QuickhackClientStatePayload.handle(payload))
+        );
+
+        r.playToServer(
+                QuickhackSaveProgramPayload.TYPE,
+                QuickhackSaveProgramPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (context.player() instanceof ServerPlayer player) {
+                        QuickhackSaveProgramHandler.handle(payload, player);
+                    }
+                })
         );
 
         r.playToClient(

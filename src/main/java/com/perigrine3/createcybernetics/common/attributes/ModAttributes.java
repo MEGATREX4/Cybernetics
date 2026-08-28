@@ -19,6 +19,13 @@ public final class ModAttributes {
     public static final DeferredHolder<Attribute, Attribute> HUMANITY =
             ATTRIBUTES.register("humanity", () -> new RangedAttribute("attribute." + CreateCybernetics.MODID + ".humanity",
                     100.0D, -1000.0D, 1000.0D).setSyncable(true));
+    public static final DeferredHolder<Attribute, Attribute> RAM =
+            ATTRIBUTES.register("ram", () -> new RangedAttribute("attribute." + CreateCybernetics.MODID + ".ram",
+                    0.0D, 0.0D, 200.0D).setSyncable(true));
+    public static final DeferredHolder<Attribute, Attribute> RAM_REGEN =
+            ATTRIBUTES.register("ram_regen", () -> new RangedAttribute("attribute." + CreateCybernetics.MODID + ".ram_regen",
+                    1.0D, 0.0D, 10.0D).setSyncable(true));
+
 
     public static final DeferredHolder<Attribute, Attribute> XP_GAIN_MULTIPLIER =
             ATTRIBUTES.register("xp_gain_multiplier", () -> new RangedAttribute("attribute." + CreateCybernetics.MODID + ".xp_gain_multiplier",

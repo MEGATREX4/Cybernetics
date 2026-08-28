@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "createcybernetics:block/server_tower",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "createcybernetics:block/server_tower"
+    },
+    "facing=south": {
+      "model": "createcybernetics:block/server_tower",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "createcybernetics:block/server_tower",
+      "y": 270
+    }
+  }
+}

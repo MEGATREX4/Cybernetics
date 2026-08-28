@@ -4,15 +4,16 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
-import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.item.generic.InfologDataShardItem;
 import com.perigrine3.createcybernetics.item.generic.InfologTextData;
 import com.perigrine3.createcybernetics.network.payload.*;
 import com.perigrine3.createcybernetics.screen.custom.arm_cannon.ArmCannonWheelScreen;
+import com.perigrine3.createcybernetics.screen.custom.chipware.InfologEditScreen;
 import com.perigrine3.createcybernetics.screen.custom.chipware.InfologReadScreen;
 import com.perigrine3.createcybernetics.screen.custom.cyberdeck.CyberdeckQuickhackWheelScreen;
+import com.perigrine3.createcybernetics.screen.custom.cyberdeck.MacroprogramWheelScreen;
 import com.perigrine3.createcybernetics.screen.custom.toggle_wheel.CyberwareToggleWheelScreen;
-import com.perigrine3.createcybernetics.screen.custom.chipware.InfologEditScreen;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -27,10 +28,28 @@ import org.lwjgl.glfw.GLFW;
 public final class KeybindClientHandler {
     private KeybindClientHandler() {}
 
+    private static boolean wasUnsafeJackOutHeld;
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
+
+        boolean inCyberspace = mc.player.level().dimension().equals(ModDimensions.CYBERSPACE_LEVEL);
+
+        if (inCyberspace) {
+            drainCyberwareKeybinds();
+            handleMacroprogramWheel(mc);
+            handleCyberdeckKey(mc);
+            handleCyberdeckQuickhackWheel(mc);
+            handleUnsafeJackOutKey(mc);
+            return;
+        }
+
+        if (wasUnsafeJackOutHeld) {
+            PacketDistributor.sendToServer(new CyberspaceUnsafeJackOutHoldPayload(false));
+            wasUnsafeJackOutHeld = false;
+        }
 
         while (ModKeyMappings.CYBERWARE_WHEEL.get().consumeClick()) {
             if (CyberwareToggleWheelScreen.isWheelOpen()) {
@@ -48,11 +67,9 @@ public final class KeybindClientHandler {
             } else {
                 ArmCannonWheelScreen.open(4);
 
-                if (mc.player != null && mc.player.hasData(ModAttachments.CYBERWARE)) {
+                if (mc.player.hasData(ModAttachments.CYBERWARE)) {
                     PlayerCyberwareData data = mc.player.getData(ModAttachments.CYBERWARE);
-                    if (data != null) {
-                        ArmCannonWheelScreen.setPreselectedIndex(data.getArmCannonSelected());
-                    }
+                    ArmCannonWheelScreen.setPreselectedIndex(data.getArmCannonSelected());
                 }
 
                 mc.setScreen(new ArmCannonWheelScreen());
@@ -64,6 +81,7 @@ public final class KeybindClientHandler {
             OpenSpinalInjectorPayload payload = new OpenSpinalInjectorPayload();
             PacketDistributor.sendToServer(payload);
         }
+
         while (ModKeyMappings.ARM_CANNON.get().consumeClick()) {
             if (mc.screen != null) continue;
             OpenArmCannonPayload payload = new OpenArmCannonPayload();
@@ -76,23 +94,11 @@ public final class KeybindClientHandler {
             PacketDistributor.sendToServer(payload);
         }
 
-        while (ModKeyMappings.CYBERDECK.get().consumeClick()) {
-            if (mc.screen != null) continue;
-            PacketDistributor.sendToServer(new OpenCyberdeckPayload());
-        }
-
-        while (ModKeyMappings.CYBERDECK_WHEEL.get().consumeClick()) {
-            if (CyberdeckQuickhackWheelScreen.isOpen()) {
-                CyberdeckQuickhackWheelScreen.close();
-                if (mc.screen != null) mc.setScreen(null);
-            } else {
-                mc.setScreen(new CyberdeckQuickhackWheelScreen());
-            }
-        }
+        handleCyberdeckKey(mc);
+        handleCyberdeckQuickhackWheel(mc);
 
         while (ModKeyMappings.INFOLOG.get().consumeClick()) {
             if (mc.screen != null) continue;
-            if (mc.player == null) continue;
             if (!mc.player.hasData(ModAttachments.CYBERWARE)) continue;
 
             PlayerCyberwareData data = mc.player.getData(ModAttachments.CYBERWARE);
@@ -132,6 +138,55 @@ public final class KeybindClientHandler {
         }
     }
 
+    private static void handleMacroprogramWheel(Minecraft mc) {
+        while (ModKeyMappings.CYBERWARE_WHEEL.get().consumeClick()) {
+            if (MacroprogramWheelScreen.isWheelOpen()) {
+                MacroprogramWheelScreen.closeWheel();
+                if (mc.screen != null) mc.setScreen(null);
+            } else {
+                mc.setScreen(new MacroprogramWheelScreen());
+            }
+        }
+    }
+
+    private static void handleCyberdeckKey(Minecraft mc) {
+        while (ModKeyMappings.CYBERDECK.get().consumeClick()) {
+            if (mc.screen != null) continue;
+            PacketDistributor.sendToServer(new OpenCyberdeckPayload());
+        }
+    }
+
+    private static void handleCyberdeckQuickhackWheel(Minecraft mc) {
+        while (ModKeyMappings.CYBERDECK_WHEEL.get().consumeClick()) {
+            if (CyberdeckQuickhackWheelScreen.isOpen()) {
+                CyberdeckQuickhackWheelScreen.close();
+                if (mc.screen != null) mc.setScreen(null);
+            } else {
+                mc.setScreen(new CyberdeckQuickhackWheelScreen());
+            }
+        }
+    }
+
+    private static void handleUnsafeJackOutKey(Minecraft mc) {
+        boolean held = mc.screen == null && ModKeyMappings.UNSAFE_JACK_OUT.get().isDown();
+
+        if (held) {
+            PacketDistributor.sendToServer(new CyberspaceUnsafeJackOutHoldPayload(true));
+        } else if (wasUnsafeJackOutHeld) {
+            PacketDistributor.sendToServer(new CyberspaceUnsafeJackOutHoldPayload(false));
+        }
+
+        wasUnsafeJackOutHeld = held;
+    }
+
+    private static void drainCyberwareKeybinds() {
+        while (ModKeyMappings.SPINAL_INJECTOR.get().consumeClick()) {}
+        while (ModKeyMappings.ARM_CANNON.get().consumeClick()) {}
+        while (ModKeyMappings.ARM_CANNON_WHEEL.get().consumeClick()) {}
+        while (ModKeyMappings.HEAT_ENGINE.get().consumeClick()) {}
+        while (ModKeyMappings.INFOLOG.get().consumeClick()) {}
+    }
+
     private static void passthroughMovementKeys(Minecraft mc) {
         passthrough(mc, mc.options.keyUp);
         passthrough(mc, mc.options.keyDown);
@@ -139,7 +194,7 @@ public final class KeybindClientHandler {
         passthrough(mc, mc.options.keyRight);
         passthrough(mc, mc.options.keyJump);
         passthrough(mc, mc.options.keySprint);
-        passthrough(mc, mc.options.keyShift); // crouch
+        passthrough(mc, mc.options.keyShift);
     }
 
     private static void passthrough(Minecraft mc, KeyMapping key) {

@@ -1,7 +1,6 @@
 package com.perigrine3.createcybernetics.effect;
 
 import com.perigrine3.createcybernetics.CreateCybernetics;
-import com.perigrine3.createcybernetics.effect.quickhacks.*;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +27,8 @@ public class ModEffects {
         public static final Holder<MobEffect> EMP = MOB_EFFECTS.register("emp_effect",
                 () -> new EmpEffect()
                         .addAttributeModifier(Attributes.MOVEMENT_SPEED, ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "emp_speed"), 0.0D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        public static final Holder<MobEffect> SYNAPSE_BURNOUT = MOB_EFFECTS.register("synapse_burnout",
+                () -> new SynapseBurnoutEffect(MobEffectCategory.HARMFUL, 0x00D9FF));
 
         public static final Holder<MobEffect> SYNTHETIC_SETULES_EFFECT = MOB_EFFECTS.register("synthetic_setules_effect",
                 () -> new SyntheticSetulesEffect(MobEffectCategory.NEUTRAL, 0x000000)
@@ -74,23 +75,6 @@ public class ModEffects {
                         .addAttributeModifier(Attributes.MAX_HEALTH, ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "sculked_effect"), 0, AttributeModifier.Operation.ADD_VALUE));
 
 
-
-
-        //QUICKHACKS
-        public static final Holder<MobEffect> OVERHEAT_HACK = MOB_EFFECTS.register("overheat_hack",
-                OverheatQuickhackEffect::new);
-        public static final Holder<MobEffect> REBOOT_HACK = MOB_EFFECTS.register("reboot_hack",
-                RebootQuickhackEffect::new);
-        public static final Holder<MobEffect> SCRAMBLE_HACK = MOB_EFFECTS.register("scramble_hack",
-                ScrambleQuickhackEffect::new);
-        public static final Holder<MobEffect> OPTICMALFUNCTION_HACK = MOB_EFFECTS.register("opticmalfunction_hack",
-                OpticMalfunctionQuickhackEffect::new);
-        public static final Holder<MobEffect> CYBERPSYCHOSIS_HACK = MOB_EFFECTS.register("cyberpsychosis_hack",
-                CyberpsychosisQuickhackEffect::new);
-        public static final Holder<MobEffect> BEHINDYOU_HACK = MOB_EFFECTS.register("behindyou_hack",
-                BehindYouQuickhackEffect::new);
-        public static final Holder<MobEffect> DRAIN_HACK = MOB_EFFECTS.register("drain_hack",
-                DrainQuickhackEffect::new);
 
 
     public static void register(IEventBus eventBus) {

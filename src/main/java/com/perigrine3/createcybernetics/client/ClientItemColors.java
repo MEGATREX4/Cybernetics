@@ -43,6 +43,8 @@ public final class ClientItemColors {
                 },
 
             //DYEABLE ITEMS
+                ModItems.DATA_SHARD_MICROPROGRAMS.get(),
+                ModItems.QUICKHACK_SHARD.get(),
                 ModItems.DATA_SHARD_SHARED_NAVIGATION.get(),
                 ModItems.DATA_SHARD_INFOLOG.get(),
                 ModItems.DATA_SHARD_INFOLOG_GETTING_STARTED.get(),
@@ -53,6 +55,7 @@ public final class ClientItemColors {
                 ModItems.DATA_SHARD_INFOLOG_CYBERDECK.get(),
                 ModItems.DATA_SHARD_INFOLOG_HARVESTER_ENCHANTMENT.get(),
                 ModItems.DATA_SHARD_INFOLOG_DATURA.get(),
+                ModItems.DATA_SHARD_INFOLOG_QUICKHACK_TUTORIAL.get(),
 
                 ModItems.BASECYBERWARE_LEFTARM.get(),
                 ModItems.BASECYBERWARE_RIGHTARM.get(),

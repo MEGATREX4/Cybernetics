@@ -138,6 +138,64 @@ public final class CyberwareToggleController {
         return out;
     }
 
+    public static void forceAllToggleablesInactiveForCyberspace(ServerPlayer player) {
+        if (player == null || !player.hasData(ModAttachments.CYBERWARE)) {
+            return;
+        }
+
+        PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+        if (data == null) {
+            return;
+        }
+
+        boolean changed = false;
+
+        for (Map.Entry<CyberwareSlot, InstalledCyberware[]> entry : data.getAll().entrySet()) {
+            CyberwareSlot slot = entry.getKey();
+            InstalledCyberware[] arr = entry.getValue();
+
+            if (slot == null || arr == null) {
+                continue;
+            }
+
+            for (int i = 0; i < arr.length; i++) {
+                InstalledCyberware cw = arr[i];
+                if (cw == null) {
+                    continue;
+                }
+
+                ItemStack stack = cw.getItem();
+                if (stack == null || stack.isEmpty()) {
+                    continue;
+                }
+
+                if (!stack.is(ModTags.Items.TOGGLEABLE_CYBERWARE)) {
+                    continue;
+                }
+
+                ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                if (id == null) {
+                    continue;
+                }
+
+                if (data.isEnabled(slot, i)) {
+                    data.setEnabled(slot, i, false);
+                    changed = true;
+                }
+
+                if (isActive(player, id)) {
+                    setActive(player, id, false);
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            data.setDirty();
+            player.syncData(ModAttachments.CYBERWARE);
+        }
+    }
+
     public static boolean isExcludedFromFugueForceToggle(ResourceLocation id) {
         return id != null && FUGUE_FORCE_TOGGLE_EXCLUDED.contains(id);
     }

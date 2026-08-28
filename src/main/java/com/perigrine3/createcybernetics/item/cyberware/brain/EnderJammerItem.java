@@ -10,6 +10,7 @@ import com.perigrine3.createcybernetics.common.capabilities.ModMobAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.common.command.CommandTeleportContext;
 import com.perigrine3.createcybernetics.item.ModItems;
+import com.perigrine3.createcybernetics.util.CyberwareAttributeHelper;
 import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
@@ -98,6 +99,18 @@ public class EnderJammerItem extends Item implements ICyberwareItem {
     @Override
     public Set<CyberwareSlot> getReplacedOrgans() {
         return Set.of();
+    }
+
+    @Override
+    public void onInstalled(LivingEntity entity) {
+        CyberwareAttributeHelper.applyModifier(entity, "enderjammer_ram");
+        CyberwareAttributeHelper.applyModifier(entity, "enderjammer_ram_regen");
+    }
+
+    @Override
+    public void onRemoved(LivingEntity entity) {
+        CyberwareAttributeHelper.removeModifier(entity, "eyeofdedender_ram");
+        CyberwareAttributeHelper.removeModifier(entity, "enderjammer_ram_regen");
     }
 
     private static boolean hasEnderJammerInstalledAndPowered(ServerPlayer player) {

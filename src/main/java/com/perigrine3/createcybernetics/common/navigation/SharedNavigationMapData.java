@@ -176,6 +176,26 @@ public final class SharedNavigationMapData extends SavedData {
         return new ArrayList<>(network.tiles.values());
     }
 
+    public SharedTile getTile(UUID networkId, String dimension, int tileX, int tileZ) {
+        NetworkData network = networks.get(resolveNetworkId(networkId));
+
+        if (network == null || dimension == null) {
+            return null;
+        }
+
+        return network.tiles.get(tileKey(dimension, tileX, tileZ));
+    }
+
+    public SharedWaypoint getWaypoint(UUID networkId, String waypointId) {
+        NetworkData network = networks.get(resolveNetworkId(networkId));
+
+        if (network == null || waypointId == null) {
+            return null;
+        }
+
+        return network.waypoints.get(waypointId);
+    }
+
     public boolean mergeTile(UUID networkId, String dimension, int tileX, int tileZ, int[] colors, BitSet explored) {
         if (networkId == null || dimension == null || dimension.isBlank()) return false;
         if (colors == null || colors.length != TILE_PIXELS) return false;

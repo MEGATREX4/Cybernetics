@@ -13,6 +13,7 @@ import com.perigrine3.createcybernetics.item.cyberware.lungs.VampyresItem;
 import com.perigrine3.createcybernetics.tattoo.TattooLayer;
 import com.perigrine3.createcybernetics.tattoo.client.ClientTattooModifierCollector;
 import com.perigrine3.createcybernetics.util.ModTags;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.component.DataComponentType;
@@ -887,6 +888,9 @@ public class SkinModifierManager {
             ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/entity/trims/wild_slim_full_body.png");
 
 
+
+
+    public static final String JACKED_IN_STANDIN_FLAG = "CreateCyberneticsJackedInStandIn";
 
     public static SkinModifierState getPlayerSkinState(AbstractClientPlayer player) {
         PlayerCyberwareData data = PlayerCyberwareData.getForVisual(player, player.registryAccess());
@@ -2369,10 +2373,12 @@ public class SkinModifierManager {
         }
 // COAXIAL PORT
         if (data.hasSpecificItem(ModItems.BRAINUPGRADES_COAXIALPORT.get(), CyberwareSlot.BRAIN)) {
-            state.addModifier(new SkinModifier(COAXIAL_PORT_HEAD_OFF, COAXIAL_PORT_HEAD_OFF,
-                    0xFFFFFFFF, false));
+            boolean jackedIn = player.level().dimension().equals(ModDimensions.CYBERSPACE_LEVEL)
+                    || player.getPersistentData().getBoolean(JACKED_IN_STANDIN_FLAG);
 
-            state.addModifier(new SkinModifier(COAXIAL_PORT_HEAD_ON, COAXIAL_PORT_HEAD_ON,
+            ResourceLocation coaxialTexture = jackedIn ? COAXIAL_PORT_HEAD_ON : COAXIAL_PORT_HEAD_OFF;
+
+            state.addModifier(new SkinModifier(coaxialTexture, coaxialTexture,
                     0xFFFFFFFF, false));
 
             state.addHighlight(new SkinHighlight(COAXIAL_PORT_HEAD_HIGHLIGHT, COAXIAL_PORT_HEAD_HIGHLIGHT,
@@ -2458,7 +2464,12 @@ public class SkinModifierManager {
 
 
 
+    public static boolean isCyberspaceAvatar(AbstractClientPlayer player) {
+        if (player == null) return false;
+        if (player.getPersistentData().getBoolean(JACKED_IN_STANDIN_FLAG)) return false;
 
+        return player.level().dimension().equals(ModDimensions.CYBERSPACE_LEVEL);
+    }
 
     private enum Limb {
         ARM("arm"),

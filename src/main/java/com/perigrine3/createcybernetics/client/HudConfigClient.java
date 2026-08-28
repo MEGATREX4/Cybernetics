@@ -146,6 +146,85 @@ public final class HudConfigClient {
         }
     }
 
+    public static final class RamLayout {
+        public float x;
+        public float y;
+        public float width;
+        public float height;
+
+        public RamLayout(float x, float y, float width, float height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            sanitize();
+        }
+
+        public RamLayout copy() {
+            return new RamLayout(x, y, width, height);
+        }
+
+        public void sanitize() {
+            x = clamp(x, 0.0f, 1.0f);
+            y = clamp(y, 0.0f, 1.0f);
+            width = clamp(width, 0.01f, 1.0f);
+            height = clamp(height, 0.01f, 1.0f);
+
+            if (x + width > 1.0f) {
+                x = Math.max(0.0f, 1.0f - width);
+            }
+
+            if (y + height > 1.0f) {
+                y = Math.max(0.0f, 1.0f - height);
+            }
+        }
+
+        public int pixelX(int screenW) {
+            return Math.round(x * screenW);
+        }
+
+        public int pixelY(int screenH) {
+            return Math.round(y * screenH);
+        }
+
+        public int pixelWidth(int screenW) {
+            return Math.max(1, Math.round(width * screenW));
+        }
+
+        public int pixelHeight(int screenH) {
+            return Math.max(1, Math.round(height * screenH));
+        }
+
+        public void setPositionFromPixel(int px, int py, int screenW, int screenH) {
+            if (screenW <= 0 || screenH <= 0) return;
+
+            x = clamp(px / (float) screenW, 0.0f, 1.0f);
+            y = clamp(py / (float) screenH, 0.0f, 1.0f);
+
+            sanitize();
+        }
+
+        public void setSizeFromPixel(int pixelWidth, int pixelHeight, int screenW, int screenH) {
+            if (screenW <= 0 || screenH <= 0) return;
+
+            width = clamp(pixelWidth / (float) screenW, 0.01f, 1.0f);
+            height = clamp(pixelHeight / (float) screenH, 0.01f, 1.0f);
+
+            sanitize();
+        }
+
+        public void setBoundsFromPixel(int px, int py, int pixelWidth, int pixelHeight, int screenW, int screenH) {
+            if (screenW <= 0 || screenH <= 0) return;
+
+            x = clamp(px / (float) screenW, 0.0f, 1.0f);
+            y = clamp(py / (float) screenH, 0.0f, 1.0f);
+            width = clamp(pixelWidth / (float) screenW, 0.01f, 1.0f);
+            height = clamp(pixelHeight / (float) screenH, 0.01f, 1.0f);
+
+            sanitize();
+        }
+    }
+
     public static final class HudConfig {
         public HudLayerLayout hudLayer;
 
@@ -156,10 +235,12 @@ public final class HudConfigClient {
         public ComponentLayout target;
         public ComponentLayout minimap;
 
+        public RamLayout ram;
+
         public TargetMode targetMode;
         public BatteryMode batteryMode;
 
-        public HudConfig(HudLayerLayout hudLayer, ComponentLayout battery, ComponentLayout coords, ComponentLayout toggleList, ComponentLayout shards, ComponentLayout target, ComponentLayout minimap, TargetMode targetMode, BatteryMode batteryMode) {
+        public HudConfig(HudLayerLayout hudLayer, ComponentLayout battery, ComponentLayout coords, ComponentLayout toggleList, ComponentLayout shards, ComponentLayout target, ComponentLayout minimap, RamLayout ram, TargetMode targetMode, BatteryMode batteryMode) {
             this.hudLayer = hudLayer;
             this.battery = battery;
             this.coords = coords;
@@ -167,13 +248,14 @@ public final class HudConfigClient {
             this.shards = shards;
             this.target = target;
             this.minimap = minimap;
+            this.ram = ram;
             this.targetMode = targetMode;
             this.batteryMode = batteryMode;
             sanitize();
         }
 
         public HudConfig copy() {
-            return new HudConfig(hudLayer.copy(), battery.copy(), coords.copy(), toggleList.copy(), shards.copy(), target.copy(), minimap.copy(), targetMode, batteryMode);
+            return new HudConfig(hudLayer.copy(), battery.copy(), coords.copy(), toggleList.copy(), shards.copy(), target.copy(), minimap.copy(), ram.copy(), targetMode, batteryMode);
         }
 
         public ComponentLayout layout(HudComponent component) {
@@ -209,6 +291,7 @@ public final class HudConfigClient {
             if (shards == null) shards = defaultShards();
             if (target == null) target = defaultTarget();
             if (minimap == null) minimap = defaultMinimap();
+            if (ram == null) ram = defaultRam();
 
             hudLayer.sanitize();
 
@@ -218,6 +301,7 @@ public final class HudConfigClient {
             shards.sanitize();
             target.sanitize();
             minimap.sanitize();
+            ram.sanitize();
 
             if (targetMode == null) targetMode = TargetMode.ABOVE_HOTBAR;
             if (batteryMode == null) batteryMode = BatteryMode.ICON_PLUS_CAPACITY_PLUS_STATS;
@@ -230,13 +314,7 @@ public final class HudConfigClient {
     private static final Map<UUID, HudConfig> CACHE = new ConcurrentHashMap<>();
 
     private static HudLayerLayout defaultHudLayer() {
-        return new HudLayerLayout(
-                true,
-                0.025f,
-                0.525f,
-                0.025f,
-                1.0f
-        );
+        return new HudLayerLayout(true, 0.025f, 0.525f, 0.025f, 1.0f);
     }
 
     private static ComponentLayout defaultBattery() {
@@ -263,10 +341,12 @@ public final class HudConfigClient {
         return new ComponentLayout(true, 0.865f, 0.025f, 1.0f);
     }
 
+    private static RamLayout defaultRam() {
+        return new RamLayout(0.250f, 0.015f, 0.500f, 0.100f);
+    }
+
     public static HudConfig defaultConfig() {
-        return new HudConfig(defaultHudLayer(), defaultBattery(), defaultCoords(),
-                defaultToggleList(), defaultShards(), defaultTarget(), defaultMinimap(),
-                TargetMode.ABOVE_HOTBAR, BatteryMode.ICON_PLUS_CAPACITY_PLUS_STATS);
+        return new HudConfig(defaultHudLayer(), defaultBattery(), defaultCoords(), defaultToggleList(), defaultShards(), defaultTarget(), defaultMinimap(), defaultRam(), TargetMode.ABOVE_HOTBAR, BatteryMode.ICON_PLUS_CAPACITY_PLUS_STATS);
     }
 
     private static Path fileFor(UUID playerId) {
@@ -316,6 +396,7 @@ public final class HudConfigClient {
             root.add("shards", writeLayout(cfg.shards));
             root.add("target", writeLayout(cfg.target));
             root.add("minimap", writeLayout(cfg.minimap));
+            root.add("ram", writeRamLayout(cfg.ram));
 
             root.addProperty("targetMode", cfg.targetMode.name());
             root.addProperty("batteryMode", cfg.batteryMode.name());
@@ -345,6 +426,7 @@ public final class HudConfigClient {
             cfg.shards = readLayout(obj, "shards", cfg.shards);
             cfg.target = readLayout(obj, "target", cfg.target);
             cfg.minimap = readLayout(obj, "minimap", cfg.minimap);
+            cfg.ram = readRamLayout(obj, "ram", cfg.ram);
 
             if (obj.has("targetMode")) {
                 cfg.targetMode = parseTargetMode(obj.get("targetMode").getAsString());
@@ -397,6 +479,38 @@ public final class HudConfigClient {
             if (obj.has("x")) out.x = obj.get("x").getAsFloat();
             if (obj.has("y")) out.y = obj.get("y").getAsFloat();
             if (obj.has("scale")) out.scale = obj.get("scale").getAsFloat();
+        } catch (Throwable ignored) {
+            return fallback.copy();
+        }
+
+        out.sanitize();
+        return out;
+    }
+
+    private static JsonObject writeRamLayout(RamLayout layout) {
+        layout.sanitize();
+
+        JsonObject obj = new JsonObject();
+        obj.addProperty("x", layout.x);
+        obj.addProperty("y", layout.y);
+        obj.addProperty("width", layout.width);
+        obj.addProperty("height", layout.height);
+        return obj;
+    }
+
+    private static RamLayout readRamLayout(JsonObject root, String key, RamLayout fallback) {
+        if (!root.has(key) || !root.get(key).isJsonObject()) {
+            return fallback.copy();
+        }
+
+        JsonObject obj = root.getAsJsonObject(key);
+        RamLayout out = fallback.copy();
+
+        try {
+            if (obj.has("x")) out.x = obj.get("x").getAsFloat();
+            if (obj.has("y")) out.y = obj.get("y").getAsFloat();
+            if (obj.has("width")) out.width = obj.get("width").getAsFloat();
+            if (obj.has("height")) out.height = obj.get("height").getAsFloat();
         } catch (Throwable ignored) {
             return fallback.copy();
         }

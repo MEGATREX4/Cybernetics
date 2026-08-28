@@ -20,6 +20,10 @@ public final class ClientItemProperties {
         event.enqueueWork(() -> {
             ItemProperties.register(ModItems.DATA_SHARD_SHARED_NAVIGATION.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
                     (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
+            ItemProperties.register(ModItems.DATA_SHARD_MICROPROGRAMS.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
+                    (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
+            ItemProperties.register(ModItems.QUICKHACK_SHARD.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
+                    (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
             ItemProperties.register(ModItems.DATA_SHARD_INFOLOG.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
                     (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
             ItemProperties.register(ModItems.DATA_SHARD_INFOLOG_GETTING_STARTED.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
@@ -37,6 +41,8 @@ public final class ClientItemProperties {
             ItemProperties.register(ModItems.DATA_SHARD_INFOLOG_HARVESTER_ENCHANTMENT.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
                     (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
             ItemProperties.register(ModItems.DATA_SHARD_INFOLOG_DATURA.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
+                    (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
+            ItemProperties.register(ModItems.DATA_SHARD_INFOLOG_QUICKHACK_TUTORIAL.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
                     (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);
             ItemProperties.register(ModItems.DATA_SHARD_INFOLOG_WAIT_YOUR_TURN.get(), ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "dyed"),
                     (stack, level, entity, seed) -> stack.has(DataComponents.DYED_COLOR) || SecondaryDyeColor.hasColor(stack) ? 1.0F : 0.0F);

@@ -71,6 +71,17 @@ public final class ModBlockEntities {
                     ).build(null)
             );
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ServerTowerBlockEntity>> SERVER_TOWER =
+            BLOCK_ENTITIES.register("server_tower", () -> BlockEntityType.Builder.of(ServerTowerBlockEntity::new, ModBlocks.SERVER_TOWER.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DataCacheBlockEntity>> DATA_CACHE =
+            BLOCK_ENTITIES.register("data_cache", () ->
+                    BlockEntityType.Builder.of(
+                            DataCacheBlockEntity::new,
+                            ModBlocks.DATA_CACHE.get()
+                    ).build(null)
+            );
+
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }

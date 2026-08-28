@@ -6,9 +6,11 @@ import com.perigrine3.createcybernetics.api.CyberwareDurabilityCategory;
 import com.perigrine3.createcybernetics.api.CyberwareDurabilityMode;
 import com.perigrine3.createcybernetics.api.CyberwareRepairType;
 import com.perigrine3.createcybernetics.api.CyberwareSlot;
+import com.perigrine3.createcybernetics.api.ICyberwareData;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackRuntimeManager;
 import com.perigrine3.createcybernetics.util.ModTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -63,6 +65,8 @@ public final class CyberwareDurabilityManager {
         ItemStack stack = installed.getItem();
         if (stack == null || stack.isEmpty()) return false;
 
+        if (entity != null && QuickhackRuntimeManager.isRebooted(entity, installed)) return false;
+
         if (!isBroken(installed)) return true;
         if (!(stack.getItem() instanceof ICyberwareItem cyberwareItem)) return false;
 
@@ -89,6 +93,10 @@ public final class CyberwareDurabilityManager {
     }
 
     public static int damage(LivingEntity entity, PlayerCyberwareData data, InstalledCyberware installed, CyberwareDegradationCause cause, int amount) {
+        return damageDirect(entity, data, installed, cause, amount);
+    }
+
+    public static int damageDirect(LivingEntity entity, ICyberwareData data, InstalledCyberware installed, CyberwareDegradationCause cause, int amount) {
         if (entity == null || data == null || installed == null || cause == null) return 0;
         if (amount <= 0) return 0;
         if (!usesDurability(installed)) return 0;
@@ -113,7 +121,6 @@ public final class CyberwareDurabilityManager {
         if (damaged <= 0) return 0;
 
         cyberwareItem.onDurabilityDamaged(entity, stack, slot, previousDurability, currentDurability, cause);
-        CriticalOrganDamageController.onDurabilityDamaged(entity, installed, previousDurability, currentDurability);
 
         if (previousDurability > 0 && currentDurability <= 0) {
             cyberwareItem.onDurabilityBroken(entity, stack, slot, cause);
@@ -156,9 +163,7 @@ public final class CyberwareDurabilityManager {
         int baseRepair = Math.max(0, nutrition * ConfigValues.FOOD_DURABILITY_REPAIR_PER_NUTRITION);
         int repairAmount = Mth.floor(baseRepair * efficiency);
 
-        if (baseRepair > 0 && repairAmount <= 0) {
-            repairAmount = 1;
-        }
+        if (baseRepair > 0 && repairAmount <= 0) repairAmount = 1;
 
         int repaired = repair(entity, data, installed, repairAmount);
 

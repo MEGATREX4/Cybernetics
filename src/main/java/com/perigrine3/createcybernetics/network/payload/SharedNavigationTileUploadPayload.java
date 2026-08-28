@@ -90,7 +90,10 @@ public record SharedNavigationTileUploadPayload(UUID networkId, String dimension
             if (explored.length() > SharedNavigationMapData.TILE_PIXELS) return;
 
             SharedNavigationMapData data = SharedNavigationMapData.get(player.getServer());
-            data.mergeTile(payload.networkId(), payload.dimension(), payload.tileX(), payload.tileZ(), payload.colors(), explored);
+
+            if (data.mergeTile(payload.networkId(), payload.dimension(), payload.tileX(), payload.tileZ(), payload.colors(), explored)) {
+                SharedNavigationServerManager.broadcastTileUpdate(player.getServer(), payload.networkId(), payload.dimension(), payload.tileX(), payload.tileZ());
+            }
         });
     }
 }

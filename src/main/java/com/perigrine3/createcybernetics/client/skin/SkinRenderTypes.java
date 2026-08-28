@@ -3,6 +3,7 @@ package com.perigrine3.createcybernetics.client.skin;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.perigrine3.createcybernetics.client.render.CyberspacePlayerShader;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +17,7 @@ public final class SkinRenderTypes {
 
     private static final Map<ResourceLocation, RenderType> EMISSIVE_TINTED_CACHE = new ConcurrentHashMap<>();
     private static final Map<ResourceLocation, RenderType> OVERLAY_GLINT_CACHE = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, RenderType> CYBERSPACE_PLAYER_CACHE = new ConcurrentHashMap<>();
 
     private static final RenderStateShard.TransparencyStateShard CC_ADDITIVE_ALPHA =
             new RenderStateShard.TransparencyStateShard("cc_additive_alpha",
@@ -74,6 +76,27 @@ public final class SkinRenderTypes {
                                 .setOverlayState(RenderStateShard.OVERLAY)
                                 .setTexturingState(RenderStateShard.GLINT_TEXTURING)
                                 .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                                .createCompositeState(true)
+                )
+        );
+    }
+
+    public static RenderType cyberspacePlayer(ResourceLocation texture) {
+        return CYBERSPACE_PLAYER_CACHE.computeIfAbsent(texture, t ->
+                RenderType.create(
+                        "createcybernetics_cyberspace_player",
+                        DefaultVertexFormat.NEW_ENTITY,
+                        VertexFormat.Mode.QUADS,
+                        1536,
+                        true,
+                        true,
+                        RenderType.CompositeState.builder()
+                                .setShaderState(new RenderStateShard.ShaderStateShard(CyberspacePlayerShader::getShader))
+                                .setTextureState(new RenderStateShard.TextureStateShard(t, false, false))
+                                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                                .setCullState(RenderStateShard.NO_CULL)
+                                .setLightmapState(RenderStateShard.LIGHTMAP)
+                                .setOverlayState(RenderStateShard.OVERLAY)
                                 .createCompositeState(true)
                 )
         );

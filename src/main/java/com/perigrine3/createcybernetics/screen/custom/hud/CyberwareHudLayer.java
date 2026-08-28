@@ -7,6 +7,7 @@ import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
 import com.perigrine3.createcybernetics.client.HudConfigClient;
+import com.perigrine3.createcybernetics.client.quickhack.QuickhackClientState;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.compat.creatingspace.CreatingSpaceSuitPredicate;
@@ -16,6 +17,7 @@ import com.perigrine3.createcybernetics.item.cyberware.eyes.CybereyeItem;
 import com.perigrine3.createcybernetics.item.cyberware.eyes.MonovisionOpticsItem;
 import com.perigrine3.createcybernetics.item.cyberware.eyes.MultiopticsItem;
 import com.perigrine3.createcybernetics.util.ModTags;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -319,6 +321,7 @@ public final class CyberwareHudLayer {
 
         int current = data != null ? data.getEnergyStored() : 0;
         int capacity = data != null ? data.getTotalEnergyCapacity(player) : 0;
+        current = QuickhackClientState.resolveDisplayedEnergy(current, capacity, player.level().getGameTime());
 
         TickSnapshot snap = ClientEnergyState.getSnapshot();
         EnergyRates localRates = data != null ? computeClientEnergyRates(player, data) : EnergyRates.ZERO;
@@ -441,6 +444,7 @@ public final class CyberwareHudLayer {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null) return;
+        if (player.level().dimension().equals(ModDimensions.CYBERSPACE_LEVEL)) return;
         if (mc.options.hideGui) return;
         if (!mc.options.getCameraType().isFirstPerson()) return;
         if (!CyberwareInstallQueries.hasHudAccess(player)) return;

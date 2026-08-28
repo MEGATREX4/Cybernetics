@@ -71,6 +71,18 @@ public class CyberdeckInventoryHandler implements IItemHandlerModifiable {
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        return stack.is(ModTags.Items.QUICKHACK_SHARDS);
+        if (slot >= 0 && slot < PlayerCyberwareData.CYBERDECK_QUICKHACK_SLOT_COUNT) {
+            return stack.is(ModTags.Items.QUICKHACK_SHARDS);
+        }
+
+        if (slot == PlayerCyberwareData.CYBERDECK_MICROPROGRAM_CHIP_SLOT) {
+            return stack.is(ModTags.Items.MICROPROGRAM_SHARDS);
+        }
+
+        if (slot >= PlayerCyberwareData.CYBERDECK_MACROPROGRAM_SLOT_START && slot < PlayerCyberwareData.CYBERDECK_SLOT_COUNT) {
+            return stack.is(ModTags.Items.MACROPROGRAMS);
+        }
+
+        return false;
     }
 }

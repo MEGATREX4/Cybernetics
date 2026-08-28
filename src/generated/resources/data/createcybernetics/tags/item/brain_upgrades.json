@@ -13,6 +13,7 @@
     "createcybernetics:brainupgrades_iceprotocol",
     "createcybernetics:brainupgrades_coaxialport",
     "createcybernetics:brainupgrades_berserk",
+    "createcybernetics:brainupgrades_ramdeck",
     {
       "id": "createcybernetics:brainupgrades_consciousnesstransmitter",
       "required": false

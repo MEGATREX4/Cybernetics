@@ -2,10 +2,13 @@ package com.perigrine3.createcybernetics.datagen;
 
 import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.block.DaturaBushBlock;
+import com.perigrine3.createcybernetics.block.DigitalArchitectureBlock;
 import com.perigrine3.createcybernetics.block.ModBlocks;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.AmethystClusterBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -31,6 +34,22 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.SMOOTH_TITANIUM);
         blockWithItem(ModBlocks.ETCHED_TITANIUM_COPPER);
 
+        digitalArchitecture(ModBlocks.DIGITAL_ARCHITECTURE);
+        blockWithItem(ModBlocks.DATA_CACHE);
+        blockWithItem(ModBlocks.ACCESS_NODE);
+        simpleBlockWithItem(ModBlocks.DAEMON_ANCHOR.get(), cubeAll(ModBlocks.DAEMON_ANCHOR.get()));
+        simpleBlockWithItem(ModBlocks.DIGITAL_GATE.get(), cubeAll(ModBlocks.DIGITAL_GATE.get()));
+
+        blockWithItem(ModBlocks.MACHINE_CASING);
+
+        ModelFile serverTowerModel = new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "block/server_tower"));
+        horizontalBlock(ModBlocks.SERVER_TOWER.get(), serverTowerModel);
+
+        codeFragment(ModBlocks.TARGET_CODE_FRAGMENT);
+        codeFragment(ModBlocks.FUNCTION_CODE_FRAGMENT);
+        codeFragment(ModBlocks.MODIFIER_CODE_FRAGMENT);
+        codeFragment(ModBlocks.RAW_DATA_FRAGMENT);
+
         stairsBlock(ModBlocks.SMOOTH_TITANIUM_STAIRS.get(), blockTexture(ModBlocks.SMOOTH_TITANIUM.get()));
         stairsBlock(ModBlocks.ETCHED_TITANIUM_COPPER_STAIRS.get(), blockTexture(ModBlocks.ETCHED_TITANIUM_COPPER.get()));
         stairsBlock(ModBlocks.TITANIUM_CLAD_COPPER_STAIRS.get(), blockTexture(ModBlocks.TITANIUM_CLAD_COPPER.get()));
@@ -45,12 +64,44 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockItem(ModBlocks.TITANIUM_CLAD_COPPER_STAIRS);
         blockItem(ModBlocks.TITANIUM_CLAD_COPPER_SLAB);
 
-
         blockWithItem(ModBlocks.ROBOSURGEON);
 
-
-
         makeBush(((SweetBerryBushBlock) ModBlocks.DATURA_BUSH.get()), "datura_bush_stage", "datura_bush_stage");
+    }
+
+    private void digitalArchitecture(DeferredBlock<?> deferredBlock) {
+        ModelFile normalModel = models().cubeAll(name(deferredBlock.get()), blockTexture(deferredBlock.get()));
+
+        ModelFile corruptedModel = models().cubeAll(
+                name(deferredBlock.get()) + "_corrupted",
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "block/" + name(deferredBlock.get()) + "_corrupted")
+        );
+
+        getVariantBuilder(deferredBlock.get()).forAllStates(state -> ConfiguredModel.builder()
+                .modelFile(state.getValue(DigitalArchitectureBlock.CORRUPTED) ? corruptedModel : normalModel)
+                .build());
+
+        simpleBlockItem(deferredBlock.get(), normalModel);
+    }
+
+    private void codeFragment(DeferredBlock<? extends AmethystClusterBlock> deferredBlock) {
+        ModelFile model = models().withExistingParent(name(deferredBlock.get()), mcLoc("block/amethyst_cluster"))
+                .texture("cross", blockTexture(deferredBlock.get()))
+                .renderType("cutout");
+
+        getVariantBuilder(deferredBlock.get()).forAllStates(state -> {
+            Direction direction = state.getValue(AmethystClusterBlock.FACING);
+            int rotationX = direction == Direction.DOWN ? 180 : direction.getAxis().isHorizontal() ? 90 : 0;
+            int rotationY = direction.getAxis().isVertical() ? 0 : ((int) direction.toYRot() + 180) % 360;
+
+            return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(rotationX)
+                    .rotationY(rotationY)
+                    .build();
+        });
+
+        simpleBlockItem(deferredBlock.get(), model);
     }
 
     public void makeBush(SweetBerryBushBlock block, String modelName, String textureName) {

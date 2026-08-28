@@ -29,6 +29,7 @@ public class NeuralProcessorItem extends Item implements ICyberwareItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
             tooltip.add(Component.translatable("tooltip.createcybernetics.humanity", humanityCost).withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("tooltip.createcybernetics.brainupgrades_neuralprocessor.energy").withStyle(ChatFormatting.RED));
         }
     }
 
@@ -69,10 +70,17 @@ public class NeuralProcessorItem extends Item implements ICyberwareItem {
     }
 
     @Override
+    public int getEnergyUsedPerTick(LivingEntity entity, ItemStack installedStack, CyberwareSlot slot) {
+        return 10;
+    }
+
+    @Override
     public void onInstalled(LivingEntity entity) {
         CyberwareAttributeHelper.applyModifier(entity, "neuralprocessor_learn");
         CyberwareAttributeHelper.applyModifier(entity, "neuralprocessor_insomnia");
         CyberwareAttributeHelper.applyModifier(entity, "neuralprocessor_speed");
+        CyberwareAttributeHelper.applyModifier(entity, "neural_ram");
+        CyberwareAttributeHelper.applyModifier(entity, "neural_ram_regen");
     }
 
     @Override
@@ -80,6 +88,8 @@ public class NeuralProcessorItem extends Item implements ICyberwareItem {
         CyberwareAttributeHelper.removeModifier(entity, "neuralprocessor_learn");
         CyberwareAttributeHelper.removeModifier(entity, "neuralprocessor_insomnia");
         CyberwareAttributeHelper.removeModifier(entity, "neuralprocessor_speed");
+        CyberwareAttributeHelper.removeModifier(entity, "neural_ram");
+        CyberwareAttributeHelper.removeModifier(entity, "neural_ram_regen");
     }
 
     @Override

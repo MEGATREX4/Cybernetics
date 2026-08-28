@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
+    "createcybernetics:data_shard_microprograms",
+    "createcybernetics:quickhack_shard",
     "createcybernetics:data_shard_shared_navigation",
     "createcybernetics:data_shard_infolog",
     "createcybernetics:data_shard_infolog_getting_started",
@@ -11,6 +13,7 @@
     "createcybernetics:data_shard_infolog_cyberdeck",
     "createcybernetics:data_shard_infolog_harvester_enchantment",
     "createcybernetics:data_shard_infolog_datura",
+    "createcybernetics:data_shard_infolog_quickhack_tutorial",
     "createcybernetics:data_shard_infolog_wait_your_turn",
     "createcybernetics:data_shard_infolog_the_breach",
     "createcybernetics:data_shard_infolog_ai_chat",

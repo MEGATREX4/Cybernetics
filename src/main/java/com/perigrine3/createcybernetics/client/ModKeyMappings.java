@@ -10,8 +10,6 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.function.Supplier;
-
 @EventBusSubscriber(modid = CreateCybernetics.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ModKeyMappings {
     private ModKeyMappings() {}
@@ -21,6 +19,9 @@ public final class ModKeyMappings {
     public static final Lazy<KeyMapping> CYBERWARE_WHEEL = Lazy.of(() ->
             new KeyMapping("key.createcybernetics.cyberware_wheel", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, CATEGORY));
 
+    public static final Lazy<KeyMapping> CYBERSPACE_PROGRAM_WHEEL = Lazy.of(() ->
+            new KeyMapping("key.createcybernetics.cyberspace_program_wheel", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, CATEGORY));
+
     public static final Lazy<KeyMapping> SPINAL_INJECTOR = Lazy.of(() ->
             new KeyMapping("key.createcybernetics.spinal_injector", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, CATEGORY));
 
@@ -28,8 +29,10 @@ public final class ModKeyMappings {
             new KeyMapping("key.createcybernetics.arm_cannon", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, CATEGORY));
     public static final Lazy<KeyMapping> ARM_CANNON_WHEEL = Lazy.of(() ->
             new KeyMapping("key.createcybernetics.arm_cannon_wheel", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, CATEGORY));
+
     public static final Lazy<KeyMapping> HEAT_ENGINE = Lazy.of(() ->
             new KeyMapping("key.createcybernetics.heat_engine", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_H, CATEGORY));
+
     public static final Lazy<KeyMapping> CYBERDECK = Lazy.of(() ->
             new KeyMapping("key.createcybernetics.cyberdeck", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, CATEGORY));
     public static final Lazy<KeyMapping> CYBERDECK_WHEEL = Lazy.of(() ->
@@ -38,6 +41,8 @@ public final class ModKeyMappings {
     public static final Lazy<KeyMapping> INFOLOG = Lazy.of(() ->
             new KeyMapping("key.createcybernetics.infolog_gui", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, CATEGORY));
 
+    public static final Lazy<KeyMapping> UNSAFE_JACK_OUT = Lazy.of(() ->
+            new KeyMapping("key.createcybernetics.unsafe_jack_out", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_U, CATEGORY));
 
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
@@ -49,5 +54,6 @@ public final class ModKeyMappings {
         event.register(CYBERDECK.get());
         event.register(CYBERDECK_WHEEL.get());
         event.register(INFOLOG.get());
+        event.register(UNSAFE_JACK_OUT.get());
     }
 }

@@ -19,7 +19,7 @@ public class ModCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TAB =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, CreateCybernetics.MODID);
 
-    public static final Supplier<CreativeModeTab> CREATE_CYBERNETICS_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_tab",
+    public static final Supplier<CreativeModeTab> CYBERNETICS_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_tab",
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.TITANIUMINGOT.get()))
                     .title(Component.translatable("creativetab.createcybernetics.create_cybernetics_tab"))
                     .displayItems((itemDisplayParameters, output) -> {
@@ -32,8 +32,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.CHARGING_BLOCK);
                         output.accept(ModBlocks.COMPUTER);
                         output.accept(ModBlocks.COMPUTER_TOWER);
+                        output.accept(ModBlocks.MACHINE_CASING);
                         output.accept(ModBlocks.HOLOPROJECTOR);
-
                         output.accept(ModItems.NEUROPOZYNE_AUTOINJECTOR);
 
                         output.accept(ModItems.EMPTY_AUTOINJECTOR);
@@ -166,6 +166,7 @@ public class ModCreativeModeTabs {
                         //output.accept(ModItems.SCAVENGED_COAXIALPORT);
                         output.accept(ModItems.SCAVENGED_KERENZIKOV);
                         output.accept(ModItems.SCAVENGED_BERSERK);
+                        output.accept(ModItems.SCAVENGED_RAMDECK);
                         output.accept(ModItems.SCAVENGED_IDEM);
                         output.accept(ModItems.SCAVENGED_CHIPWARESLOTS);
                         output.accept(ModItems.SCAVENGED_CYBERHEART);
@@ -216,7 +217,7 @@ public class ModCreativeModeTabs {
 
                     }).build());
 
-    public static final Supplier<CreativeModeTab> CREATE_CYBERNETICS_UPGRADES_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_upgrades_tab",
+    public static final Supplier<CreativeModeTab> CYBERNETICS_UPGRADES_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_upgrades_tab",
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.BASECYBERWARE_CYBEREYES.get())).withSearchBar()
                     .withTabsBefore(ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "create_cybernetics_tab"))
                     .title(Component.translatable("creativetab.createcybernetics.create_cybernetics_upgrades_tab"))
@@ -316,9 +317,10 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BRAINUPGRADES_CHIPWARESLOTS);
                         output.accept(ModItems.BRAINUPGRADES_NEURALPROCESSOR);
                         output.accept(ModItems.BRAINUPGRADES_ICEPROTOCOL);
-                        //output.accept(ModItems.BRAINUPGRADES_COAXIALPORT);
+                        output.accept(ModItems.BRAINUPGRADES_COAXIALPORT);
                         output.accept(ModItems.BRAINUPGRADES_KERENZIKOV);
                         output.accept(ModItems.BRAINUPGRADES_BERSERK);
+                        output.accept(ModItems.BRAINUPGRADES_RAMDECK);
 
                         if (ModItems.BRAINUPGRADES_SPELLJAMMER != null) {
                             output.accept(ModItems.BRAINUPGRADES_SPELLJAMMER);
@@ -348,6 +350,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.ORGANSUPGRADES_MAGICCATALYST);
                         output.accept(ModItems.ORGANSUPGRADES_METABOLIC);
                         output.accept(ModItems.ORGANSUPGRADES_DENSEBATTERY);
+                        output.accept(ModItems.ORGANSUPGRADES_CREATIVEBATTERY);
                         output.accept(ModItems.ORGANSUPGRADES_HEATENGINE);
                         output.accept(ModItems.ORGANSUPGRADES_OREGRINDER);
 
@@ -427,7 +430,7 @@ public class ModCreativeModeTabs {
 
                     }).build());
 
-    public static final Supplier<CreativeModeTab> CREATE_CYBERNETICS_DATASHARDS_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_datashards_tab",
+    public static final Supplier<CreativeModeTab> CYBERNETICS_DATASHARDS_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_datashards_tab",
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.DATA_SHARD_BIOCHIP.get())).withSearchBar()
                     .withTabsBefore(ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "create_cybernetics_tab"))
                     .title(Component.translatable("creativetab.createcybernetics.create_cybernetics_datashards_tab"))
@@ -459,6 +462,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.DATA_SHARD_INFOLOG_CYBERBESTIARY);
                         output.accept(ModItems.DATA_SHARD_INFOLOG_CYBERDECK);
                         output.accept(ModItems.DATA_SHARD_INFOLOG_HARVESTER_ENCHANTMENT);
+                        output.accept(ModItems.DATA_SHARD_INFOLOG_QUICKHACK_TUTORIAL);
                         if (ModCompats.isInstalled("cyberchems")) {
                             output.accept(ModItems.DATA_SHARD_INFOLOG_CYBERCHEMS);
                         }
@@ -488,16 +492,102 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.DATA_SHARD_GAME_MINESWEEPER);
                         output.accept(ModItems.DATA_SHARD_GAME_CHESS);
 
+                        //MICROPROGRAM SHARDS
+                        output.accept(ModItems.DATA_SHARD_MICROPROGRAMS);
+                        output.accept(ModItems.DATA_SHARD_MICROPROGRAMS_CREATIVE);
 
                         //QUICKHACKS
-                        output.accept(ModItems.QUICKHACK_OVERHEAT);
-                        output.accept(ModItems.QUICKHACK_REBOOT);
-                        output.accept(ModItems.QUICKHACK_SCRAMBLE);
-                        output.accept(ModItems.QUICKHACK_OPTICMALFUNCTION);
-                        output.accept(ModItems.QUICKHACK_CYBERPSYCHOSIS);
-                        output.accept(ModItems.QUICKHACK_BEHINDYOU);
-                        output.accept(ModItems.QUICKHACK_DRAIN);
+                        output.accept(ModItems.QUICKHACK_SHARD);
 
+                    }).build());
+
+    public static final Supplier<CreativeModeTab> CYBERNETICS_CYBERSPACE_TAB = CREATIVE_MODE_TAB.register("create_cybernetics_cyberspace_tab",
+            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.ACCESS_NODE.get()))
+                    .withTabsBefore(ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "create_cybernetics_tab"))
+                    .title(Component.translatable("creativetab.createcybernetics.create_cybernetics_cyberspace_tab"))
+                    .displayItems((itemDisplayParameters, output) -> {
+
+                        //CYBERSPACE BLOCKS
+                        output.accept(ModBlocks.DIGITAL_ARCHITECTURE);
+                        output.accept(ModBlocks.ACCESS_NODE);
+                        output.accept(ModBlocks.DATA_CACHE);
+                        output.accept(ModBlocks.DAEMON_ANCHOR);
+                        output.accept(ModBlocks.DIGITAL_GATE);
+
+                        //CODE FRAGMENTS
+                        output.accept(ModBlocks.TARGET_CODE_FRAGMENT);
+                        output.accept(ModBlocks.FUNCTION_CODE_FRAGMENT);
+                        output.accept(ModBlocks.MODIFIER_CODE_FRAGMENT);
+                        output.accept(ModBlocks.RAW_DATA_FRAGMENT);
+
+// TARGET MICROPROGRAMS
+                        output.accept(ModItems.MICROPROGRAM_SYSTEM_ALL);
+                        output.accept(ModItems.MICROPROGRAM_PROCESSOR);
+                        output.accept(ModItems.MICROPROGRAM_CYBEROPTICS);
+                        output.accept(ModItems.MICROPROGRAM_AUDITORY);
+                        output.accept(ModItems.MICROPROGRAM_MOTOR_CONTROL);
+                        output.accept(ModItems.MICROPROGRAM_ARMS);
+                        output.accept(ModItems.MICROPROGRAM_LEGS);
+                        output.accept(ModItems.MICROPROGRAM_INTERNAL_ORGANS);
+                        output.accept(ModItems.MICROPROGRAM_SKELETON);
+                        output.accept(ModItems.MICROPROGRAM_DERMAL);
+                        output.accept(ModItems.MICROPROGRAM_POWER_SYSTEM);
+                        output.accept(ModItems.MICROPROGRAM_CYBERDECK);
+                        output.accept(ModItems.MICROPROGRAM_NEURAL_SYSTEM);
+                        output.accept(ModItems.MICROPROGRAM_ACTIVE_CYBERWARE);
+                        output.accept(ModItems.MICROPROGRAM_HIGHEST_DRAW);
+                        output.accept(ModItems.MICROPROGRAM_RANDOM_IMPLANT);
+
+// FUNCTION MICROPROGRAMS
+                        output.accept(ModItems.MICROPROGRAM_REBOOT);
+                        output.accept(ModItems.MICROPROGRAM_OVERCLOCK);
+                        output.accept(ModItems.MICROPROGRAM_DRAIN);
+                        output.accept(ModItems.MICROPROGRAM_SPIKE);
+                        output.accept(ModItems.MICROPROGRAM_BURNOUT);
+                        output.accept(ModItems.MICROPROGRAM_TOGGLE_OFF);
+                        output.accept(ModItems.MICROPROGRAM_TOGGLE_ON);
+                        output.accept(ModItems.MICROPROGRAM_MALFUNCTION);
+                        output.accept(ModItems.MICROPROGRAM_LOOP);
+                        output.accept(ModItems.MICROPROGRAM_PING);
+                        output.accept(ModItems.MICROPROGRAM_TRACE);
+                        output.accept(ModItems.MICROPROGRAM_CORRUPT);
+                        output.accept(ModItems.MICROPROGRAM_PURGE);
+                        output.accept(ModItems.MICROPROGRAM_DESYNC);
+
+// MODIFIER MICROPROGRAMS
+                        output.accept(ModItems.MICROPROGRAM_DURATION_PLUS);
+                        output.accept(ModItems.MICROPROGRAM_DURATION_PLUS_PLUS);
+                        output.accept(ModItems.MICROPROGRAM_INTENSITY_PLUS);
+                        output.accept(ModItems.MICROPROGRAM_EFFICIENCY);
+                        output.accept(ModItems.MICROPROGRAM_DELAY);
+                        output.accept(ModItems.MICROPROGRAM_REPEAT);
+                        output.accept(ModItems.MICROPROGRAM_CASCADE);
+                        output.accept(ModItems.MICROPROGRAM_SILENT);
+                        output.accept(ModItems.MICROPROGRAM_PERSISTENT);
+                        output.accept(ModItems.MICROPROGRAM_RANDOMIZE);
+                        output.accept(ModItems.MICROPROGRAM_CONTAGION);
+
+//MACROPROGRAMS
+                        output.accept(ModItems.MACROPROGRAM_DATA_MINER);
+                        output.accept(ModItems.MACROPROGRAM_SECURE_SHELL);
+
+                        output.accept(ModItems.MACROPROGRAM_BIT_CRUSHER);
+                        output.accept(ModItems.MACROPROGRAM_STACK_OVERFLOW);
+                        output.accept(ModItems.MACROPROGRAM_ICEBREAKER);
+                        output.accept(ModItems.MACROPROGRAM_PING);
+                        output.accept(ModItems.MACROPROGRAM_DDOS);
+                        output.accept(ModItems.MACROPROGRAM_BANHAMMER);
+
+                        output.accept(ModItems.MACROPROGRAM_FIREWALL);
+                        output.accept(ModItems.MACROPROGRAM_RECOVERY);
+
+                        output.accept(ModItems.MACROPROGRAM_BASIC_ARMOR);
+                        output.accept(ModItems.MACROPROGRAM_INTERMEDIATE_ARMOR);
+                        output.accept(ModItems.MACROPROGRAM_ADVANCED_ARMOR);
+                        output.accept(ModItems.MACROPROGRAM_ADMINISTRATOR_ACCESS_ARMOR);
+
+                        output.accept(ModItems.MACROPROGRAM_PACKET_SNIFFER);
+                        output.accept(ModItems.MACROPROGRAM_VPN_SHROUD);
                     }).build());
 
     public static void register(IEventBus eventBus) {

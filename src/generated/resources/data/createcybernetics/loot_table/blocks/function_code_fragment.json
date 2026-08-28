@@ -1,0 +1,89 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "createcybernetics:materialized_data_miner"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_reboot",
+          "weight": 36
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_toggle_off",
+          "weight": 36
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_toggle_on",
+          "weight": 36
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_ping",
+          "weight": 32
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_trace",
+          "weight": 28
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_loop",
+          "weight": 24
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_malfunction",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_overclock",
+          "weight": 12
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_drain",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_spike",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_burnout",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_desync",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_purge",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "createcybernetics:microprogram_corrupt"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "createcybernetics:blocks/function_code_fragment"
+}

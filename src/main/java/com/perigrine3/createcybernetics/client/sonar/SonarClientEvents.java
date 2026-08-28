@@ -6,6 +6,7 @@ import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.util.SculkedConversionHelper;
+import com.perigrine3.createcybernetics.world.dimension.ModDimensions;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -604,7 +605,11 @@ public final class SonarClientEvents {
     }
 
     private static boolean isSonarActive(Minecraft mc) {
-        if (mc.player == null) {
+        if (mc.player == null || mc.level == null) {
+            return false;
+        }
+
+        if (mc.level.dimension().equals(ModDimensions.CYBERSPACE_LEVEL)) {
             return false;
         }
 

@@ -38,18 +38,28 @@ public final class CCPauseMenuButtons {
         if (videoBtn == null) videoBtn = findButtonByTextFallback(event, "video");
 
         if (skinBtn != null) {
-            int x = skinBtn.getX() - (ICON_W + GAP_PX);
+            int eyeX = skinBtn.getX() - (ICON_W + GAP_PX);
+            int cyberspaceX = eyeX - (ICON_W + GAP_PX);
             int y = skinBtn.getY();
 
             CCIconButton eyeBtn = new CCIconButton(
-                    x, y, ICON_W, skinBtn.getHeight(),
+                    eyeX, y, ICON_W, skinBtn.getHeight(),
                     CCIconButton.Icon.CYBEREYE_SKIN,
                     Component.translatable("gui.createcybernetics.pause.cybereye_skin"),
                     CC_MARKER_ID,
                     () -> openCybereyeSkin(options)
             );
 
+            CCIconButton cyberspaceBtn = new CCIconButton(
+                    cyberspaceX, y, ICON_W, skinBtn.getHeight(),
+                    CCIconButton.Icon.CYBERSPACE_COLOR,
+                    Component.translatable("gui.createcybernetics.pause.cyberspace_color"),
+                    CC_MARKER_ID,
+                    () -> openCyberspaceColor(options)
+            );
+
             event.addListener(eyeBtn);
+            event.addListener(cyberspaceBtn);
         }
 
         if (isInWorld() && videoBtn != null) {
@@ -81,6 +91,7 @@ public final class CCPauseMenuButtons {
                 }
             }
         }
+
         return false;
     }
 
@@ -92,9 +103,14 @@ public final class CCPauseMenuButtons {
     }
 
     private static void openCybereyeSkin(OptionsScreen parent) {
-        Minecraft mc = Minecraft.getInstance();
+        Minecraft.getInstance().setScreen(new CybereyeSkinConfigScreen(parent));
+    }
 
-        mc.setScreen(new CybereyeSkinConfigScreen(parent));
+    private static void openCyberspaceColor(OptionsScreen parent) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null) return;
+
+        mc.setScreen(new CyberspaceColorConfigScreen(parent));
     }
 
     private static AbstractWidget findButtonByTranslatableKey(ScreenEvent.Init.Post event, String key) {

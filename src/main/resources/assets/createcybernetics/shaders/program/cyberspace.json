@@ -1,0 +1,38 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "one",
+    "dstrgb": "zero"
+  },
+
+  "vertex": "createcybernetics:cyberspace",
+  "fragment": "createcybernetics:cyberspace",
+
+  "attributes": [ "Position" ],
+
+  "samplers": [
+    { "name": "DiffuseSampler" }
+  ],
+
+  "uniforms": [
+    {
+      "name": "ProjMat",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+      ]
+    },
+
+    { "name": "OutSize", "type": "float", "count": 2, "values": [ 1.0, 1.0 ] },
+
+    { "name": "PosterizeSteps", "type": "float", "count": 1, "values": [ 12.0 ] },
+    { "name": "Contrast", "type": "float", "count": 1, "values": [ 1.08 ] },
+    { "name": "ShadowGamma", "type": "float", "count": 1, "values": [ 1.10 ] },
+    { "name": "DarkTintStrength", "type": "float", "count": 1, "values": [ 0.35 ] },
+    { "name": "ScanlineStrength", "type": "float", "count": 1, "values": [ 0.045 ] }
+  ]
+}

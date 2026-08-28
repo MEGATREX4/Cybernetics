@@ -4,17 +4,15 @@ import com.perigrine3.createcybernetics.CreateCybernetics;
 import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.api.ICyberwareItem;
 import com.perigrine3.createcybernetics.api.InstalledCyberware;
-import com.perigrine3.createcybernetics.block.ModBlocks;
 import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
 import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.common.quickhack.QuickhackRuntimeManager;
 import com.perigrine3.createcybernetics.effect.ModEffects;
 import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.item.cyberware.skin.EMPThreadingItem;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -138,6 +136,7 @@ public final class EnergyController {
                 if (stack == null || stack.isEmpty()) continue;
 
                 if (!(stack.getItem() instanceof ICyberwareItem item)) continue;
+                if (QuickhackRuntimeManager.isRebooted(player, cw)) continue;
                 if (!item.acceptsChargerEnergy(player, stack, slot)) continue;
 
                 int req = item.getChargerEnergyReceivePerTick(player, stack, slot);
@@ -176,6 +175,7 @@ public final class EnergyController {
                 if (stack == null || stack.isEmpty()) continue;
 
                 if (!(stack.getItem() instanceof ICyberwareItem item)) continue;
+                if (QuickhackRuntimeManager.isRebooted(player, cw)) continue;
 
                 int gen = item.getEnergyGeneratedPerTick(player, stack, slot);
                 if (gen <= 0) continue;
@@ -210,12 +210,23 @@ public final class EnergyController {
                     continue;
                 }
 
+                if (QuickhackRuntimeManager.isRebooted(player, cw)) {
+                    cw.setPowered(false);
+                    clearActivationPaidFlag(player, item, stack, slot, idx);
+                    continue;
+                }
+
+                if (QuickhackRuntimeManager.isForcedPowerOff(player, slot, idx)) {
+                    cw.setPowered(false);
+                    clearActivationPaidFlag(player, item, stack, slot, idx);
+                    continue;
+                }
+
                 boolean powered = true;
+                int drainMultiplier = QuickhackRuntimeManager.getEnergyConsumptionMultiplier(player, slot, idx);
 
                 int use = item.getEnergyUsedPerTick(player, stack, slot);
-                if (hasDrainHack(player) && use > 0) {
-                    use *= 2;
-                }
+                if (use > 0) use *= drainMultiplier;
 
                 if (use > 0) {
                     powered = tryPayEnergy(data, mainsPool, genPool, use);
@@ -223,6 +234,8 @@ public final class EnergyController {
 
                 if (powered && item.shouldConsumeActivationEnergyThisTick(player, stack, slot)) {
                     int actCost = item.getEnergyActivationCost(player, stack, slot);
+                    if (actCost > 0) actCost *= drainMultiplier;
+
                     if (actCost > 0) {
                         String paidKey = item.getActivationPaidNbtKey(player, stack, slot);
 
@@ -288,6 +301,7 @@ public final class EnergyController {
                 if (stack == null || stack.isEmpty()) continue;
 
                 if (!(stack.getItem() instanceof ICyberwareItem item)) continue;
+                if (QuickhackRuntimeManager.isRebooted(player, cw)) continue;
 
                 int consumed = item.consumeGeneratedEnergySurplus(player, stack, slot, remaining);
                 if (consumed <= 0) continue;
@@ -330,17 +344,18 @@ public final class EnergyController {
 
     private static boolean canAcceptGeneratedSurplus(Player player, PlayerCyberwareData data) {
         for (var entry : data.getAll().entrySet()) {
-            CyberwareSlot slot = entry.getKey();
             InstalledCyberware[] arr = entry.getValue();
             if (arr == null) continue;
 
             for (InstalledCyberware cw : arr) {
                 if (cw == null) continue;
 
+                CyberwareSlot slot = entry.getKey();
                 ItemStack stack = cw.getItem();
                 if (stack == null || stack.isEmpty()) continue;
 
                 if (!(stack.getItem() instanceof ICyberwareItem item)) continue;
+                if (QuickhackRuntimeManager.isRebooted(player, cw)) continue;
 
                 if (item.acceptsGeneratedEnergy(player, stack, slot)) return true;
             }
@@ -370,9 +385,7 @@ public final class EnergyController {
     }
 
     private static int getActiveChargerEnergyBudget(Player player) {
-        Level level = player.level();
-
-        long now = level.getGameTime();
+        long now = player.level().getGameTime();
         long markedUntil = player.getPersistentData().getLong(NBT_ON_CHARGER_UNTIL);
 
         if (markedUntil < now) {
@@ -392,15 +405,8 @@ public final class EnergyController {
         if (player.level().isClientSide) return;
         if (energyBudget <= 0) return;
 
-        player.getPersistentData().putLong(
-                NBT_ON_CHARGER_UNTIL,
-                player.level().getGameTime() + 2L
-        );
-
-        player.getPersistentData().putInt(
-                NBT_CHARGER_ENERGY_BUDGET,
-                energyBudget
-        );
+        player.getPersistentData().putLong(NBT_ON_CHARGER_UNTIL, player.level().getGameTime() + 2L);
+        player.getPersistentData().putInt(NBT_CHARGER_ENERGY_BUDGET, energyBudget);
     }
 
     private static boolean hasEmpProtection(PlayerCyberwareData data) {
@@ -448,11 +454,7 @@ public final class EnergyController {
     }
 
     private static boolean hasEmpLikeShutdownEffect(Player player) {
-        return player.hasEffect(ModEffects.EMP) || player.hasEffect(ModEffects.REBOOT_HACK);
-    }
-
-    private static boolean hasDrainHack(Player player) {
-        return player.hasEffect(ModEffects.DRAIN_HACK);
+        return player.hasEffect(ModEffects.EMP);
     }
 
     private static final class MutableInt {

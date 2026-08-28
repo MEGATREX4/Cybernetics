@@ -11,17 +11,27 @@ import net.minecraft.resources.ResourceLocation;
 public final class CCIconButton extends AbstractButton {
 
     public enum Icon {
-        CYBEREYE_SKIN(ResourceLocation.fromNamespaceAndPath(
-                CreateCybernetics.MODID, "textures/gui/cybereye_skin.png"
-        )),
-        HUD_LAYOUT(ResourceLocation.fromNamespaceAndPath(
-                CreateCybernetics.MODID, "textures/gui/hud_layout.png"
-        ));
+        CYBEREYE_SKIN(
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/gui/cybereye_skin.png"),
+                16, 16
+        ),
+        HUD_LAYOUT(
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/gui/hud_layout.png"),
+                16, 16
+        ),
+        CYBERSPACE_COLOR(
+                ResourceLocation.fromNamespaceAndPath(CreateCybernetics.MODID, "textures/item/brainupgrades_cyberdeck.png"),
+                16, 16
+        );
 
         final ResourceLocation texture;
+        final int textureWidth;
+        final int textureHeight;
 
-        Icon(ResourceLocation texture) {
+        Icon(ResourceLocation texture, int textureWidth, int textureHeight) {
             this.texture = texture;
+            this.textureWidth = textureWidth;
+            this.textureHeight = textureHeight;
         }
     }
 
@@ -31,9 +41,6 @@ public final class CCIconButton extends AbstractButton {
 
     private static final int DRAW_ICON_W = 16;
     private static final int DRAW_ICON_H = 16;
-
-    private static final int ICON_TEX_W = 16;
-    private static final int ICON_TEX_H = 16;
 
     public CCIconButton(int x, int y, int w, int h, Icon icon, Component tooltip, String markerId, Runnable onPress) {
         super(x, y, w, h, Component.empty());
@@ -64,10 +71,7 @@ public final class CCIconButton extends AbstractButton {
             gg.setColor(1f, 1f, 1f, 0.35f);
         }
 
-        gg.blit(icon.texture, ix, iy, 0, 0,
-                DRAW_ICON_W, DRAW_ICON_H,
-                ICON_TEX_W, ICON_TEX_H
-        );
+        gg.blit(icon.texture, ix, iy, DRAW_ICON_W, DRAW_ICON_H, 0, 0, icon.textureWidth, icon.textureHeight, icon.textureWidth, icon.textureHeight);
 
         gg.setColor(1f, 1f, 1f, 1f);
     }

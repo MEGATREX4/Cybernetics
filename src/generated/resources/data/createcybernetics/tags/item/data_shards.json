@@ -13,6 +13,7 @@
     "createcybernetics:data_shard_black",
     "createcybernetics:data_shard_biochip",
     "createcybernetics:data_shard_shared_navigation",
+    "createcybernetics:quickhack_shard",
     "createcybernetics:data_shard_infolog",
     "createcybernetics:data_shard_infolog_getting_started",
     "createcybernetics:data_shard_infolog_robosurgeon_manual",
@@ -35,6 +36,7 @@
     "createcybernetics:data_shard_infolog_cyberdeck_security_brief",
     "createcybernetics:data_shard_infolog_lunch_break",
     "createcybernetics:data_shard_infolog_datura",
+    "createcybernetics:data_shard_infolog_quickhack_tutorial",
     "createcybernetics:data_shard_infolog_wait_your_turn",
     "createcybernetics:data_shard_infolog_the_breach",
     "createcybernetics:data_shard_infolog_ai_chat",
@@ -42,6 +44,9 @@
     "createcybernetics:data_shard_infolog_cpu_install",
     "createcybernetics:data_shard_game_minesweeper",
     "createcybernetics:data_shard_game_chess",
+    "createcybernetics:data_shard_microprograms",
+    "createcybernetics:data_shard_microprograms_creative",
+    "createcybernetics:quickhack_shard",
     {
       "id": "createcybernetics:data_shard_infolog_cyberchems",
       "required": false

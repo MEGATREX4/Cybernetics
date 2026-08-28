@@ -1,17 +1,24 @@
 package com.perigrine3.createcybernetics.mixin.client;
 
+import com.perigrine3.createcybernetics.api.CyberwareSlot;
 import com.perigrine3.createcybernetics.client.chipware.ChipwareInventoryButton;
+import com.perigrine3.createcybernetics.client.cyberdeck.CyberdeckInventoryButton;
 import com.perigrine3.createcybernetics.client.gui.NavigationMapScreen;
 import com.perigrine3.createcybernetics.client.navigation.NavigationInventoryButton;
 import com.perigrine3.createcybernetics.client.vampyres.VampyresInventoryButton;
+import com.perigrine3.createcybernetics.common.capabilities.ModAttachments;
+import com.perigrine3.createcybernetics.common.capabilities.PlayerCyberwareData;
+import com.perigrine3.createcybernetics.item.ModItems;
 import com.perigrine3.createcybernetics.item.cyberware.lungs.VampyresItem;
 import com.perigrine3.createcybernetics.network.payload.OpenChipwareMiniPayload;
+import com.perigrine3.createcybernetics.network.payload.OpenCyberdeckPayload;
 import com.perigrine3.createcybernetics.network.payload.OpenVampyresPayload;
 import com.perigrine3.createcybernetics.screen.custom.hud.CyberpunkMinimapRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -28,6 +35,7 @@ public abstract class CreativeModeInventoryButtonsMixin
     @Unique private ChipwareInventoryButton cc$chipwareBtn;
     @Unique private VampyresInventoryButton cc$vampyresBtn;
     @Unique private NavigationInventoryButton cc$navigationBtn;
+    @Unique private CyberdeckInventoryButton cc$cyberdeckBtn;
 
     protected CreativeModeInventoryButtonsMixin(CreativeModeInventoryScreen.ItemPickerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -36,25 +44,48 @@ public abstract class CreativeModeInventoryButtonsMixin
     @Inject(method = "init", at = @At("TAIL"))
     private void cc$addInventoryButtons(CallbackInfo ci) {
         int chipwareX = this.leftPos + 127;
-        int chipwareY = this.topPos + 7;
+        int chipwareY = this.topPos + 4;
 
-        this.cc$chipwareBtn = new ChipwareInventoryButton(chipwareX, chipwareY, () -> PacketDistributor.sendToServer(new OpenChipwareMiniPayload()));
+        this.cc$chipwareBtn = new ChipwareInventoryButton(
+                chipwareX,
+                chipwareY,
+                () -> PacketDistributor.sendToServer(new OpenChipwareMiniPayload())
+        );
 
         this.addRenderableWidget(this.cc$chipwareBtn);
 
         int vampyresX = this.leftPos + 127;
-        int vampyresY = this.topPos + 25;
+        int vampyresY = this.topPos + 20;
 
-        this.cc$vampyresBtn = new VampyresInventoryButton(vampyresX, vampyresY, () -> PacketDistributor.sendToServer(new OpenVampyresPayload()));
+        this.cc$vampyresBtn = new VampyresInventoryButton(
+                vampyresX,
+                vampyresY,
+                () -> PacketDistributor.sendToServer(new OpenVampyresPayload())
+        );
 
         this.addRenderableWidget(this.cc$vampyresBtn);
 
-        int navigationX = this.leftPos + 145;
-        int navigationY = this.topPos + 25;
+        int navigationX = this.leftPos + 143;
+        int navigationY = this.topPos + 20;
 
-        this.cc$navigationBtn = new NavigationInventoryButton(navigationX, navigationY, () -> Minecraft.getInstance().setScreen(new NavigationMapScreen((CreativeModeInventoryScreen)(Object)this)));
+        this.cc$navigationBtn = new NavigationInventoryButton(
+                navigationX,
+                navigationY,
+                () -> Minecraft.getInstance().setScreen(new NavigationMapScreen((CreativeModeInventoryScreen)(Object)this))
+        );
 
         this.addRenderableWidget(this.cc$navigationBtn);
+
+        int cyberdeckX = this.leftPos + 127;
+        int cyberdeckY = this.topPos + 36;
+
+        this.cc$cyberdeckBtn = new CyberdeckInventoryButton(
+                cyberdeckX,
+                cyberdeckY,
+                () -> PacketDistributor.sendToServer(new OpenCyberdeckPayload())
+        );
+
+        this.addRenderableWidget(this.cc$cyberdeckBtn);
 
         cc$updateInventoryButtonVisibility();
     }
@@ -78,6 +109,10 @@ public abstract class CreativeModeInventoryButtonsMixin
 
         if (this.cc$navigationBtn != null && this.cc$navigationBtn.visible) {
             this.cc$navigationBtn.renderTooltip(graphics, mouseX, mouseY);
+        }
+
+        if (this.cc$cyberdeckBtn != null && this.cc$cyberdeckBtn.visible) {
+            this.cc$cyberdeckBtn.renderTooltip(graphics, mouseX, mouseY);
         }
     }
 
@@ -106,5 +141,24 @@ public abstract class CreativeModeInventoryButtonsMixin
             this.cc$navigationBtn.visible = visible;
             this.cc$navigationBtn.active = visible;
         }
+
+        if (this.cc$cyberdeckBtn != null) {
+            boolean cyberdeckInstalled = hasCyberdeck(minecraft.player);
+            boolean visible = inventoryOpen && cyberdeckInstalled;
+
+            this.cc$cyberdeckBtn.visible = visible;
+            this.cc$cyberdeckBtn.active = visible;
+        }
+    }
+
+    @Unique
+    private static boolean hasCyberdeck(LocalPlayer player) {
+        if (player == null) return false;
+        if (!player.hasData(ModAttachments.CYBERWARE)) return false;
+
+        PlayerCyberwareData data = player.getData(ModAttachments.CYBERWARE);
+        if (data == null) return false;
+
+        return data.hasSpecificItem(ModItems.BRAINUPGRADES_CYBERDECK.get(), CyberwareSlot.BRAIN);
     }
 }
